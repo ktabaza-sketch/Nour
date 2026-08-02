@@ -36,9 +36,9 @@ const RULES = [
   { terms: ["carmine", "cochineal", "carminic acid", "e120", "crimson lake"], category: "Carmine (red dye)", severity: "caution", reason: "Carmine is from insects, not mammals — usually fine for alpha-gal, but some AGS patients still react. Verify with your allergist." },
 
   // ---- Dairy & mammalian byproducts: PERSONAL (default caution) ----
-  { terms: ["milk", "whole milk", "cream", "heavy cream", "half and half", "butter", "buttermilk", "cheese", "cheddar", "mozzarella", "parmesan", "feta", "yogurt", "ghee", "ice cream", "custard", "queso", "sour cream", "creme fraiche", "condensed milk", "evaporated milk", "gelato"], category: "Dairy (cow/goat)", severity: "caution", personal: "dairy", reason: "Dairy is a mammal product. Many AGS patients tolerate it; some react (especially to high-fat dairy). Set your dairy sensitivity in Settings." },
-  { terms: ["whey", "casein", "caseinate", "lactose", "milk solids", "milk powder", "milkfat", "milk fat", "curds"], category: "Dairy protein/derivative", severity: "caution", personal: "dairy", reason: "A milk-derived ingredient. Same personal-tolerance note as dairy." },
-  { terms: ["rennet", "animal rennet"], category: "Rennet", severity: "caution", personal: "dairy", reason: "Traditional rennet is from calf stomach (mammalian). Microbial/vegetarian rennet is fine." },
+  { terms: ["milk", "whole milk", "cream", "heavy cream", "half and half", "butter", "buttermilk", "cheese", "cheddar", "mozzarella", "parmesan", "feta", "cotija", "paneer", "yogurt", "ghee", "ice cream", "custard", "queso", "sour cream", "crema", "creme fraiche", "condensed milk", "evaporated milk", "gelato", "labneh", "tzatziki"], category: "Dairy", severity: "caution", personal: "dairy", reason: "Dairy — a mammal product. Nour is allergic to dairy, so this is flagged as unsafe (ghee/butter/cheese/cream/yogurt all count)." },
+  { terms: ["whey", "casein", "caseinate", "lactose", "milk solids", "milk powder", "milkfat", "milk fat", "curds"], category: "Dairy derivative", severity: "caution", personal: "dairy", reason: "A milk-derived ingredient — unsafe with a dairy allergy." },
+  { terms: ["rennet", "animal rennet"], category: "Rennet", severity: "caution", personal: "dairy", reason: "Traditional rennet is from calf stomach (mammalian), and it means cheese/dairy. Unsafe here." },
 
   // ---- Ambiguous / often-animal additives: PERSONAL (default caution) ----
   { terms: ["natural flavor", "natural flavors", "natural flavoring", "natural flavour"], category: "Natural flavors", severity: "caution", personal: "flavors", reason: "'Natural flavors' can include mammal-derived components and isn't disclosed. Conservative AGS patients avoid or verify with the maker." },
@@ -560,7 +560,7 @@ const FACTS = [
   "Reactions are often DELAYED 2–6 hours after eating, which makes the trigger hard to spot.",
   "Poultry, fish, shellfish, eggs, and plants do NOT contain alpha-gal — these are your safe base.",
   "Hidden sources matter most: gelatin (marshmallows, gummies, capsules), broth, lard/tallow, collagen.",
-  "Many patients also react to dairy and gelatin capsules; sensitivity is personal — track your own.",
+  "Nour is also allergic to dairy — milk, cheese, butter, ghee, cream and yogurt are all off-limits, in addition to mammal meat.",
   "Cross-contamination (shared grills/fryers with mammal fat) can trigger reactions — ask restaurants.",
   "Always carry your epinephrine auto-injector and antihistamines. When in doubt, don't eat it.",
 ];
