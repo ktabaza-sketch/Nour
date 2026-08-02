@@ -68,6 +68,8 @@ const ORDER_MENU = {
     {
       category: "Cafés & bakeries",
       restaurants: [
+        { name: "Bluestone Lane", area: "Los Altos", rating: 4.1, reviews: 940, ratingSrc: "Google", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Avocado smash on sourdough", note: "no feta, no butter" }, { dish: "Coconut chia pudding", note: "coconut, not dairy; no yogurt topping" }, { dish: "Iced coffee or latte with oat milk", note: "oat/almond milk available" } ], watchOut: "toasts default to butter and many plates come with feta/ricotta — say dairy-free every time" },
+        { name: "Crepevine", area: "Palo Alto", rating: 4.3, reviews: 1500, ratingSrc: "Google", platforms: ["Uber Eats","DoorDash","Grubhub"], safeDishes: [ { dish: "Tofu scramble with potatoes", note: "no cheese; potatoes in oil not butter" }, { dish: "Grilled tofu with peanut sauce & veggies", note: "dairy-free, mammal-free" }, { dish: "Fresh fruit bowl", note: "skip any yogurt side" } ], watchOut: "crepes, pancakes & French toast are dairy/egg batter; scrambles come with cheese and bacon/sausage are mammal" },
         { name: "The Farm", area: "Palo Alto", rating: 4.5, reviews: 193, ratingSrc: "Google", safeDishes: [
           { dish: "Avocado toast", note: "dry / no butter, no cheese" },
           { dish: "Açaí bowl", note: "confirm dairy-free granola, no yogurt drizzle" },
@@ -146,6 +148,7 @@ const ORDER_MENU = {
     {
       category: "Mexican breakfast",
       restaurants: [
+        { name: "La Costeña", area: "Mountain View", rating: 4.4, reviews: 2500, ratingSrc: "Google", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Grilled chicken burrito", note: "no cheese, no sour cream; whole black beans (no lard) or rice" }, { dish: "Veggie burrito", note: "no cheese, no crema; add guacamole" }, { dish: "Chicken tacos on corn tortillas", note: "no cheese, salsa" } ], watchOut: "refried beans are cooked with lard; carnitas/asada/al pastor/chorizo are mammal; cheese & crema are default" },
         { name: "Los Altos Taqueria", area: "Mountain View", rating: 4.2, reviews: 819, ratingSrc: "Yelp", safeDishes: [
           { dish: "Breakfast burrito with eggs & beans", note: "no chorizo/bacon, no cheese, no sour cream; whole (non-lard) beans" },
           { dish: "Grilled fish tacos", note: "corn tortillas, no crema, no cheese" },
@@ -188,6 +191,7 @@ const ORDER_MENU = {
     {
       category: "Salads & bowls",
       restaurants: [
+        { name: "Tender Greens", area: "Palo Alto", rating: 4.7, reviews: 6000, ratingSrc: "Uber Eats", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Chopped salad with grilled chicken", note: "no cheese; oil & vinegar (skip ranch/blue-cheese)" }, { dish: "Grilled salmon or albacore plate", note: "with a green salad, skip the mashed potatoes" }, { dish: "Farro / grain bowl", note: "no cheese, vinaigrette on the side" } ], watchOut: "many dressings are buttermilk/blue-cheese and the mashed potatoes are butter+cream — ask for oil & vinegar, no cheese" },
         { name: "True Food Kitchen", area: "Palo Alto", rating: 4.3, reviews: 2403, ratingSrc: "Yelp", safeDishes: [
           { dish: "Ancient Grains Bowl", note: "vegan; add grilled chicken if wanted" },
           { dish: "Ahi Poke Bowl", note: "sushi rice, avocado, soy — dairy-free" },
@@ -222,6 +226,7 @@ const ORDER_MENU = {
     {
       category: "Sandwiches & wraps",
       restaurants: [
+        { name: "Le Boulanger", area: "Los Altos", rating: 4.2, reviews: 500, ratingSrc: "Google", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Roasted turkey sandwich on baguette", note: "no cheese; mustard, lettuce, tomato" }, { dish: "Roasted chicken sandwich", note: "no cheese, no dairy aioli" }, { dish: "Chinese chicken or garden salad", note: "dressing on the side, no cheese" } ], watchOut: "pastries are butter-heavy, most sandwiches default to brie/provolone/Swiss, and the chowder & broccoli-cheddar soups are dairy — skip ham/salami" },
         { name: "Mendocino Farms", area: "Palo Alto", rating: 4.5, reviews: 435, ratingSrc: "Yelp", safeDishes: [
           { dish: "Vegan Banh Mi (marinated tofu, pickled veg, cilantro)", note: "dairy-free, vegan" },
           { dish: "Impossible Taco Salad", note: "no cotija, no crema" },
@@ -237,6 +242,7 @@ const ORDER_MENU = {
     {
       category: "Mediterranean",
       restaurants: [
+        { name: "Falafel Stop", area: "Sunnyvale", rating: 4.5, reviews: 1900, ratingSrc: "Google", platforms: ["Uber Eats","DoorDash","Grubhub"], safeDishes: [ { dish: "Falafel pita with hummus, tahini & Israeli salad", note: "fully vegan" }, { dish: "Sabich pita (fried eggplant + egg)", note: "dairy-free, mammal-free" }, { dish: "Hummus bowl with pita", note: "add extra falafel" } ], watchOut: "all-vegetarian so no mammal risk; only trap is skipping any added feta (delivers to the Stanford area)" },
         { name: "Zareen's", area: "Palo Alto", rating: 4.5, reviews: 2992, ratingSrc: "Yelp", safeDishes: [
           { dish: "Chana Masala (marked vegan)", note: "over basmati rice, not naan" },
           { dish: "Aloo Cholay (potato-chickpea, vegan)", note: "ask for no ghee; with rice" },
@@ -300,12 +306,26 @@ const ORDER_MENU = {
         ], watchOut: "many classic smoothies contain sherbet or frozen yogurt (dairy) — pick all-fruit/juice or plant-milk and ask for no yogurt/sherbet" },
       ],
     },
+    {
+      category: "Burmese",
+      restaurants: [
+        { name: "Burma Ruby", area: "Palo Alto", rating: 4.7, reviews: 1200, ratingSrc: "Uber Eats", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Tea leaf salad", note: "has dried shrimp; dairy-free" }, { dish: "Ginger salad", note: "pickled ginger, beans, peanuts; dairy-free" }, { dish: "Coconut chicken noodle soup", note: "coconut broth, not dairy" } ], watchOut: "coconut is fine (not dairy); avoid pork/beef curries and milk tea — stick to chicken, seafood, tofu, salads" },
+      ],
+    },
+    {
+      category: "Sushi",
+      restaurants: [
+        { name: "Kanpai Sushi", area: "Palo Alto", rating: 4.3, reviews: 700, ratingSrc: "Google", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Salmon & tuna nigiri or sashimi", note: "dairy-free & mammal-free" }, { dish: "Spicy tuna roll", note: "no cream cheese; spicy mayo is egg" }, { dish: "Edamame & seaweed salad", note: "dairy-free starters" } ], watchOut: "skip cream-cheese (Philadelphia) rolls; no beef/pork tataki" },
+      ],
+    },
   ],
 
   dinner: [
     {
       category: "Mexican",
       restaurants: [
+        { name: "Tacos El Grullense", area: "Redwood City", rating: 4.5, reviews: null, ratingSrc: "Uber Eats", platforms: ["Uber Eats","DoorDash","Grubhub"], safeDishes: [ { dish: "Grilled fish (pescado) taco", note: "corn tortilla, no crema/cheese" }, { dish: "Shrimp (camarón) taco", note: "no cheese/crema; salsa fresca" }, { dish: "Grilled chicken (pollo asado) taco", note: "no queso, no crema" } ], watchOut: "beans/rice may be cooked with lard; skip crema, cheese and all mammal meats (asada/al pastor/carnitas)" },
+        { name: "LuLu's", area: "Palo Alto", rating: 3.7, reviews: 339, ratingSrc: "Restaurant Guru", platforms: ["Uber Eats"], safeDishes: [ { dish: "Grilled fish taco", note: "no cheese; hold the chipotle crema (dairy)" }, { dish: "Grilled shrimp taco", note: "no cheese; salsa fresca + avocado" }, { dish: "Grilled chicken street taco", note: "no cheese/crema" } ], watchOut: "house chipotle sauce is dairy-based; order tacos with no cheese and no crema" },
         { name: "Reposado", area: "Palo Alto", rating: 4.3, reviews: 1535, ratingSrc: "Yelp", safeDishes: [
           { dish: "Grilled fish tacos", note: "no crema/cheese" },
           { dish: "Ceviche", note: "citrus-cured fish, dairy-free" },
@@ -335,6 +355,8 @@ const ORDER_MENU = {
     {
       category: "Mediterranean & Middle Eastern",
       restaurants: [
+        { name: "Yalla Falafel", area: "Palo Alto", rating: 4.7, reviews: null, ratingSrc: "Uber Eats", platforms: ["Uber Eats"], safeDishes: [ { dish: "Amba chicken (shawarma-spiced) pita", note: "chicken + hummus + amba; no yogurt sauce" }, { dish: "Crispy herb falafel", note: "lemon tahini, dairy-free" }, { dish: "Hummus", note: "housemade, dairy-free" } ], watchOut: "amba aioli is egg-based (ok); skip labneh/yogurt add-ons; all proteins are chicken/falafel" },
+        { name: "Falafel Tazah", area: "Redwood City", rating: 4.8, reviews: 459, ratingSrc: "Yelp", platforms: ["Uber Eats","Grubhub"], safeDishes: [ { dish: "Chicken shawarma plate", note: "sub tahini/hummus for the default garlic YOGURT sauce" }, { dish: "Falafel wrap or plate", note: "dairy-free" }, { dish: "Hummus", note: "garbanzo/tahini/lemon, dairy-free" } ], watchOut: "default chicken shawarma comes with garlic yogurt sauce — request tahini; skip lamb/beef shawarma" },
         { name: "Nick the Greek", area: "Palo Alto", rating: 4.8, reviews: 652, ratingSrc: "Google", safeDishes: [
           { dish: "Chicken gyro pita", note: "no tzatziki/feta, add hummus" },
           { dish: "Chicken souvlaki bowl", note: "rice + salad, no tzatziki/feta" },
@@ -367,6 +389,9 @@ const ORDER_MENU = {
     {
       category: "Thai",
       restaurants: [
+        { name: "Farmhouse Kitchen Thai", area: "Menlo Park", rating: 4.2, reviews: 2022, ratingSrc: "Yelp", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Hat Yai fried chicken", note: "crispy dry-fried chicken, no dairy" }, { dish: "Khao Soi Gai", note: "coconut curry noodle with chicken; coconut not dairy" }, { dish: "Green or Panang curry", note: "coconut-based; chicken or tofu" } ], watchOut: "pick chicken/tofu/seafood; avoid any beef/pork (moo/neua) dishes" },
+        { name: "Lotus Thai Bistro", area: "Palo Alto", rating: 3.6, reviews: 476, ratingSrc: "Yelp", platforms: ["Uber Eats","DoorDash","Grubhub"], safeDishes: [ { dish: "Green or pumpkin curry", note: "coconut milk (not dairy); chicken, tofu or shrimp" }, { dish: "Pad Thai", note: "rice noodle, egg, no milk; chicken/shrimp/tofu" }, { dish: "Pad See Ew", note: "soy; chicken or tofu, no dairy" } ], watchOut: "curries are coconut not cream — order chicken/tofu/shrimp, never beef or pork" },
+        { name: "Tommy Thai", area: "Mountain View", rating: 3.8, reviews: 1011, ratingSrc: "Yelp", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Green or Panang curry", note: "coconut; chicken or tofu" }, { dish: "Pineapple fried rice", note: "chicken, tofu or shrimp; no dairy" }, { dish: "Tom Yum soup", note: "clear lemongrass broth; chicken/shrimp" } ], watchOut: "coconut curries are dairy-free; skip beef/pork proteins" },
         { name: "Amarin Thai Cuisine", area: "Mountain View", rating: 3.9, reviews: 64, ratingSrc: "Yelp", safeDishes: [
           { dish: "Panang Curry", note: "coconut-based (not dairy); chicken or tofu" },
           { dish: "Pad Thai", note: "chicken or tofu — decline pork belly" },
@@ -384,6 +409,8 @@ const ORDER_MENU = {
     {
       category: "Chinese",
       restaurants: [
+        { name: "Da Sichuan Bistro", area: "Palo Alto", rating: 3.9, reviews: 587, ratingSrc: "Yelp", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Kung Pao chicken", note: "chicken, peanuts, chili; no dairy" }, { dish: "Fish fillet in chili oil (shui zhu yu)", note: "fish only; no dairy" }, { dish: "Mapo tofu", note: "ask for NO ground pork; no dairy otherwise" } ], watchOut: "Sichuan stir-fries hide ground pork (mapo tofu, green beans, eggplant) — always ask to omit it" },
+        { name: "Kirin Chinese Restaurant", area: "Mountain View", rating: 3.6, reviews: 645, ratingSrc: "Yelp", platforms: ["Uber Eats"], safeDishes: [ { dish: "Kung Pao chicken", note: "chicken, chili, peanuts; no dairy" }, { dish: "Salt & pepper shrimp or squid", note: "seafood, no dairy" }, { dish: "Steamed whole fish (ginger-scallion)", note: "fish only, no dairy" } ], watchOut: "Cantonese menu is pork-heavy (char siu, BBQ pork, ribs) — stick to chicken/seafood" },
         { name: "Taste Restaurant", area: "Palo Alto", rating: 4.7, reviews: 1000, ratingSrc: "Uber Eats", safeDishes: [
           { dish: "Kung Pao Chicken", note: "dairy-free" },
           { dish: "Szechuan Boiled Fish (shui zhu yu)", note: "fish in chili-oil broth, no dairy" },
@@ -415,6 +442,9 @@ const ORDER_MENU = {
     {
       category: "Japanese & sushi",
       restaurants: [
+        { name: "Jin Sho", area: "Palo Alto", rating: 4.8, reviews: 230, ratingSrc: "Uber Eats", platforms: ["Uber Eats"], safeDishes: [ { dish: "Assorted sashimi / nigiri", note: "raw fish, rice; no dairy" }, { dish: "Chicken teriyaki", note: "chicken, soy glaze; no dairy" }, { dish: "Edamame & miso soup", note: "dashi is fish/kombu, no dairy" } ], watchOut: "skip cream-cheese rolls (Philadelphia/some specialty rolls) — the only dairy risk here" },
+        { name: "Hanabi Sushi", area: "Mountain View", rating: 4.7, reviews: null, ratingSrc: "Uber Eats", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Sashimi combo", note: "raw fish only, no dairy" }, { dish: "Chicken teriyaki bento", note: "chicken, rice, salad, miso; no dairy" }, { dish: "Chirashi bowl", note: "assorted fish over rice" } ], watchOut: "avoid cream-cheese specialty rolls; bento dressing is dairy-free" },
+        { name: "Eighty-Eight Sushi & Ramen", area: "Mountain View", rating: 4.2, reviews: null, ratingSrc: "Uber Eats", platforms: ["Uber Eats"], safeDishes: [ { dish: "Sushi & sashimi rolls", note: "choose non-cream-cheese rolls" }, { dish: "Chicken karaage", note: "fried chicken; confirm batter has no milk" }, { dish: "Edamame & seaweed salad", note: "plant-based, no dairy" } ], watchOut: "ramen here is tonkotsu (pork broth) with pork chashu — order sushi/karaage, not the ramen" },
         { name: "Sushi Tomi", area: "Mountain View", rating: 4.3, reviews: 2620, ratingSrc: "Yelp", safeDishes: [
           { dish: "Sashimi / nigiri (salmon, tuna, yellowtail, shrimp, eel)", note: "dairy-free" },
           { dish: "Chirashi bowl", note: "assorted fish over rice" },
@@ -445,6 +475,7 @@ const ORDER_MENU = {
     {
       category: "Vietnamese",
       restaurants: [
+        { name: "Pho To Chau", area: "Mountain View", rating: 4.2, reviews: 977, ratingSrc: "Yelp", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Pho Ga", note: "chicken broth + chicken — the only mammal-free pho" }, { dish: "Bun grilled chicken (vermicelli)", note: "rice vermicelli, fish sauce; no dairy" }, { dish: "Fresh spring rolls", note: "order shrimp-only; standard has pork" } ], watchOut: "default pho broth is beef — order Pho Ga specifically; fresh rolls usually include pork" },
         { name: "Pho Anh", area: "Mountain View", rating: 4.4, reviews: 79, ratingSrc: "Yelp", safeDishes: [
           { dish: "Pho Ga", note: "chicken broth only" },
           { dish: "Chicken rice plate", note: "chicken" },
@@ -467,6 +498,7 @@ const ORDER_MENU = {
     {
       category: "Korean",
       restaurants: [
+        { name: "Bonchon", area: "Mountain View", rating: 4.7, reviews: null, ratingSrc: "Uber Eats", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Soy garlic wings/drumsticks", note: "Korean fried chicken, no dairy in batter" }, { dish: "Spicy (hot) chicken", note: "chicken, chili glaze; no dairy" }, { dish: "Chicken tenders & pickled radish", note: "no dairy" } ], watchOut: "skip the honey-butter flavor (dairy) and any bulgogi/tteokbokki with beef — plain fried chicken is safe" },
         { name: "Kunjip Tofu", area: "Mountain View", rating: 4.5, reviews: 681, ratingSrc: "Yelp", safeDishes: [
           { dish: "Whole chicken hot pot (dak)", note: "chicken" },
           { dish: "Seafood soft tofu soup", note: "seafood; confirm broth is not beef/anchovy" },
@@ -484,6 +516,7 @@ const ORDER_MENU = {
     {
       category: "Filipino",
       restaurants: [
+        { name: "Pamilya", area: "Redwood City", rating: 4.2, reviews: 134, ratingSrc: "Yelp", platforms: ["Uber Eats","DoorDash"], safeDishes: [ { dish: "Chicken adobo (boneless)", note: "soy-vinegar braise; chicken not pork; no dairy" }, { dish: "Chicken inasal / grilled chicken", note: "no dairy" }, { dish: "Vegetable lumpia", note: "veg spring rolls; skip Shanghai (pork)" } ], watchOut: "Filipino menus lean pork — avoid sisig, lechon, longganisa and pork lumpia; confirm chicken-only adobo" },
         { name: "Tapsilog Bistro", area: "Campbell", rating: 4.3, reviews: 1618, ratingSrc: "Yelp", safeDishes: [
           { dish: "Chicken Adobosilog", note: "CHICKEN adobo (not pork), soy/vinegar based" },
           { dish: "Chicken Tocino Silog", note: "chicken tocino, no dairy" },
@@ -495,6 +528,7 @@ const ORDER_MENU = {
     {
       category: "Indian & Nepalese",
       restaurants: [
+        { name: "Momo King", area: "Mountain View", rating: 3.8, reviews: 16, ratingSrc: "Google", platforms: ["Uber Eats"], safeDishes: [ { dish: "Chicken momo (steamed dumplings)", note: "confirm wrapper has no dairy" }, { dish: "Chicken chili", note: "Indo-Nepalese chili chicken; no dairy" }, { dish: "Chicken curry", note: "ask for tomato/onion base, no cream/ghee" } ], watchOut: "avoid korma/tikka-masala/paneer (cream + dairy) and all lamb/goat; ask 'no ghee, no cream'" },
         { name: "Darbar Indian Cuisine", area: "Palo Alto", rating: 4.7, reviews: 10000, ratingSrc: "DoorDash", safeDishes: [
           { dish: "Chana Masala (vegan)", note: "ask for no ghee" },
           { dish: "Aloo Gobi (order 'dry')", note: "no butter/ghee" },
@@ -555,6 +589,8 @@ const ORDER_MENU = {
     {
       category: "Pizza & Italian",
       restaurants: [
+        { name: "Amici's East Coast Pizzeria", area: "Menlo Park", rating: null, reviews: null, ratingSrc: null, platforms: ["Uber Eats","Grubhub"], safeDishes: [ { dish: "Marinara pizza (no cheese)", note: "thin crust, tomato/garlic/basil, hold cheese" }, { dish: "Build-your-own with Daiya vegan cheese", note: "veggie toppings, no meat" }, { dish: "Vegan pie + grilled chicken", note: "Daiya cheese, no pork toppings" } ], watchOut: "confirm no parmesan dusting; skip pepperoni/sausage/prosciutto and standard mozzarella — use Daiya or go cheeseless" },
+        { name: "Curry Pizza House", area: "Palo Alto", rating: null, reviews: 384, ratingSrc: "Yelp", platforms: ["Uber Eats","Grubhub"], safeDishes: [ { dish: "Vegan pizza (GF vegan crust)", note: "vegan cheese + marinara, veggie toppings" }, { dish: "Build-your-own vegan", note: "vegan cheese is only on the GF vegan crust" } ], watchOut: "regular-crust pizzas use dairy cheese and chicken tikka sauces have cream — order the vegan build" },
         { name: "Il Fornaio", area: "Mountain View", rating: 4.2, reviews: 380, ratingSrc: "Yelp", safeDishes: [
           { dish: "Pasta al pomodoro", note: "marinara, no cheese/butter" },
           { dish: "Marinara or vegetable pizza", note: "no cheese" },
@@ -576,6 +612,8 @@ const ORDER_MENU = {
     {
       category: "American",
       restaurants: [
+        { name: "The Melt", area: "Palo Alto", rating: 4.7, reviews: 7000, ratingSrc: "Uber Eats", platforms: ["Uber Eats","DoorDash","Grubhub"], safeDishes: [ { dish: "Grilled or crispy chicken sandwich", note: "hold the cheese and any creamy sauce" }, { dish: "Fries", note: "fried in vegetable oil" } ], watchOut: "the concept is grilled-cheese 'melts' — order the chicken sandwich with no cheese; skip beef/bacon and garlic-butter items" },
+        { name: "The Counter", area: "Palo Alto", rating: null, reviews: null, ratingSrc: null, platforms: ["Uber Eats"], safeDishes: [ { dish: "Grilled chicken breast burger, no cheese", note: "on a bun or over greens; hold dairy sauces" }, { dish: "Turkey burger, no cheese", note: "customize with veggies" }, { dish: "Fries", note: "fried in vegetable oil" } ], watchOut: "build-your-own — choose chicken or turkey, hold cheese/ranch/thousand-island (dairy); no beef/bacon" },
         { name: "True Food Kitchen", area: "Palo Alto", rating: 4.3, reviews: 2403, ratingSrc: "Yelp", safeDishes: [
           { dish: "Grilled chicken over greens", note: "no cheese, vinaigrette" },
           { dish: "Ancient Grains bowl", note: "ask for no cheese; miso-veg base" },
@@ -599,6 +637,7 @@ const ORDER_MENU = {
     {
       category: "Seafood & poke",
       restaurants: [
+        { name: "Pacific Catch", area: "Palo Alto", rating: 4.2, reviews: 547, ratingSrc: "Yelp", platforms: ["Uber Eats","DoorDash","Grubhub"], safeDishes: [ { dish: "Grilled fish tacos (mahi/salmon)", note: "no crema/cheese" }, { dish: "Ahi poke bowl", note: "soy/sesame, dairy-free" }, { dish: "Grilled fresh catch", note: "ask grilled with no butter, rice + veg" } ], watchOut: "skip clam chowder and any cream/butter finishes — request grilled fish cooked in oil, not butter" },
         { name: "Poké Bar", area: "Mountain View", rating: 4.4, reviews: 464, ratingSrc: "Yelp", safeDishes: [
           { dish: "Ahi tuna bowl", note: "dairy-free & mammal-free" },
           { dish: "Salmon bowl", note: "dairy-free" },
