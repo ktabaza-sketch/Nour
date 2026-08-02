@@ -58,20 +58,465 @@ const RULES = [
 // "order" = a genuinely safe build. "watch" = the trap to avoid at that spot.
 // ---------------------------------------------------------------------------
 
-const RESTAURANTS = [
-  { name: "Chipotle", cuisine: "Mexican", order: "Chicken burrito bowl: white/brown rice, black or pinto beans (their beans are vegetarian — no lard), fajita veggies, chicken, salsa, guac, lettuce.", watch: "Skip carnitas, barbacoa, steak, and chorizo. Cheese/sour cream = dairy (your call)." },
-  { name: "Sweetgreen", cuisine: "Salads/bowls", order: "Build-your-own with roasted chicken or tofu, any grains and veggies. 'Harvest Bowl' works if you swap off any goat cheese.", watch: "Watch for goat cheese, bacon bits, and warm mushroom (check dressing bases)." },
-  { name: "CAVA", cuisine: "Mediterranean", order: "Greens/grain bowl with grilled chicken or falafel, hummus, greens, most spreads, pita.", watch: "Skip braised lamb and any beef meatballs. Tzatziki/feta = dairy." },
-  { name: "Poke bowls (e.g. Poki Bowl, Pokéworks)", cuisine: "Hawaiian", order: "Salmon or tuna or shrimp poke over rice with seaweed, edamame, avocado, veggies. Excellent AGS choice.", watch: "Only mammal risk is imitation-crab fillers/'natural flavor' — ask, or use real fish." },
-  { name: "Sushi / Japanese", cuisine: "Japanese", order: "Sashimi, nigiri, veggie/fish rolls, edamame, miso soup, chicken teriyaki, agedashi tofu.", watch: "Avoid pork/beef gyoza, tonkotsu (pork-bone) ramen, and beef broths. Check dashi." },
-  { name: "Thai", cuisine: "Thai", order: "Chicken or tofu or shrimp with pad thai, pad see ew, green/red curry, drunken noodles.", watch: "Skip pork/beef dishes. Some curries use fish sauce (safe) — confirm no beef/pork base." },
-  { name: "Panda Express", cuisine: "Chinese-American", order: "Grilled Teriyaki Chicken, Mushroom Chicken, String Bean Chicken, Super Greens, steamed rice.", watch: "Avoid Beijing Beef, SweetFire Chicken Breast? (ok) — the real avoid list is anything beef/BBQ pork." },
-  { name: "Chick-fil-A", cuisine: "Fast food", order: "Grilled chicken sandwich or nuggets, grilled nuggets, waffle fries (fried in canola oil), side salad, fruit cup.", watch: "Bun/mayo contain egg/dairy (fine unless dairy-sensitive). No mammal fat in their fries — good." },
-  { name: "Mediterranean / Halal (e.g. The Halal Guys)", cuisine: "Mediterranean", order: "Chicken over rice, falafel, hummus, salad, pita.", watch: "Skip the gyro/lamb/beef. White sauce may contain dairy." },
-  { name: "Indian", cuisine: "Indian", order: "Chicken tikka, tandoori chicken, chana masala, dal, veg curries, rice, most naan.", watch: "Avoid lamb/goat (rogan josh, keema). Ghee & paneer = dairy. Naan may have milk." },
-  { name: "Pho / Vietnamese", cuisine: "Vietnamese", order: "Chicken pho (pho ga), spring rolls with shrimp, vermicelli bowls with grilled chicken or shrimp.", watch: "Classic beef pho broth is a mammal-broth AVOID. Ask specifically for chicken broth." },
-  { name: "Pizza (build-your-own)", cuisine: "Italian", order: "Cheese or veggie pizza, or chicken + veg. Many places offer vegan cheese.", watch: "No pepperoni/sausage/ham. Cheese = dairy. Ask if crust/dough uses lard (rare but possible)." },
-];
+// Structure: meal type -> categories -> restaurants -> safe dishes + DoorDash link.
+// urlType "store" = a verified DoorDash store page; "search" = opens DoorDash
+// search pre-filled with the restaurant name (lands on the right store once
+// signed in with a delivery address). Menus change — confirm mammal-free when ordering.
+const ORDER_MENU = {
+  breakfast: [
+    {
+      category: "Cafés & bakeries",
+      restaurants: [
+        { name: "Hatched", area: "Palo Alto", safeDishes: [
+          { dish: "Avocado toast", note: "plant-based; add an egg" },
+          { dish: "Egg & cheese sandwich, no meat", note: "order without bacon/sausage (dairy)" },
+          { dish: "Garden / veggie salad", note: "verify no bacon bits" },
+        ], watchOut: "egg sandwiches default to bacon, ham or sausage — order without cured pork" },
+        { name: "Philz Coffee", area: "Palo Alto", safeDishes: [
+          { dish: "Any coffee or tea drink", note: "oat or dairy milk (dairy if not oat)" },
+          { dish: "Bakery pastries & croissants", note: "butter-based, no lard (dairy)" },
+        ], watchOut: "skip breakfast wraps/sandwiches that come with bacon or sausage" },
+        { name: "Peet's Coffee", area: "Palo Alto", safeDishes: [
+          { dish: "Oatmeal", note: "milk = dairy; verify no meat topping" },
+          { dish: "Banana or pumpkin bread", note: "plant-forward loaf" },
+          { dish: "Coffee & espresso drinks", note: "dairy if made with milk" },
+        ], watchOut: "avoid the bacon/sausage/ham breakfast sandwiches" },
+        { name: "Cafe Borrone", area: "Menlo Park", safeDishes: [
+          { dish: "Mushroom scramble", note: "mushrooms, shallots, crème fraîche (dairy)" },
+          { dish: "Spinach & feta scramble", note: "(dairy)" },
+          { dish: "Salsa & avocado scramble", note: "eggs, salsa, sour cream, avocado (dairy)" },
+        ], watchOut: "skip the ham & cheddar scramble and any ham/bacon add-ons" },
+      ],
+    },
+    {
+      category: "American breakfast",
+      restaurants: [
+        { name: "Hobee's", area: "Palo Alto", safeDishes: [
+          { dish: "Veggie omelet or scramble", note: "no meat; cheese = dairy" },
+          { dish: "Breakfast quesadilla, no meat", note: "egg & cheese (dairy)" },
+          { dish: "Blueberry coffee cake", note: "no mammal fat" },
+        ], watchOut: "scrambles and bowls often add bacon, sausage or ham — specify none" },
+        { name: "Palo Alto Creamery", area: "Palo Alto", safeDishes: [
+          { dish: "Two eggs any style", note: "pick a no-meat side (dairy: buttered toast)" },
+          { dish: "Buttermilk pancakes", note: "(dairy)" },
+          { dish: "Fresh fruit bowl", note: "plant-based" },
+        ], watchOut: "ham/bacon/sausage are default egg-plate sides and hide in scrambles & benedicts" },
+        { name: "Stacks", area: "Menlo Park", safeDishes: [
+          { dish: "Veggie omelet, no meat", note: "mushrooms, spinach, tomato, cheese (dairy)" },
+          { dish: "Pancakes / waffles / French toast", note: "(dairy)" },
+          { dish: "Egg-white veggie plate", note: "verify no meat side" },
+        ], watchOut: "skillets, benedicts and combos load bacon, sausage, ham and chorizo — order meat-free" },
+        { name: "True Food Kitchen", area: "Palo Alto", safeDishes: [
+          { dish: "Garden scramble", note: "eggs with vegetables" },
+          { dish: "Avocado toast", note: "plant-based" },
+          { dish: "Chia seed pudding", note: "coconut-based, plant" },
+        ], watchOut: "order any breakfast 'sausage' off; avoid dishes with chorizo" },
+        { name: "Joanie's Cafe", area: "Palo Alto", safeDishes: [
+          { dish: "Omelette or scramble, no meat", note: "veggie + cheese (dairy)" },
+          { dish: "French toast", note: "(dairy)" },
+          { dish: "Crab cakes", note: "shellfish — safe" },
+        ], watchOut: "bacon, ham and sausage on egg plates and benedicts — leave off" },
+      ],
+    },
+    {
+      category: "Bagels",
+      restaurants: [
+        { name: "Izzy's Brooklyn Bagels", area: "Palo Alto", safeDishes: [
+          { dish: "Bagel with cream cheese", note: "(dairy)" },
+          { dish: "Lox / Nova bagel", note: "smoked salmon — safe" },
+          { dish: "Egg & cheese bagel, no meat", note: "(dairy)" },
+          { dish: "Tuna or whitefish salad bagel", note: "fish — safe" },
+        ], watchOut: "kosher (no pork) but AGS still bans beef — skip pastrami, corned beef and beef salami" },
+        { name: "House of Bagels", area: "Mountain View", safeDishes: [
+          { dish: "Bagel with cream cheese", note: "(dairy)" },
+          { dish: "Lox bagel", note: "smoked salmon — safe" },
+          { dish: "Tuna or egg-salad bagel", note: "safe" },
+        ], watchOut: "avoid bacon/sausage/ham breakfast bagel sandwiches" },
+      ],
+    },
+    {
+      category: "Mexican breakfast",
+      restaurants: [
+        { name: "Sancho's Taqueria", area: "Palo Alto", safeDishes: [
+          { dish: "Egg & potato breakfast burrito", note: "no chorizo/bacon; add chicken (dairy if cheese)" },
+          { dish: "Chilaquiles with egg", note: "no carnitas/chorizo (dairy)" },
+          { dish: "Fish taco", note: "safe" },
+        ], watchOut: "chorizo, carnitas, al pastor and carne asada are all mammal — egg/chicken/fish only" },
+        { name: "Las Chiquitas", area: "Redwood City", safeDishes: [
+          { dish: "Egg & potato breakfast burrito", note: "no chorizo/bacon (dairy if cheese)" },
+          { dish: "Chilaquiles with egg", note: "no carnitas/chorizo (dairy)" },
+          { dish: "Veggie quesadilla", note: "(dairy)" },
+        ], watchOut: "skip chorizo, carnitas, machaca (beef), al pastor and asada" },
+      ],
+    },
+    {
+      category: "Açaí & smoothie bowls",
+      restaurants: [
+        { name: "Vitality Bowls", area: "Palo Alto", safeDishes: [
+          { dish: "Açaí bowls", note: "plant-based" },
+          { dish: "Fruit & green smoothies", note: "plant-based" },
+          { dish: "Avocado toast", note: "plant-based" },
+        ], watchOut: "essentially none — all plant/fruit; add-on chicken is also AGS-safe" },
+        { name: "Pressed Açaí Bowls", area: "Palo Alto", safeDishes: [
+          { dish: "Açaí bowls with granola & fruit", note: "plant-based" },
+          { dish: "Cold-pressed juices & smoothies", note: "plant-based" },
+        ], watchOut: "none — plant/fruit based, no mammal ingredients" },
+      ],
+    },
+  ],
+
+  lightLunch: [
+    {
+      category: "Salads & bowls",
+      restaurants: [
+        { name: "Sweetgreen", area: "Palo Alto", safeDishes: [
+          { dish: "Harvest Bowl", note: "roasted chicken, wild rice, sweet potato, almonds (dairy: goat cheese)" },
+          { dish: "Kale Caesar with roasted chicken", note: "(dairy: parmesan)" },
+          { dish: "Create-your-own with tofu or blackened chicken", note: "" },
+        ], watchOut: "no beef/pork/lamb here — just skip any seasonal steak add-on" },
+        { name: "True Food Kitchen", area: "Palo Alto", safeDishes: [
+          { dish: "Ancient Grains Bowl", note: "vegetarian; sweet potato, portobello, avocado" },
+          { dish: "Tuscan Kale Salad + grilled chicken", note: "(dairy: parmesan)" },
+          { dish: "Edamame dumplings", note: "" },
+        ], watchOut: "avoid grass-fed steak tacos, bison burger, and prosciutto pizza" },
+      ],
+    },
+    {
+      category: "Poke",
+      restaurants: [
+        { name: "Go Fish Poke Bar", area: "Palo Alto", safeDishes: [
+          { dish: "Ahi tuna poke bowl", note: "" },
+          { dish: "Salmon poke bowl", note: "" },
+          { dish: "Build-your-own: tuna/salmon/shrimp/tofu", note: "" },
+        ], watchOut: "essentially none — fish/shellfish/tofu; just avoid any Spam add-on (pork)" },
+        { name: "Poke House", area: "Palo Alto", safeDishes: [
+          { dish: "Signature tuna poke bowl", note: "" },
+          { dish: "Salmon or spicy tuna bowl", note: "" },
+          { dish: "Build-your-own with shrimp or tofu", note: "" },
+        ], watchOut: "no mammal meat on poke menus; skip any Spam musubi" },
+        { name: "Poke One", area: "Palo Alto", safeDishes: [
+          { dish: "Build-your-own with ahi tuna", note: "" },
+          { dish: "Salmon poke bowl", note: "" },
+          { dish: "Tofu poke bowl", note: "vegan" },
+        ], watchOut: "none significant — fish/shellfish/tofu only" },
+      ],
+    },
+    {
+      category: "Sandwiches & wraps",
+      restaurants: [
+        { name: "Mendocino Farms", area: "Palo Alto", safeDishes: [
+          { dish: "Not So Fried Chicken Sandwich", note: "crispy chicken, herb aioli, slaw" },
+          { dish: "Vegan Curried Couscous salad", note: "vegan" },
+          { dish: "Modern Caesar + chicken", note: "(dairy: parmesan)" },
+          { dish: "Skinny James salad", note: "greens, hearts of palm, edamame, avocado" },
+        ], watchOut: "avoid Prosciutto & Chèvre, Peruvian steak, pork carnitas, and anything with bacon" },
+        { name: "Ike's Love & Sandwiches", area: "Palo Alto", safeDishes: [
+          { dish: "Halal chicken sandwiches", note: "confirm no bacon add-on" },
+          { dish: "Wild salmon sandwich", note: "" },
+          { dish: "Vegetarian / vegan sandwiches", note: "many options" },
+        ], watchOut: "huge menu — many builds have pastrami, ham, beef meatballs or bacon; read each carefully (often dairy cheese too)" },
+      ],
+    },
+    {
+      category: "Mediterranean",
+      restaurants: [
+        { name: "CAVA", area: "Palo Alto", safeDishes: [
+          { dish: "Build-your-own bowl with harissa honey chicken", note: "" },
+          { dish: "Grilled chicken + falafel bowl", note: "over greens or grains" },
+          { dish: "Falafel + hummus bowl", note: "vegetarian (dairy: feta)" },
+        ], watchOut: "skip grilled steak and braised lamb; tzatziki/feta = dairy" },
+        { name: "Oren's Hummus", area: "Palo Alto", safeDishes: [
+          { dish: "Hummus with chicken shishlik", note: "" },
+          { dish: "Falafel plate / hummus with falafel", note: "" },
+          { dish: "Israeli salad", note: "" },
+          { dish: "Hummus with fava beans (ful)", note: "" },
+        ], watchOut: "avoid beef/lamb kebab & skewers, merguez sausage, and beef/lamb shawarma" },
+      ],
+    },
+    {
+      category: "Cafés & light bites",
+      restaurants: [
+        { name: "Blue Bottle Coffee", area: "Palo Alto", safeDishes: [
+          { dish: "Coffee, cold brew, lattes", note: "dairy if milk" },
+          { dish: "Pastries (croissant, cookies, waffle)", note: "" },
+          { dish: "Seasonal veggie or egg toast", note: "confirm no prosciutto/ham" },
+        ], watchOut: "any breakfast toast could carry ham/prosciutto — verify; drinks and pastries are safe" },
+      ],
+    },
+    {
+      category: "Smoothies & açaí bowls",
+      restaurants: [
+        { name: "BARE Bowls", area: "Palo Alto", safeDishes: [
+          { dish: "Açaí bowl with granola, banana, berries", note: "" },
+          { dish: "Fruit smoothies", note: "" },
+        ], watchOut: "none — fully plant-based, no mammal ingredients" },
+      ],
+    },
+  ],
+
+  dinner: [
+    {
+      category: "Mexican",
+      restaurants: [
+        { name: "Chipotle", area: "Palo Alto", safeDishes: [
+          { dish: "Chicken burrito bowl", note: "chicken + black/pinto beans (Chipotle beans are lard-free)" },
+          { dish: "Sofritas bowl", note: "tofu, vegan" },
+          { dish: "Chicken salad", note: "skip cheese/sour cream to avoid dairy" },
+          { dish: "Chips & guacamole", note: "vegan" },
+        ], watchOut: "barbacoa & steak (beef), carnitas (pork) are mammal — pick chicken or sofritas; queso/sour cream = dairy" },
+        { name: "LuLu's Mexican Food", area: "Palo Alto", safeDishes: [
+          { dish: "Chicken super burrito", note: "ask for whole or black beans, not refried" },
+          { dish: "Fish taco", note: "" },
+          { dish: "Shrimp taco", note: "" },
+          { dish: "Veggie burrito", note: "no-lard beans" },
+        ], watchOut: "carne asada, al pastor, carnitas, chorizo = avoid; refried beans may have lard; cheese/crema = dairy" },
+        { name: "Sancho's Taqueria", area: "Palo Alto", safeDishes: [
+          { dish: "Fish taco", note: "" },
+          { dish: "Chicken super burrito", note: "whole/black beans, not refried" },
+          { dish: "Shrimp burrito", note: "" },
+          { dish: "Veggie burrito", note: "" },
+        ], watchOut: "carne asada, al pastor, carnitas = avoid; ask about lard in refried beans; sour cream/cheese = dairy" },
+      ],
+    },
+    {
+      category: "Mediterranean & Middle Eastern",
+      restaurants: [
+        { name: "Real Mediterranean Kitchen", area: "Palo Alto", safeDishes: [
+          { dish: "Chicken kebob plate", note: "" },
+          { dish: "Falafel plate", note: "vegan" },
+          { dish: "Chicken shawarma", note: "" },
+          { dish: "Hummus", note: "" },
+        ], watchOut: "lamb/beef gyro and beef kofta = avoid; tzatziki and feta = dairy" },
+        { name: "Mediterranean Wraps", area: "Palo Alto", safeDishes: [
+          { dish: "Chicken shawarma wrap", note: "" },
+          { dish: "Chicken shawarma plate", note: "" },
+          { dish: "Falafel wrap", note: "vegan" },
+          { dish: "Hummus", note: "" },
+        ], watchOut: "beef/lamb shawarma and gyro = avoid; feta/tzatziki = dairy" },
+        { name: "Yalla Falafel", area: "Palo Alto", safeDishes: [
+          { dish: "Falafel pita", note: "vegan" },
+          { dish: "Shawarma-spiced chicken pita", note: "" },
+          { dish: "Hummus", note: "" },
+        ], watchOut: "any lamb/beef preparation = avoid; feta = dairy" },
+        { name: "The Halal Guys", area: "Redwood City", safeDishes: [
+          { dish: "Chicken over rice", note: "" },
+          { dish: "Falafel sandwich", note: "vegan" },
+          { dish: "Chicken gyro sandwich", note: "confirm chicken, not beef" },
+          { dish: "Hummus", note: "" },
+        ], watchOut: "the beef/lamb gyro combo = avoid; white sauce may contain dairy" },
+      ],
+    },
+    {
+      category: "Thai",
+      restaurants: [
+        { name: "Thaiphoon", area: "Palo Alto", safeDishes: [
+          { dish: "Chicken satay", note: "peanut sauce" },
+          { dish: "Chicken pad thai", note: "or shrimp / tofu" },
+          { dish: "Green curry", note: "chicken or tofu (coconut base)" },
+          { dish: "Tom yum goong", note: "shrimp, spicy sour broth" },
+        ], watchOut: "avoid pork/beef dishes (pad krapow moo, beef panang) and pork larb" },
+        { name: "Lotus Thai Bistro", area: "Palo Alto", safeDishes: [
+          { dish: "Pad thai", note: "chicken, tofu, or shrimp" },
+          { dish: "Cashew nut chicken", note: "" },
+          { dish: "Red or green curry", note: "chicken or tofu" },
+          { dish: "Basil chicken (pad krapow gai)", note: "" },
+        ], watchOut: "skip pork (moo) or beef (nuea) versions; order larb gai (chicken), not pork larb" },
+        { name: "Siam Fine Thai Cuisine", area: "Palo Alto", safeDishes: [
+          { dish: "Chicken satay", note: "" },
+          { dish: "Green curry with chicken", note: "or tofu" },
+          { dish: "Pad see ew with chicken", note: "" },
+          { dish: "Tom yum goong", note: "shrimp" },
+        ], watchOut: "avoid beef/pork curries and stir-fries; confirm no pork in fried rice" },
+        { name: "Indochine Thai & Vietnamese", area: "Palo Alto", safeDishes: [
+          { dish: "Pho ga", note: "chicken-broth version only" },
+          { dish: "Lemongrass chicken", note: "" },
+          { dish: "Green curry", note: "chicken or tofu" },
+          { dish: "Chicken pad thai", note: "" },
+        ], watchOut: "regular pho & bun bo hue use BEEF broth — avoid; only pho ga is broth-safe" },
+      ],
+    },
+    {
+      category: "Chinese",
+      restaurants: [
+        { name: "Chef Chu's", area: "Los Altos", safeDishes: [
+          { dish: "Kung pao chicken", note: "" },
+          { dish: "Cashew chicken", note: "" },
+          { dish: "Salt & pepper prawns", note: "" },
+          { dish: "Whole steamed fish", note: "" },
+        ], watchOut: "avoid Mongolian beef, black pepper steak, the pork section and char siu; some fried rice/soups use pork or ham" },
+        { name: "Tai Pan", area: "Palo Alto", safeDishes: [
+          { dish: "Kung pao chicken", note: "" },
+          { dish: "Salt & pepper prawns", note: "" },
+          { dish: "Steamed fresh fish", note: "" },
+          { dish: "Sautéed string beans", note: "ask for no pork" },
+        ], watchOut: "siu mai, BBQ pork buns, char siu are pork; avoid beef; request chicken or shrimp fried rice (some has ham)" },
+        { name: "Panda Express", area: "Palo Alto", safeDishes: [
+          { dish: "Grilled teriyaki chicken", note: "" },
+          { dish: "Mushroom chicken", note: "" },
+          { dish: "String bean chicken breast", note: "" },
+          { dish: "Kung pao chicken", note: "" },
+          { dish: "Super greens + steamed rice", note: "plant sides" },
+        ], watchOut: "avoid Beijing beef, broccoli beef, black pepper Angus steak, and BBQ pork (char siu)" },
+        { name: "Asian Box", area: "Palo Alto", safeDishes: [
+          { dish: "Box: lemongrass chicken", note: "over rice or noodles + veggies" },
+          { dish: "Box: tofu", note: "" },
+          { dish: "Box: wok'd shrimp", note: "" },
+        ], watchOut: "proteins are chicken/tofu/shrimp — just skip any pork add-on and confirm sauces" },
+      ],
+    },
+    {
+      category: "Japanese & sushi",
+      restaurants: [
+        { name: "Fuki Sushi", area: "Palo Alto", safeDishes: [
+          { dish: "Nigiri & sashimi", note: "tuna, salmon, yellowtail, shrimp, eel" },
+          { dish: "California roll", note: "" },
+          { dish: "Spicy tuna roll", note: "" },
+          { dish: "Chicken teriyaki", note: "" },
+          { dish: "Agedashi tofu", note: "" },
+        ], watchOut: "gyoza are usually pork; skip chashu and pork katsu — sushi, sashimi, chicken teriyaki, edamame are safe" },
+        { name: "Kanji Sushi & Ramen", area: "Palo Alto", safeDishes: [
+          { dish: "Sushi & sashimi", note: "fish / veg rolls" },
+          { dish: "Chicken teriyaki", note: "" },
+          { dish: "Chicken karaage", note: "fried chicken" },
+          { dish: "Edamame", note: "" },
+        ], watchOut: "tonkotsu ramen = pork bone broth (avoid) and most ramen tops with chashu pork — stick to sushi unless a chicken/veg broth is confirmed" },
+        { name: "Taro San Japanese Noodle Bar", area: "Palo Alto", safeDishes: [
+          { dish: "Chicken udon", note: "dashi (fish/kelp) broth" },
+          { dish: "Tempura udon", note: "shrimp & vegetable tempura" },
+          { dish: "Veggie udon", note: "dashi broth" },
+        ], watchOut: "avoid niku udon (beef) and pork-topped bowls; udon dashi is bonito/kelp (safe), unlike ramen" },
+      ],
+    },
+    {
+      category: "Vietnamese",
+      restaurants: [
+        { name: "Pho To Chau", area: "Mountain View", safeDishes: [
+          { dish: "Pho ga", note: "chicken-broth version only" },
+          { dish: "Chicken vermicelli (bun ga)", note: "" },
+          { dish: "Shrimp spring rolls (goi cuon)", note: "" },
+          { dish: "Lemongrass chicken over rice", note: "" },
+        ], watchOut: "classic pho, pho tai/bo and bun bo hue are BEEF broth — avoid; only pho ga broth is safe" },
+      ],
+    },
+    {
+      category: "Korean",
+      restaurants: [
+        { name: "So Gong Dong Tofu House", area: "Palo Alto", safeDishes: [
+          { dish: "Seafood soft tofu soup (haemul sundubu)", note: "ask for seafood/anchovy broth, not beef" },
+          { dish: "Vegetable soft tofu soup", note: "confirm broth base" },
+          { dish: "Seafood pancake (haemul pajeon)", note: "" },
+          { dish: "Bibimbap with chicken or vegetable", note: "" },
+        ], watchOut: "sundubu broth is often beef stock — ask for seafood/veggie; avoid galbi, bulgogi and pork sundubu" },
+      ],
+    },
+    {
+      category: "Indian",
+      restaurants: [
+        { name: "Zareen's", area: "Palo Alto", safeDishes: [
+          { dish: "Chicken tikka masala", note: "(dairy)" },
+          { dish: "Chicken karahi", note: "" },
+          { dish: "Chicken kabab plate", note: "" },
+          { dish: "Chana masala", note: "chickpeas, vegan" },
+          { dish: "Daal", note: "lentils" },
+        ], watchOut: "halal (no pork) but avoid goat/lamb (bhuna gosht, nihari, goat biryani); paneer & creamy gravies = dairy; some ghee" },
+        { name: "Amber India", area: "Los Altos", safeDishes: [
+          { dish: "Butter chicken", note: "(dairy)" },
+          { dish: "Chicken tikka masala", note: "(dairy)" },
+          { dish: "Tandoori chicken", note: "" },
+          { dish: "Chana masala", note: "" },
+          { dish: "Palak paneer", note: "(dairy)" },
+        ], watchOut: "avoid lamb/goat (rogan josh, keema); creamy curries and paneer = dairy; ghee in some dishes" },
+        { name: "Janta Indian Cuisine", area: "Palo Alto", safeDishes: [
+          { dish: "Chicken curry", note: "" },
+          { dish: "Chicken tikka masala", note: "(dairy)" },
+          { dish: "Dal (lentils)", note: "" },
+          { dish: "Chana masala", note: "" },
+        ], watchOut: "avoid lamb/goat dishes (keema, rogan josh); paneer & cream gravies = dairy; ghee in some breads" },
+      ],
+    },
+    {
+      category: "Pizza & Italian",
+      restaurants: [
+        { name: "Italico", area: "Palo Alto", safeDishes: [
+          { dish: "Margherita pizza", note: "(dairy)" },
+          { dish: "Marinara pizza", note: "no cheese, vegan" },
+          { dish: "Funghi / vegetable pizza", note: "(dairy)" },
+        ], watchOut: "prosciutto, salsiccia (sausage), 'nduja, guanciale = avoid; cheese = dairy" },
+        { name: "New York Pizza", area: "Palo Alto", safeDishes: [
+          { dish: "Cheese pizza", note: "(dairy)" },
+          { dish: "Margherita pizza", note: "(dairy)" },
+          { dish: "Veggie pizza", note: "(dairy)" },
+        ], watchOut: "pepperoni, sausage, meatball, ham = avoid; cheese = dairy" },
+        { name: "Pizzeria Delfina", area: "Palo Alto", safeDishes: [
+          { dish: "Margherita pizza", note: "(dairy)" },
+          { dish: "Marinara pizza", note: "no cheese, vegan" },
+          { dish: "Broccoli raab pizza", note: "veggie (dairy)" },
+        ], watchOut: "salsiccia, prosciutto, coppa, pancetta = avoid; cheese = dairy" },
+        { name: "Terun", area: "Palo Alto", safeDishes: [
+          { dish: "Margherita pizza", note: "(dairy)" },
+          { dish: "Marinara pizza", note: "no cheese, vegan" },
+          { dish: "Funghi (mushroom) pizza", note: "(dairy)" },
+        ], watchOut: "prosciutto, salsiccia, 'nduja, speck = avoid; cheese = dairy" },
+      ],
+    },
+    {
+      category: "American",
+      restaurants: [
+        { name: "Chick-fil-A", area: "Redwood City", safeDishes: [
+          { dish: "Grilled chicken sandwich", note: "" },
+          { dish: "Grilled nuggets", note: "" },
+          { dish: "Chicken sandwich", note: "fried in peanut oil" },
+          { dish: "Waffle fries", note: "cooked in canola oil, not tallow" },
+        ], watchOut: "Cobb and Club items add bacon — order without; cheese = dairy" },
+        { name: "True Food Kitchen", area: "Palo Alto", safeDishes: [
+          { dish: "Grilled chicken salad or bowl", note: "" },
+          { dish: "Ancient Grains Bowl", note: "vegetarian; add chicken" },
+          { dish: "Edamame dumplings", note: "" },
+          { dish: "Tuscan kale salad", note: "" },
+        ], watchOut: "avoid the grass-fed burger and any steak dishes; confirm no beef broth in soups" },
+      ],
+    },
+    {
+      category: "Seafood",
+      restaurants: [
+        { name: "Pacific Catch", area: "Palo Alto", safeDishes: [
+          { dish: "Grilled fish tacos", note: "" },
+          { dish: "Ahi poke bowl", note: "" },
+          { dish: "Grilled salmon plate", note: "" },
+          { dish: "Shrimp dishes", note: "" },
+        ], watchOut: "clam chowder may be made with bacon/pork = avoid; the rest is seafood-safe" },
+        { name: "Little MadFish", area: "Redwood City", safeDishes: [
+          { dish: "Salmon / tuna sashimi", note: "" },
+          { dish: "Chirashi bowl", note: "assorted raw fish over rice" },
+          { dish: "Poke bowl", note: "" },
+          { dish: "Grilled / fried fish", note: "" },
+        ], watchOut: "skip pork items (chashu, pork katsu) and any pork-broth ramen; fish/bonito dashi is fine" },
+      ],
+    },
+    {
+      category: "Hawaiian & poke",
+      restaurants: [
+        { name: "Go Fish Poke Bar", area: "Palo Alto", safeDishes: [
+          { dish: "Ahi tuna poke bowl", note: "" },
+          { dish: "Salmon poke bowl", note: "" },
+          { dish: "Spicy shrimp bowl", note: "" },
+        ], watchOut: "essentially mammal-free — fish, shrimp, tofu, veggies; confirm no bacon topping" },
+        { name: "Poke House", area: "Mountain View", safeDishes: [
+          { dish: "Tuna poke bowl", note: "" },
+          { dish: "Salmon poke bowl", note: "" },
+          { dish: "Shrimp bowl", note: "" },
+          { dish: "Tofu / veggie bowl", note: "vegan" },
+        ], watchOut: "all-seafood/tofu proteins, mammal-free; just verify toppings and sauces" },
+        { name: "Poki Bowl", area: "Palo Alto", safeDishes: [
+          { dish: "Ahi tuna poke bowl", note: "" },
+          { dish: "Salmon poke bowl", note: "" },
+          { dish: "Shrimp poke bowl", note: "" },
+          { dish: "Tofu / veggie bowl", note: "vegan" },
+        ], watchOut: "no mammal traps — all seafood/plant; imitation crab is fish-based and safe" },
+      ],
+    },
+  ],
+};
 
 // ---------------------------------------------------------------------------
 // WHOLE FOODS GROCERY GUIDE
@@ -121,5 +566,5 @@ const FACTS = [
 ];
 
 if (typeof module !== "undefined") {
-  module.exports = { RULES, RESTAURANTS, GROCERY, FACTS };
+  module.exports = { RULES, ORDER_MENU, GROCERY, FACTS };
 }
