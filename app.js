@@ -1,7 +1,9 @@
 /* Nour — app logic: ingredient checker + UI */
 
 // ---- Settings (persisted per-device) --------------------------------------
-const DEFAULT_SETTINGS = { dairy: false, flavors: true, additives: true };
+// Nour has a dairy allergy, so dairy defaults to "avoid" (treated like mammal
+// meat). The toggle remains so the strictness is visible and adjustable.
+const DEFAULT_SETTINGS = { dairy: true, flavors: true, additives: true };
 
 function loadSettings() {
   try {
@@ -144,9 +146,22 @@ function ddButton(r) {
 }
 
 function dishItem(d) {
-  const isDairy = /dairy/i.test(d.note || "");
-  const note = d.note ? ` <span class="dnote${isDairy ? " dairy" : ""}">— ${escapeHtml(d.note)}</span>` : "";
+  // Highlight ordering instructions ("no cheese", "ask for…") so she sees them.
+  const isInstruction = /\b(no |ask|without|dairy-free|oat milk|hold the|sub )/i.test(d.note || "");
+  const note = d.note ? ` <span class="dnote${isInstruction ? " instr" : ""}">— ${escapeHtml(d.note)}</span>` : "";
   return `<li>${escapeHtml(d.dish)}${note}</li>`;
+}
+
+function ratingBadge(r) {
+  if (r.rating == null) return "";
+  const stars = "★".repeat(Math.round(r.rating)) + "☆".repeat(5 - Math.round(r.rating));
+  const count = r.reviews ? ` <span class="rev">(${formatCount(r.reviews)})</span>` : "";
+  const src = r.ratingSrc ? ` ${escapeHtml(r.ratingSrc)}` : "";
+  return `<span class="rating" title="${r.rating}${src} rating"><span class="stars">${stars}</span> ${r.rating.toFixed(1)}${count}</span>`;
+}
+
+function formatCount(n) {
+  return n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
 }
 
 function restaurantCard(r) {
@@ -160,10 +175,19 @@ function restaurantCard(r) {
         <h3>${escapeHtml(r.name)}</h3>
         ${area}
       </div>
+      ${ratingBadge(r) ? `<div class="resto-rating">${ratingBadge(r)}</div>` : ""}
       <ul class="dishes">${dishes}</ul>
       ${watch}
       ${ddButton(r)}
     </div>`;
+}
+
+// Sort restaurants by rating (highest first); unrated go last.
+function byRating(a, b) {
+  const ra = a.rating == null ? -1 : a.rating;
+  const rb = b.rating == null ? -1 : b.rating;
+  if (rb !== ra) return rb - ra;
+  return (b.reviews || 0) - (a.reviews || 0);
 }
 
 function renderRestaurants(filter = "") {
@@ -174,7 +198,7 @@ function renderRestaurants(filter = "") {
 
   let count = 0;
   const html = categories.map(cat => {
-    const restos = cat.restaurants.filter(r => restaurantMatches(r, q));
+    const restos = cat.restaurants.filter(r => restaurantMatches(r, q)).sort(byRating);
     count += restos.length;
     if (!restos.length) return "";
     return `<div class="cat-head">${escapeHtml(cat.category)}</div>` +
