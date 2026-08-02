@@ -115,25 +115,79 @@ function renderFacts() {
     FACTS.map(f => `<li>${escapeHtml(f)}</li>`).join("");
 }
 
-function renderRestaurants(filter = "") {
-  const q = filter.trim().toLowerCase();
-  const list = RESTAURANTS.filter(r =>
-    !q || r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q) || r.order.toLowerCase().includes(q)
-  );
-  const el = document.getElementById("restoList");
-  if (!list.length) {
-    el.innerHTML = `<div class="card muted">No matches. Try a cuisine like "Thai" or "poke".</div>`;
-    return;
-  }
-  el.innerHTML = list.map(r => `
+let currentMeal = "breakfast";
+
+const MEAL_LABEL = {
+  breakfast: "Breakfast & brunch",
+  lightLunch: "Light lunch",
+  dinner: "Late lunch & dinner",
+};
+
+function restaurantMatches(r, q) {
+  if (!q) return true;
+  if (r.name.toLowerCase().includes(q) || (r.area || "").toLowerCase().includes(q)) return true;
+  return (r.safeDishes || []).some(d =>
+    d.dish.toLowerCase().includes(q) || (d.note || "").toLowerCase().includes(q));
+}
+
+// Build a DoorDash search link from name + city. We generate this rather than
+// store fixed store IDs, because a stale store ID 404s — a name search always
+// lands on the right restaurant once she's signed in with a delivery address.
+function ddSearchUrl(r) {
+  const city = (r.area || "").split(/[(\/,]/)[0].trim();
+  const query = (r.name + " " + city).trim();
+  return "https://www.doordash.com/search/store/" + encodeURIComponent(query);
+}
+
+function ddButton(r) {
+  return `<a class="dd-btn" href="${ddSearchUrl(r)}" target="_blank" rel="noopener noreferrer">🛵 Order on DoorDash</a>`;
+}
+
+function dishItem(d) {
+  const isDairy = /dairy/i.test(d.note || "");
+  const note = d.note ? ` <span class="dnote${isDairy ? " dairy" : ""}">— ${escapeHtml(d.note)}</span>` : "";
+  return `<li>${escapeHtml(d.dish)}${note}</li>`;
+}
+
+function restaurantCard(r) {
+  const area = r.area ? `<span class="area-tag">${escapeHtml(r.area)}</span>` : "";
+  const dishes = (r.safeDishes || []).map(dishItem).join("");
+  const watch = r.watchOut
+    ? `<p class="watch"><b>Skip:</b> ${escapeHtml(r.watchOut)}</p>` : "";
+  return `
     <div class="resto">
       <div class="resto-head">
         <h3>${escapeHtml(r.name)}</h3>
-        <span class="cuisine">${escapeHtml(r.cuisine)}</span>
+        ${area}
       </div>
-      <p class="order"><b>Safe order:</b> ${escapeHtml(r.order)}</p>
-      <p class="watch"><b>Watch out:</b> ${escapeHtml(r.watch)}</p>
-    </div>`).join("");
+      <ul class="dishes">${dishes}</ul>
+      ${watch}
+      ${ddButton(r)}
+    </div>`;
+}
+
+function renderRestaurants(filter = "") {
+  const q = filter.trim().toLowerCase();
+  const el = document.getElementById("restoList");
+  const meta = document.getElementById("restoMeta");
+  const categories = (ORDER_MENU && ORDER_MENU[currentMeal]) || [];
+
+  let count = 0;
+  const html = categories.map(cat => {
+    const restos = cat.restaurants.filter(r => restaurantMatches(r, q));
+    count += restos.length;
+    if (!restos.length) return "";
+    return `<div class="cat-head">${escapeHtml(cat.category)}</div>` +
+      restos.map(restaurantCard).join("");
+  }).join("");
+
+  meta.textContent = `${MEAL_LABEL[currentMeal]} · ${count} spot${count === 1 ? "" : "s"} that deliver to the Stanford area`;
+
+  if (!count) {
+    el.innerHTML = `<div class="card muted">No matches here. Try another meal tab or a term like "chicken" or "poke".</div>`;
+    return;
+  }
+  el.innerHTML = html;
 }
 
 function renderGrocery() {
@@ -195,7 +249,14 @@ function init() {
     document.getElementById("verdict").hidden = true;
     document.getElementById("checkInput").focus();
   });
-  document.getElementById("restoSearch").addEventListener("input", e => renderRestaurants(e.target.value));
+  const searchEl = document.getElementById("restoSearch");
+  searchEl.addEventListener("input", e => renderRestaurants(e.target.value));
+  document.querySelectorAll("#mealSeg .seg-btn").forEach(b =>
+    b.addEventListener("click", () => {
+      currentMeal = b.dataset.meal;
+      document.querySelectorAll("#mealSeg .seg-btn").forEach(x => x.classList.toggle("active", x === b));
+      renderRestaurants(searchEl.value);
+    }));
 
   document.querySelectorAll(".tab-btn").forEach(b =>
     b.addEventListener("click", () => switchTab(b.dataset.tab)));

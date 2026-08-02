@@ -51,9 +51,15 @@
     <section id="tab-order" class="tab">
       <div class="card">
         <h2>Safe DoorDash picks</h2>
-        <p class="muted">Curated safe orders at chains around Stanford &amp; Palo Alto. Always confirm with the restaurant.</p>
-        <input id="restoSearch" class="search" type="search" placeholder="Search cuisines or spots…" />
+        <p class="muted">Spots that deliver to the Stanford area. Tap <b>Order on DoorDash</b> to open a restaurant, then order the safe dishes listed. Menus change — confirm mammal-free when you order.</p>
+        <div class="seg" id="mealSeg" role="tablist">
+          <button class="seg-btn active" data-meal="breakfast">🍳 Breakfast</button>
+          <button class="seg-btn" data-meal="lightLunch">🥗 Light lunch</button>
+          <button class="seg-btn" data-meal="dinner">🍽️ Lunch / dinner</button>
+        </div>
+        <input id="restoSearch" class="search" type="search" placeholder="Search dishes, cuisines, or spots…" />
       </div>
+      <div id="restoMeta" class="resto-meta"></div>
       <div id="restoList" class="list"></div>
     </section>
 
