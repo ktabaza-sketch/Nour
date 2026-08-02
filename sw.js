@@ -1,6 +1,7 @@
-/* Nour service worker — offline-first caching.
-   Bump CACHE when you change any asset so clients update. */
-const CACHE = "nour-v3";
+/* Nour service worker.
+   Network-first for same-origin GETs so new deploys show up immediately when
+   online, with the cache as an offline fallback. Bump CACHE on any change. */
+const CACHE = "nour-v4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -27,17 +28,16 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
+  const req = e.request;
+  if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
+  // Network-first: fetch fresh, cache it, fall back to cache when offline.
   e.respondWith(
-    caches.match(e.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(e.request)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
-          return res;
-        })
-        .catch(() => caches.match("./index.html"));
-    })
+    fetch(req)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        return res;
+      })
+      .catch(() => caches.match(req).then((c) => c || caches.match("./index.html")))
   );
 });

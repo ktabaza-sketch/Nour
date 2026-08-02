@@ -496,9 +496,24 @@ function init() {
     if (e.target.id === "settingsSheet") closeSettings();
   });
 
-  // Register service worker for offline use
+  // Register service worker for offline use. Auto-reload once when a new
+  // version takes control so updates are never stuck behind a stale cache.
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    let reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloading) return;
+      reloading = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register("sw.js").then((reg) => {
+      reg.addEventListener("updatefound", () => {
+        const sw = reg.installing;
+        if (sw) sw.addEventListener("statechange", () => {
+          if (sw.state === "installed" && navigator.serviceWorker.controller) sw.postMessage("skip");
+        });
+      });
+      reg.update().catch(() => {});
+    }).catch(() => {});
   }
 }
 
