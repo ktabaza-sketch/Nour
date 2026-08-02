@@ -125,6 +125,24 @@ function fmtTime(hm) {
   return m ? `${hr}:${String(m).padStart(2, "0")}${ap}` : `${hr}${ap}`;
 }
 
+const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+// First opening at or after `now`, scanning today's remaining ranges then the
+// following days. Returns { add, day, open } or null.
+function nextOpening(h, now) {
+  const M = now.getHours() * 60 + now.getMinutes();
+  for (let add = 0; add < 8; add++) {
+    const d = (now.getDay() + add) % 7;
+    const ranges = h[DAY_KEYS[d]];
+    if (!Array.isArray(ranges) || !ranges.length) continue;
+    for (const [o] of ranges) {
+      if (add === 0 && toMin(o) <= M) continue; // already passed today
+      return { add, day: d, open: o };
+    }
+  }
+  return null;
+}
+
 function openStatus(r, now) {
   const h = (typeof HOURS !== "undefined") ? HOURS[r.name + "|" + r.area] : null;
   if (!h) return { state: "unknown" };
@@ -139,21 +157,26 @@ function openStatus(r, now) {
       if (toMin(c) <= toMin(o) && M < toMin(c)) return { state: "open", label: "Open now", until: c };
     }
   }
-  if (!Array.isArray(today)) return { state: "unknown" };
-  if (today.length === 0) return { state: "closed", label: "Closed today" };
-
-  for (const [o, c] of today) {
-    const om = toMin(o), cm = toMin(c);
-    const isOpen = cm > om ? (M >= om && M < cm) : (M >= om); // cm<=om => spans midnight
-    if (isOpen) {
-      const closeAbs = cm > om ? cm : cm + 1440;
-      const closesSoon = (closeAbs - M) <= 45;
-      return { state: "open", label: closesSoon ? "Closes soon" : "Open now", until: c, closesSoon };
+  // Currently open?
+  if (Array.isArray(today)) {
+    for (const [o, c] of today) {
+      const om = toMin(o), cm = toMin(c);
+      const isOpen = cm > om ? (M >= om && M < cm) : (M >= om);
+      if (isOpen) {
+        const closeAbs = cm > om ? cm : cm + 1440;
+        const closesSoon = (closeAbs - M) <= 45;
+        return { state: "open", label: closesSoon ? "Closes soon" : "Open now", until: c, closesSoon };
+      }
     }
   }
-  const next = today.map(x => x[0]).filter(o => toMin(o) > M).sort((a, b) => toMin(a) - toMin(b))[0];
-  if (next) return { state: "closed", label: "Opens " + fmtTime(next) };
-  return { state: "closed", label: "Closed now" };
+  // Closed now — say when it opens next.
+  const no = nextOpening(h, now);
+  if (!no) return { state: "closed", label: "Temporarily closed" };
+  let when;
+  if (no.add === 0) when = "today " + fmtTime(no.open);
+  else if (no.add === 1) when = "tomorrow " + fmtTime(no.open);
+  else when = WEEKDAY_SHORT[no.day] + " " + fmtTime(no.open);
+  return { state: "closed", label: "Opens " + when };
 }
 
 function openBadge(r) {
@@ -311,21 +334,20 @@ function seasonFor(now) {
   return SEASONS.fall;
 }
 
-// One representative candidate (headline dish) per restaurant, per meal.
+// Each restaurant becomes a candidate carrying its full dish list, so we can
+// build a two-course pairing from it.
 function mealPool(mealLabel) {
   const out = [];
   (ORDER_MENU[MEAL_KEY[mealLabel]] || []).forEach(cat =>
     cat.restaurants.forEach(r => {
-      const sd = (r.safeDishes || [])[0];
-      if (sd) out.push({ meal: mealLabel, name: r.name, area: r.area, dish: sd.dish, note: sd.note || "", cuisine: cat.category });
+      if ((r.safeDishes || []).length) out.push({ meal: mealLabel, name: r.name, area: r.area, cuisine: cat.category, dishes: r.safeDishes });
     }));
   return out;
 }
 
 function gcd(a, b) { return b ? gcd(b, a % b) : a; }
 
-// Pick a deterministic index that is distinct across the 7 weekdays (within a
-// week) and shifts every week. stride coprime to n keeps the 7 picks distinct.
+// Deterministic index distinct across the 7 weekdays and shifting every week.
 function rotIndex(n, week, day, seed) {
   const stride = [7, 5, 3, 2].find(s => gcd(s, n) === 1) || 1;
   return (((week * 11 + day * stride + seed * 3) % n) + n) % n;
@@ -342,32 +364,82 @@ function optionCounts() {
   return { restaurants: names.size, dishes: Math.floor(dishes / 10) * 10 };
 }
 
-// Season-favored subset if it's big enough for 7 distinct days, else full pool.
+// Season-favored subset if it's big enough, else the full pool.
 function seasonPool(mealLabel, season) {
   const full = mealPool(mealLabel);
   const fav = full.filter(c => season.favored[mealLabel].includes(c.cuisine));
-  return fav.length >= 7 ? fav : full;
+  return fav.length >= 8 ? fav : full;
+}
+
+// Two distinct restaurant options for a meal (rotates weekly).
+function twoOptions(pool, week, day, seed) {
+  const n = pool.length;
+  if (!n) return [];
+  const i1 = rotIndex(n, week, day, seed);
+  let i2 = rotIndex(n, week, day, seed + 37);
+  if (i2 === i1) i2 = (i1 + 1) % n;
+  return n >= 2 ? [pool[i1], pool[i2]] : [pool[i1]];
 }
 
 function planForDay(week, day, season) {
-  return MEAL_ORDER.map((meal, mi) => {
-    const pool = seasonPool(meal, season);
-    return pool[rotIndex(pool.length, week, day, mi)];
-  });
+  return MEAL_ORDER.map((meal, mi) => ({
+    meal,
+    kcal: (NUTRITION.splits.find(s => s.meal === meal) || {}).kcal || "",
+    options: twoOptions(seasonPool(meal, season), week, day, mi + 1),
+  }));
 }
 
-function pickCard(p) {
+// A restaurant option rendered as a two-course pairing.
+function optionCard(o, idx) {
+  const courses = (o.dishes || []).slice(0, 2);
+  const labels = courses.length > 1 ? ["Main", "Second course"] : ["Dish"];
+  const courseHtml = courses.map((d, i) => `
+    <div class="course">
+      <span class="course-n">${labels[i] || "Course " + (i + 1)}</span>
+      <span class="course-dish">${escapeHtml(d.dish)}${d.note ? ` <span class="course-note">— ${escapeHtml(d.note)}</span>` : ""}</span>
+    </div>`).join("");
   return `
-    <div class="pick">
-      <div class="pick-meal">${escapeHtml(p.meal)}</div>
-      <div class="pick-body">
-        <div class="pick-dish">${escapeHtml(p.dish)}</div>
-        ${p.note ? `<div class="pick-note">${escapeHtml(p.note)}</div>` : ""}
-        <div class="pick-resto">${escapeHtml(p.name)} <span class="area-tag">${escapeHtml(p.area)}</span></div>
-        <div class="pick-status">${openBadge(p)}</div>
-        <a class="dd-btn sm" href="${ddSearchUrl(p)}" target="_blank" rel="noopener noreferrer">🛵 Order on DoorDash</a>
+    <div class="opt">
+      <div class="opt-head">
+        <span class="opt-tag">Option ${idx === 0 ? "A" : "B"}</span>
+        <span class="opt-name">${escapeHtml(o.name)}</span>
+        <span class="area-tag">${escapeHtml(o.area)}</span>
       </div>
+      <div class="opt-status">${openBadge(o)}</div>
+      <div class="courses">${courseHtml}</div>
+      <a class="dd-btn sm" href="${ddSearchUrl(o)}" target="_blank" rel="noopener noreferrer">🛵 Order on DoorDash</a>
     </div>`;
+}
+
+function mealBlock(sec) {
+  return `
+    <div class="meal-block">
+      <div class="meal-head">
+        <span class="meal-title">${escapeHtml(sec.meal)}</span>
+        <span class="meal-kcal">target ${escapeHtml(sec.kcal)} kcal</span>
+      </div>
+      ${sec.options.map(optionCard).join("")}
+    </div>`;
+}
+
+function designPanel(dayLabel) {
+  return `
+    <div class="design-card">
+      <div class="design-title">🧠 How I built ${dayLabel}'s plan for you</div>
+      <p>I balanced it to about <b>2,000–2,200 kcal</b> across the day (≈500 breakfast · ≈650 lunch · ≈750 dinner, with room for a snack), with <b>protein in every meal</b> and <b>complex carbs</b> — rice, grains, oats — so your energy and focus stay steady through long study sessions.</p>
+      <p>Since you skip <b>dairy and red meat</b>, I leaned on <b>fish, tofu, beans, chicken &amp; leafy greens for iron</b> (with vitamin-C veg so your body absorbs it) and <b>tahini, greens &amp; fortified sides for calcium</b>, plus <b>omega-3 fish and eggs</b> for memory and energy. Two options per meal, each a little two-course combo — pick whatever sounds best. 💛</p>
+    </div>`;
+}
+
+function nutritionDetails() {
+  return `
+    <details class="nutri">
+      <summary>Recommended daily targets for you 📊</summary>
+      <p class="nutri-note">${escapeHtml(NUTRITION.note)}</p>
+      <ul class="nutri-list">
+        ${NUTRITION.targets.map(t => `<li><span class="nk">${escapeHtml(t.k)}</span><span class="nv">${escapeHtml(t.v)}</span><span class="nw">${escapeHtml(t.why)}</span></li>`).join("")}
+      </ul>
+    </details>`;
 }
 
 function renderWeek() {
@@ -395,9 +467,10 @@ function renderWeek() {
 
   const dayName = WEEKDAYS[selectedDayIdx];
   const isToday = selectedDayIdx === todayIdx;
-  const picks = planForDay(week, selectedDayIdx, season);
+  const dayLabel = isToday ? "today" : dayName;
+  const plan = planForDay(week, selectedDayIdx, season);
 
-  const note = `Hi Nour 💚 Palo Alto is deep in ${season.label.split(" ")[0].toLowerCase()} right now — usually ${season.weather} this time of year — the kind of weather that calls for ${season.lean}. So ${isToday ? "today's" : dayName + "'s"} picks lean that way, each one hand-checked to be <b>100% dairy-free and mammal-free</b>, just for you. This is only a little taste of your options — there's always something new next week. 💛`;
+  const note = `Hi Nour 💚 Palo Alto is deep in ${season.label.split(" ")[0].toLowerCase()} right now — usually ${season.weather} this time of year — the kind of weather that calls for ${season.lean}. So ${isToday ? "today's" : dayName + "'s"} picks lean that way, each one hand-checked to be <b>100% dairy-free and mammal-free</b>, just for you. 💛`;
 
   planEl.innerHTML = `
     <div class="day-head">
@@ -405,7 +478,9 @@ function renderWeek() {
       <div class="day-theme">${escapeHtml(season.label)} · a fresh plan every week</div>
     </div>
     <div class="day-note">${note}</div>
-    ${picks.map(pickCard).join("")}
+    ${designPanel(dayLabel)}
+    ${nutritionDetails()}
+    ${plan.map(mealBlock).join("")}
     <button class="explore-btn" id="exploreAll">🍽️ You've got ${counts.restaurants} spots &amp; ${counts.dishes}+ safe dishes — explore them all →</button>`;
 
   const explore = document.getElementById("exploreAll");

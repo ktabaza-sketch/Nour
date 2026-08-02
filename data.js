@@ -761,6 +761,35 @@ const SEASONS = {
 };
 
 // ---------------------------------------------------------------------------
+// NUTRITION — general daily targets for an ~18-year-old woman with a busy,
+// study-heavy schedule. These are standard reference values, NOT medical
+// advice; iron, calcium, B12 and vitamin D deserve a real conversation with
+// her doctor/dietitian because she avoids BOTH dairy and red meat.
+// ---------------------------------------------------------------------------
+
+const NUTRITION = {
+  note: "General targets for an ~18-year-old who studies a lot — not medical advice. Because Nour avoids dairy and red meat, iron, calcium, B12 & vitamin D matter most; a doctor or dietitian can confirm whether a supplement makes sense.",
+  // Approximate calorie split across the day (~2,000–2,200 kcal total).
+  splits: [
+    { meal: "Breakfast", kcal: "450–550" },
+    { meal: "Lunch", kcal: "600–700" },
+    { meal: "Dinner", kcal: "700–800" },
+    { meal: "Snack (optional)", kcal: "200–300" },
+  ],
+  targets: [
+    { k: "Calories", v: "~2,000–2,200 kcal", why: "fuel for long study days" },
+    { k: "Protein", v: "~50–75 g", why: "focus & satiety — chicken, fish, tofu, eggs, beans" },
+    { k: "Carbs", v: "~250–290 g", why: "steady brain glucose — whole grains, rice, oats, fruit" },
+    { k: "Healthy fat", v: "~55–75 g", why: "include omega-3 fish for memory & focus" },
+    { k: "Fiber", v: "~25–28 g", why: "veggies, beans, whole grains" },
+    { k: "Iron", v: "18 mg", why: "KEY (no red meat) — poultry, fish, tofu, beans, spinach + vitamin C to absorb" },
+    { k: "Calcium", v: "1,300 mg", why: "KEY (dairy-free) — fortified plant milk, tofu, tahini, greens, canned fish w/ bones" },
+    { k: "Omega-3 · B12 · Vit D", v: "from fish & eggs", why: "brain, energy & bone health without dairy" },
+    { k: "Water", v: "~8–10 cups", why: "focus dips fast when even a little dehydrated" },
+  ],
+};
+
+// ---------------------------------------------------------------------------
 // WHOLE FOODS GROCERY GUIDE
 // ---------------------------------------------------------------------------
 
@@ -808,5 +837,5 @@ const FACTS = [
 ];
 
 if (typeof module !== "undefined") {
-  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, GROCERY, FACTS };
+  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, NUTRITION, GROCERY, FACTS };
 }

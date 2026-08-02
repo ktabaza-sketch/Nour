@@ -225,6 +225,59 @@ textarea:focus, .search:focus { outline: none; border-color: var(--teal); }
   padding: 13px; border-radius: 12px; font-size: 13.5px; font-weight: 700; cursor: pointer; margin-top: 2px;
 }
 .explore-btn:active { background: #ccfbf1; }
+
+/* Design rationale + nutrition targets */
+.design-card {
+  background: #fff; border-radius: var(--radius); padding: 15px; margin-bottom: 12px; box-shadow: var(--shadow);
+  border-left: 4px solid var(--teal);
+}
+.design-title { font-weight: 800; font-size: 15px; margin-bottom: 6px; }
+.design-card p { margin: 0 0 8px; font-size: 13.5px; line-height: 1.55; color: #334155; }
+.design-card p:last-child { margin-bottom: 0; }
+.design-card b { color: var(--teal-dark); }
+.nutri {
+  background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden;
+}
+.nutri summary {
+  cursor: pointer; padding: 14px 15px; font-weight: 700; font-size: 14px; list-style: none;
+}
+.nutri summary::-webkit-details-marker { display: none; }
+.nutri summary::after { content: " ▾"; color: var(--muted); }
+.nutri[open] summary::after { content: " ▴"; }
+.nutri-note { font-size: 12px; color: var(--muted); margin: 0 15px 8px; }
+.nutri-list { list-style: none; margin: 0; padding: 0 15px 12px; }
+.nutri-list li {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: baseline;
+  padding: 8px 0; border-top: 1px solid var(--line);
+}
+.nutri-list .nk { font-weight: 700; font-size: 13.5px; }
+.nutri-list .nv { font-weight: 700; font-size: 13.5px; color: var(--teal-dark); text-align: right; }
+.nutri-list .nw { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+
+/* Meal blocks with two options / two courses */
+.meal-block { margin-bottom: 16px; }
+.meal-head { display: flex; align-items: baseline; justify-content: space-between; margin: 0 4px 8px; }
+.meal-title { font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--teal-dark); }
+.meal-kcal { font-size: 12px; color: var(--muted); font-weight: 600; }
+.opt {
+  background: var(--card); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow);
+}
+.opt-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.opt-tag {
+  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+  background: var(--teal); color: #fff; padding: 2px 8px; border-radius: 20px;
+}
+.opt-name { font-size: 15px; font-weight: 700; }
+.opt-status { margin-top: 7px; }
+.courses { margin-top: 8px; }
+.course { padding: 7px 0; border-top: 1px solid var(--line); }
+.course:first-child { border-top: none; }
+.course-n {
+  display: inline-block; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+  color: var(--teal); background: var(--safe-bg); padding: 1px 7px; border-radius: 6px; margin-right: 6px;
+}
+.course-dish { font-size: 14px; }
+.course-note { color: var(--caution); font-size: 12.5px; font-weight: 600; }
 .resto {
   background: var(--card); border-radius: var(--radius); padding: 15px; box-shadow: var(--shadow);
 }
