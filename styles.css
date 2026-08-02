@@ -47,6 +47,26 @@ body {
 }
 .icon-btn:active { transform: scale(.94); }
 
+.header-actions { display: flex; gap: 8px; }
+
+/* Favorite heart */
+.resto, .opt { position: relative; }
+.fav-btn {
+  position: absolute; top: 10px; right: 10px; z-index: 3;
+  background: none; border: none; font-size: 24px; line-height: 1; cursor: pointer;
+  color: #cbd5e1; padding: 2px 4px; -webkit-tap-highlight-color: transparent;
+}
+.fav-btn.on { color: #e11d48; }
+.fav-btn:active { transform: scale(.88); }
+.resto .resto-head h3, .opt .opt-head { padding-right: 30px; }
+
+/* Favorites view */
+.fav-kind { margin-bottom: 6px; }
+.fav-kind-head {
+  font-size: 17px; font-weight: 800; margin: 14px 4px 8px;
+  padding-bottom: 6px; border-bottom: 2px solid var(--line);
+}
+
 .safety-strip {
   background: #fff7ed; color: #9a3412; font-size: 12.5px;
   padding: 9px 16px; text-align: center; border-bottom: 1px solid #fed7aa;
