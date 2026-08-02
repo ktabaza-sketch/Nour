@@ -415,6 +415,16 @@ function planForDay(week, day, season) {
   }));
 }
 
+// A low-effort prep option for a day — plant-based or ready-to-heat, rotating.
+function prepPickFor(week, day) {
+  if (typeof PREP_SERVICES === "undefined") return null;
+  const flat = [];
+  PREP_SERVICES.forEach(c => c.services.forEach(s => {
+    if (s.type === "Plant-based" || s.type === "Prepared") flat.push(s);
+  }));
+  return flat.length ? flat[rotIndex(flat.length, week, day, 9)] : null;
+}
+
 // Build a two-course pairing that always leads with a chicken/seafood course.
 function twoCourses(dishes) {
   const pi = (dishes || []).findIndex(hasProtein);
@@ -490,6 +500,17 @@ function nutritionDetails() {
     </details>`;
 }
 
+function prepShortcut(s, isToday) {
+  if (!s) return "";
+  return `
+    <div class="prep-shortcut">
+      <div class="ps-title">🍱 No time to cook ${isToday ? "today" : "that day"}?</div>
+      <div class="ps-name">${escapeHtml(s.name)} <span class="prep-type">${escapeHtml(s.type)}</span></div>
+      <div class="ps-note">${escapeHtml(s.note)}</div>
+      <a class="dd-btn prep-btn sm" href="${escapeHtml(s.url || "#")}" target="_blank" rel="noopener noreferrer">🍱 Set up on ${escapeHtml(s.name)}</a>
+    </div>`;
+}
+
 function renderWeek() {
   const chipsEl = document.getElementById("dayChips");
   const planEl = document.getElementById("dayPlan");
@@ -529,6 +550,7 @@ function renderWeek() {
     ${designPanel(dayLabel)}
     ${nutritionDetails()}
     ${plan.map(mealBlock).join("")}
+    ${prepShortcut(prepPickFor(week, selectedDayIdx), isToday)}
     <button class="explore-btn" id="exploreAll">🍽️ You've got ${counts.restaurants} spots &amp; ${counts.dishes}+ safe dishes — explore them all →</button>`;
 
   const explore = document.getElementById("exploreAll");
@@ -699,8 +721,33 @@ function renderPrepCatChips() {
   }));
 }
 
+function findPrepService(name) {
+  for (const c of (PREP_SERVICES || [])) for (const s of c.services) if (s.name === name) return s;
+  return null;
+}
+
+// Featured "best starting point" recommendation for Nour.
+function renderPrepFeatured() {
+  const el = document.getElementById("prepFeatured");
+  if (!el || typeof PREP_SERVICES === "undefined") return;
+  const top = findPrepService("Thistle") || findPrepService("Mosaic Foods");
+  if (!top) { el.innerHTML = ""; return; }
+  const tags = (top.tags || []).map(t => `<span class="ntag">${escapeHtml(t)}</span>`).join("");
+  el.innerHTML = `
+    <div class="card featured">
+      <div class="featured-tag">★ Best starting point for you, Nour</div>
+      <div class="featured-name">${escapeHtml(top.name)} <span class="prep-type">${escapeHtml(top.type)}</span></div>
+      <div class="resto-rating">${ratingBadge(top)}<span class="area-tag">🚚 ${escapeHtml(top.deliversTo)}</span></div>
+      <p class="featured-why">${escapeHtml(top.note)} It's dairy-free by default, so there's almost nothing to screen — just add salmon or chicken for extra protein.</p>
+      ${tags ? `<div class="ntags">${tags}</div>` : ""}
+      <a class="dd-btn prep-btn" href="${escapeHtml(top.url)}" target="_blank" rel="noopener noreferrer">🍱 Start with ${escapeHtml(top.name)}</a>
+      <p class="featured-alt">Also great: <b>Mosaic Foods</b> (frozen, protein-forward, fully plant-based) and <b>Territory Foods</b> (prepared chicken/fish, dairy-free by default).</p>
+    </div>`;
+}
+
 function renderPrep() {
   if (typeof PREP_SERVICES === "undefined") return;
+  renderPrepFeatured();
   const q = (document.getElementById("prepSearch").value || "").trim().toLowerCase();
   const cats = PREP_SERVICES.filter(c => !currentPrepCat || c.category === currentPrepCat);
   let count = 0;
