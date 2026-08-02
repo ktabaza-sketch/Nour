@@ -278,6 +278,43 @@ textarea:focus, .search:focus { outline: none; border-color: var(--teal); }
 }
 .course-dish { font-size: 14px; }
 .course-note { color: var(--caution); font-size: 12.5px; font-weight: 600; }
+.ntags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.ntag {
+  font-size: 11px; font-weight: 700; color: var(--safe); background: var(--safe-bg);
+  padding: 3px 8px; border-radius: 20px;
+}
+
+/* Grocery cards */
+.resto.groc { padding: 15px; }
+.groc-brand { font-size: 12.5px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+.groc-note { font-size: 13px; margin-top: 8px; color: #334155; }
+.store-badge {
+  font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+}
+.sb-whole-foods { background: #dcfce7; color: #166534; }
+.sb-amazon-fresh { background: #e0f2fe; color: #075985; }
+.sb-amazon { background: #fef3c7; color: #92400e; }
+.dd-btn.amzn { background: #232f3e; }
+.dd-btn.amzn:active { background: #131a24; }
+
+/* Weekly grocery basket */
+.weekly-card { border-left: 4px solid var(--teal); }
+.weekly-title { font-size: 16px; font-weight: 800; }
+.weekly-why { font-size: 13px; color: var(--muted); margin: 6px 0 10px; line-height: 1.5; }
+.weekly-list { list-style: none; margin: 0; padding: 0; }
+.weekly-list li {
+  display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line);
+}
+.wl-main { flex: 1; min-width: 0; }
+.wl-role {
+  display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px;
+  color: var(--teal); background: var(--safe-bg); padding: 1px 7px; border-radius: 6px; margin-right: 6px;
+}
+.wl-name { font-size: 13.5px; }
+.wl-add {
+  flex: 0 0 auto; background: #232f3e; color: #fff; text-decoration: none; font-weight: 700;
+  font-size: 12.5px; padding: 7px 14px; border-radius: 9px;
+}
 .resto {
   background: var(--card); border-radius: var(--radius); padding: 15px; box-shadow: var(--shadow);
 }

@@ -75,24 +75,28 @@
       <div id="dayPlan"></div>
     </section>
 
-    <!-- WHOLE FOODS TAB -->
+    <!-- GROCERY TAB -->
     <section id="tab-grocery" class="tab">
       <div class="card">
-        <h2>Whole Foods guide</h2>
-        <p class="muted">Safe staples, easy swaps, and a label cheat-sheet to scan while you shop.</p>
+        <h2>Safe grocery picks</h2>
+        <p class="muted">Dairy-free &amp; mammal-free staples on <b>Whole Foods, Amazon &amp; Amazon Fresh</b>, ranked by Amazon rating and tagged for the nutrients you need. Tap <b>Find on Amazon</b> to add — Whole Foods &amp; Fresh are ordered through Amazon; same-day/Prime speed depends on your address.</p>
+        <div class="seg" id="storeSeg" role="tablist">
+          <button class="seg-btn active" data-store="">All stores</button>
+          <button class="seg-btn" data-store="Whole Foods">Whole Foods</button>
+          <button class="seg-btn" data-store="Amazon Fresh">Fresh</button>
+          <button class="seg-btn" data-store="Amazon">Amazon</button>
+        </div>
+        <input id="grocSearch" class="search" type="search" placeholder="Search products, brands, or nutrients…" />
+        <div id="grocCatChips" class="chips"></div>
       </div>
-      <div class="card">
-        <h3>Safe protein staples</h3>
-        <ul id="grocProteins" class="checklist"></ul>
-      </div>
-      <div class="card">
-        <h3>Smart swaps</h3>
-        <ul id="grocSwaps" class="swaps"></ul>
-      </div>
+      <div id="grocWeekly"></div>
+      <div id="grocMeta" class="resto-meta"></div>
+      <div id="grocList" class="list"></div>
       <div class="card warn-card">
         <h3>Label cheat-sheet</h3>
-        <p class="muted">If you see these words on a package:</p>
+        <p class="muted">If you see these on a package, put it back:</p>
         <ul id="grocLabels" class="labels"></ul>
+        <p class="muted small" style="margin-top:10px">Two extras for you: pick <b>gelatin-free / veggie capsules</b> (gelatin is mammal-derived), and note some vitamin D3 is from <b>lanolin (sheep's wool)</b> — vegan/lichen D3 avoids it. Supplements aren't medical advice; check doses with your doctor.</p>
       </div>
     </section>
 

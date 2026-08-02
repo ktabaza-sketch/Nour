@@ -836,6 +836,182 @@ const FACTS = [
   "Always carry your epinephrine auto-injector and antihistamines. When in doubt, don't eat it.",
 ];
 
+// ---------------------------------------------------------------------------
+// GROCERY CATALOG — dairy-free & mammal-free products on Whole Foods / Amazon /
+// Amazon Fresh, with approximate Amazon ratings. Ratings & availability drift;
+// treat as a guide. Supplement doses are not medical advice.
+// ---------------------------------------------------------------------------
+
+const GROCERY_ITEMS = [
+  { category: "Poultry & eggs", items: [
+    { name: "Organic Large Brown Eggs, pasture-raised", brand: "Vital Farms", note: "complete protein, iron, B12, vitamin D; dairy-free, no mammal", rating: 4.7, reviews: 5200, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","b12","vitamin-d"] },
+    { name: "Fully Cooked Chicken Breast Strips", brand: "Perdue Short Cuts", note: "ready-to-eat poultry; dairy-free, no mammal", rating: 4.6, reviews: 4100, ratingSrc: "Amazon", stores: ["Amazon Fresh","Amazon"], nutrients: ["protein"] },
+    { name: "Boneless Skinless Chicken Breast, air-chilled", brand: "365 by Whole Foods", note: "lean poultry, iron; dairy-free, no mammal", rating: 4.5, reviews: 1800, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh"], nutrients: ["protein","iron"] },
+    { name: "Chicken Sausage, Sweet Italian (no pork casing)", brand: "Al Fresco", note: "chicken-only sausage; dairy-free, no mammal", rating: 4.5, reviews: 1300, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein"] },
+    { name: "Organic Ground Turkey, 93% lean", brand: "365 by Whole Foods", note: "lean poultry protein + iron; dairy-free, no mammal", rating: 4.4, reviews: 950, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh"], nutrients: ["protein","iron"] },
+    { name: "100% Liquid Egg Whites", brand: "365 by Whole Foods", note: "fat-free lean protein; dairy-free, no mammal", rating: 4.4, reviews: 720, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh"], nutrients: ["protein","b12"] },
+  ] },
+  { category: "Fish & seafood", items: [
+    { name: "Chunk Light Tuna in Water, pouch", brand: "StarKist", note: "lean protein + iron + B12; dairy-free, no mammal", rating: 4.7, reviews: 46000, ratingSrc: "Amazon", stores: ["Amazon Fresh","Amazon"], nutrients: ["protein","iron","b12","omega-3"] },
+    { name: "Wild Sardines in Olive Oil (with bones)", brand: "Wild Planet", note: "calcium from bones + omega-3 + iron; dairy-free, no mammal", rating: 4.6, reviews: 12000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","calcium","omega-3","iron","vitamin-d","b12"] },
+    { name: "Wild Pink Salmon pouch, boneless skinless", brand: "StarKist", note: "shelf-stable omega-3; dairy-free, no mammal", rating: 4.6, reviews: 21000, ratingSrc: "Amazon", stores: ["Amazon Fresh","Amazon"], nutrients: ["protein","omega-3","b12"] },
+    { name: "Wild-Caught Sockeye Salmon, frozen fillets", brand: "365 by Whole Foods", note: "omega-3 + iron + vitamin D; dairy-free, no mammal", rating: 4.5, reviews: 2600, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh"], nutrients: ["protein","omega-3","iron","vitamin-d","b12"] },
+    { name: "Wild Pink Salmon, canned (with bones)", brand: "365 by Whole Foods", note: "calcium from bones + omega-3; dairy-free, no mammal", rating: 4.5, reviews: 1600, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","calcium","omega-3","iron","b12"] },
+    { name: "Wild-Caught Raw Shrimp, peeled, frozen", brand: "365 by Whole Foods", note: "lean seafood protein + iron; dairy-free, no mammal", rating: 4.4, reviews: 1900, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh"], nutrients: ["protein","iron","b12"] },
+    { name: "Wild Mackerel Fillets in Olive Oil, canned", brand: "Wild Planet", note: "high omega-3 + iron + B12; dairy-free, no mammal", rating: 4.4, reviews: 5100, ratingSrc: "Amazon", stores: ["Amazon Fresh","Amazon"], nutrients: ["protein","omega-3","iron","b12","vitamin-d"] },
+    { name: "Wild Alaskan Smoked Sockeye Salmon (Lox)", brand: "Vital Choice", note: "omega-3 + vitamin D; dairy-free, no mammal", rating: 4.5, reviews: 3400, ratingSrc: "Amazon", stores: ["Amazon"], nutrients: ["protein","omega-3","vitamin-d","b12"] },
+  ] },
+  { category: "Plant proteins", items: [
+    { name: "Organic Super Firm High-Protein Tofu (calcium-set)", brand: "Nasoya", note: "calcium-set, high protein; dairy-free, no mammal", rating: 4.6, reviews: 3300, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","calcium","iron"] },
+    { name: "Organic Shelled Edamame, frozen", brand: "365 by Whole Foods", note: "plant protein + iron + fiber + calcium; dairy-free, no mammal", rating: 4.6, reviews: 2800, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh"], nutrients: ["protein","iron","fiber","calcium"] },
+    { name: "Organic Chickpeas (Garbanzo Beans), canned", brand: "365 by Whole Foods", note: "iron + fiber; dairy-free, no mammal", rating: 4.6, reviews: 3100, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","fiber"] },
+    { name: "Classic Hummus", brand: "Sabra", note: "chickpea dip, iron + fiber; dairy-free, no mammal", rating: 4.6, reviews: 8700, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","fiber"] },
+    { name: "Ultimate Plant-Based Chik'n Strips, frozen", brand: "Gardein", note: "dairy-free plant chicken + iron; no mammal", rating: 4.4, reviews: 2900, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron"] },
+    { name: "Organic Three Grain Tempeh", brand: "Lightlife", note: "fermented soy, iron + fiber; dairy-free, no mammal", rating: 4.4, reviews: 1500, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","fiber"] },
+    { name: "Organic Lentils, canned (no salt added)", brand: "365 by Whole Foods", note: "iron + fiber; dairy-free, no mammal", rating: 4.5, reviews: 1200, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","fiber"] },
+  ] },
+  { category: "Iron-rich foods", items: [
+    { name: "Organic Baby Spinach", brand: "365 by Whole Foods", note: "leafy-green iron + folate; pair with vitamin C", rating: 4.5, reviews: 1200, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["iron","fiber","vitamin-c"] },
+    { name: "Organic Pumpkin Seeds (pepitas)", brand: "365 by Whole Foods", note: "high plant iron; pair with vitamin C", rating: 4.6, reviews: 5000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["iron","protein","magnesium"] },
+    { name: "Green Lentils", brand: "Bob's Red Mill", note: "~15% DV iron per serving; pair with tomatoes/peppers", rating: 4.7, reviews: 3500, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["iron","protein","fiber"] },
+    { name: "Organic Unsulphured Blackstrap Molasses", brand: "Wholesome", note: "~20% DV iron per Tbsp + calcium; stir into oatmeal", rating: 4.7, reviews: 4200, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["iron","calcium"] },
+    { name: "Dried Turkish Apricots (no sugar added)", brand: "Sunny Fruit", note: "iron-rich dried fruit; vitamin C aids absorption", rating: 4.6, reviews: 8000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["iron","fiber","vitamin-c"] },
+    { name: "Total Whole Grain Cereal (dairy-free)", brand: "General Mills", note: "100% DV iron per serving; add fortified plant milk + fruit", rating: 4.7, reviews: 11000, ratingSrc: "Amazon", stores: ["Amazon Fresh","Amazon"], nutrients: ["iron","fiber","b12"] },
+    { name: "Frozen Organic Chopped Spinach", brand: "365 by Whole Foods", note: "concentrated non-heme iron; fast staple", rating: 4.6, reviews: 900, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["iron","fiber","protein"] },
+  ] },
+  { category: "Calcium-rich (dairy-free)", items: [
+    { name: "Wild Sardines in Water (with bones)", brand: "Wild Planet", note: "calcium from bones; also iron, omega-3, vitamin D", rating: 4.6, reviews: 9000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["calcium","protein","omega-3","iron"] },
+    { name: "Organic Firm Tofu (calcium-set)", brand: "Nasoya", note: "calcium-sulfate set; ~15-20% DV calcium + protein & iron", rating: 4.6, reviews: 1600, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["calcium","protein","iron"] },
+    { name: "Pure Ground Sesame Tahini", brand: "Soom Foods", note: "sesame is calcium-dense; great in dressings & smoothies", rating: 4.7, reviews: 3000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["calcium","protein","iron"] },
+    { name: "Organic Whole Chia Seeds", brand: "Bob's Red Mill", note: "~18% DV calcium per 2 Tbsp + omega-3 & fiber", rating: 4.7, reviews: 12000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["calcium","omega-3","fiber"] },
+    { name: "Unsweetened Almond Milk (fortified)", brand: "Almond Breeze", note: "~45% DV calcium; dairy-free milk swap for cereal", rating: 4.7, reviews: 14000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["calcium","vitamin-d","b12"] },
+    { name: "100% Orange Juice with Calcium & Vitamin D", brand: "Tropicana", note: "~35% DV calcium per glass; its vitamin C boosts iron", rating: 4.6, reviews: 2500, ratingSrc: "Amazon", stores: ["Amazon Fresh","Amazon"], nutrients: ["calcium","vitamin-c","vitamin-d"] },
+    { name: "Dried Mission Figs", brand: "Made in Nature", note: "one of the most calcium-rich dried fruits; iron & fiber too", rating: 4.5, reviews: 2200, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["calcium","iron","fiber"] },
+    { name: "Organic Lacinato (Dinosaur) Kale", brand: "Produce", note: "highly bioavailable calcium; rich in vitamin C", rating: null, reviews: null, ratingSrc: null, stores: ["Whole Foods","Amazon Fresh"], nutrients: ["calcium","iron","vitamin-c"] },
+  ] },
+  { category: "Vitamin C & pairings", items: [
+    { name: "Red Bell Peppers", brand: "Produce", note: "more vitamin C than citrus; toss with lentils or quinoa", rating: null, reviews: null, ratingSrc: null, stores: ["Whole Foods","Amazon Fresh"], nutrients: ["vitamin-c","fiber"] },
+    { name: "Navel Oranges", brand: "Produce", note: "high vitamin C; eat alongside iron foods to boost absorption", rating: null, reviews: null, ratingSrc: null, stores: ["Whole Foods","Amazon Fresh"], nutrients: ["vitamin-c","fiber"] },
+    { name: "Broccoli Crowns", brand: "Produce", note: "vitamin C plus its own calcium & iron; roast with tofu", rating: null, reviews: null, ratingSrc: null, stores: ["Whole Foods","Amazon Fresh"], nutrients: ["vitamin-c","calcium","iron"] },
+    { name: "Fresh Strawberries", brand: "Driscoll's", note: "vitamin C-rich; blend with chia & almond milk", rating: null, reviews: null, ratingSrc: null, stores: ["Whole Foods","Amazon Fresh"], nutrients: ["vitamin-c","fiber"] },
+    { name: "Frozen Organic Strawberries", brand: "365 by Whole Foods", note: "year-round vitamin C for smoothies", rating: 4.6, reviews: 1800, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["vitamin-c","fiber"] },
+    { name: "Lemons", brand: "Produce", note: "squeeze over greens, lentils or fish to boost iron uptake", rating: null, reviews: null, ratingSrc: null, stores: ["Whole Foods","Amazon Fresh"], nutrients: ["vitamin-c"] },
+  ] },
+  { category: "Whole grains & carbs", items: [
+    { name: "Organic Old Fashioned Rolled Oats", brand: "Bob's Red Mill", note: "slow-release carb + fiber + iron; dairy-free", rating: 4.8, reviews: 40000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","protein","iron"] },
+    { name: "Organic Tri-Color Quinoa", brand: "365 by Whole Foods", note: "complex carb + plant iron & protein; dairy-free", rating: 4.7, reviews: 9000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","fiber"] },
+    { name: "Organic Long Grain Brown Rice", brand: "Lundberg", note: "steady-energy complex carb; naturally dairy-free", rating: 4.7, reviews: 15000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","protein"] },
+    { name: "Organic Steel Cut Oats", brand: "Bob's Red Mill", note: "low-glycemic, sustained energy for studying; dairy-free", rating: 4.8, reviews: 12000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","protein","iron"] },
+    { name: "Brown Rice & Quinoa Pasta", brand: "Jovial", note: "gluten-free rice pasta, gentle steady carb; dairy-free", rating: 4.6, reviews: 8000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: ["fiber","protein"] },
+    { name: "Whole Wheat Tortillas", brand: "Mission", note: "check label — standard variety is dairy-free", rating: 4.7, reviews: 7000, ratingSrc: "Amazon", stores: ["Amazon Fresh","Amazon"], nutrients: ["fiber","protein"] },
+    { name: "Organic Brown Rice Cakes, Lightly Salted", brand: "Lundberg", note: "crunchy whole-grain snack; dairy-free, no mammal", rating: 4.6, reviews: 10000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber"] },
+  ] },
+  { category: "Beans, broth & canned", items: [
+    { name: "Organic Free Range Chicken Broth", brand: "Pacific Foods", note: "poultry broth (never beef/bone); dairy-free, no mammal", rating: 4.7, reviews: 12000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein"] },
+    { name: "Organic Low Sodium Vegetable Broth", brand: "Pacific Foods", note: "plant-based broth, no bone/beef; dairy-free", rating: 4.7, reviews: 9000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Organic Black Beans (no salt added)", brand: "365 by Whole Foods", note: "plant protein + iron + fiber, no lard; dairy-free", rating: 4.7, reviews: 6000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","fiber"] },
+    { name: "Organic Unsweetened Coconut Milk", brand: "Native Forest", note: "curry base, dairy-milk replacement; naturally dairy-free", rating: 4.6, reviews: 14000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: [] },
+    { name: "Organic Marinara Pasta Sauce", brand: "Rao's Homemade", note: "classic marinara has no dairy — check label; no mammal", rating: 4.8, reviews: 45000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber"] },
+    { name: "Organic Diced Tomatoes (no salt added)", brand: "Muir Glen", note: "cooking base, vitamin C + lycopene; dairy-free", rating: 4.7, reviews: 11000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","vitamin-c"] },
+    { name: "Organic Pinto Beans (BPA-free can)", brand: "Eden Foods", note: "lard-free, plant iron; dairy-free, no mammal", rating: 4.7, reviews: 5000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: ["protein","iron","fiber"] },
+  ] },
+  { category: "Spreads & condiments", items: [
+    { name: "Organic Tahini (ground sesame)", brand: "Once Again", note: "iron + calcium; dairy-free, no mammal", rating: 4.7, reviews: 8000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: ["calcium","iron","protein"] },
+    { name: "Sunflower Seed Butter", brand: "SunButter", note: "nut-free seed spread, iron; dairy-free, no mammal", rating: 4.7, reviews: 13000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","fiber"] },
+    { name: "Organic Creamy Peanut Butter", brand: "365 by Whole Foods", note: "plant protein spread; dairy-free, no mammal", rating: 4.7, reviews: 10000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","fiber"] },
+    { name: "Premium Fish Sauce", brand: "Red Boat", note: "anchovy-based umami (not mammal); dairy-free", rating: 4.7, reviews: 11000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: ["protein"] },
+    { name: "Organic Gluten-Free Tamari Soy Sauce", brand: "San-J", note: "umami seasoning, gluten-free; dairy-free, no mammal", rating: 4.8, reviews: 16000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: [] },
+    { name: "Avocado Oil (high-heat)", brand: "Chosen Foods", note: "high-heat cooking oil; dairy-free, no mammal", rating: 4.7, reviews: 30000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Organic Extra Virgin Olive Oil", brand: "California Olive Ranch", note: "heart-healthy fat for cooking/dressing; dairy-free", rating: 4.8, reviews: 20000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Classic Guacamole Minis", brand: "Wholly Guacamole", note: "avocado, healthy fats + fiber; dairy-free, no mammal", rating: 4.6, reviews: 9000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber"] },
+  ] },
+  { category: "Plant milks & creamers", items: [
+    { name: "Organic Unsweetened Soymilk", brand: "Silk", note: "calcium-fortified (~30% DV), 7g protein, added B12 & vitamin D", rating: 4.7, reviews: 21000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","calcium","b12","vitamin-d"] },
+    { name: "Original Pea Milk", brand: "Ripple", note: "8g protein, calcium ~45% DV, DHA omega-3, iron", rating: 4.3, reviews: 6500, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","calcium","vitamin-d","omega-3","iron"] },
+    { name: "Unsweetened Almondmilk", brand: "Califia Farms", note: "calcium-fortified (~30% DV) + vitamin D, low calorie", rating: 4.5, reviews: 12000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["calcium","vitamin-d"] },
+    { name: "Organic Coconutmilk (unsweetened)", brand: "So Delicious", note: "calcium-fortified + B12 & vitamin D", rating: 4.5, reviews: 8000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["calcium","vitamin-d","b12"] },
+    { name: "Barista Edition Oat Milk", brand: "Oatly", note: "great for foaming; original is NOT calcium-fortified — pair with a fortified milk", rating: 4.6, reviews: 15000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Unsweetened Almond & Coconut Creamer", brand: "nutpods", note: "dairy-free coffee creamer; no mammal ingredients", rating: 4.6, reviews: 34000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+  ] },
+  { category: "Dairy-free cheese", items: [
+    { name: "Just Like Cheddar Shreds", brand: "Violife", note: "coconut-oil based; dairy/soy/nut/lactose-free, B12-enriched", rating: 4.3, reviews: 9000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["b12"] },
+    { name: "Creamy Original Cheese Slices", brand: "Chao (Field Roast)", note: "dairy-free slices; melt well for sandwiches", rating: 4.5, reviews: 6200, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Just Like Mozzarella Shreds", brand: "Violife", note: "melts & stretches; B12-enriched, nut-free", rating: 4.3, reviews: 7500, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["b12"] },
+    { name: "Just Like Feta Block", brand: "Violife", note: "crumbly, tangy; nut- and soy-free (great on salads)", rating: 4.2, reviews: 3900, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["b12"] },
+    { name: "Chive Cream Cheese Style Spread", brand: "Kite Hill", note: "almond-milk based; some protein from almonds", rating: 4.2, reviews: 1800, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein"] },
+    { name: "Organic Cashew Milk Mozzarella", brand: "Miyoko's", note: "cultured cashew; meltable pizza mozzarella", rating: 4.1, reviews: 3300, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: [] },
+  ] },
+  { category: "Dairy-free butter & yogurt", items: [
+    { name: "Original Buttery Spread", brand: "Earth Balance", note: "plant-oil blend; vegan, no whey/casein/lactose", rating: 4.6, reviews: 11000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Plant Butter with Olive Oil (sticks)", brand: "Country Crock", note: "olive-oil based; good for baking", rating: 4.5, reviews: 7200, ratingSrc: "Amazon", stores: ["Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "European Style Cultured Vegan Butter", brand: "Miyoko's", note: "cultured cashew + oils; no mammal ingredients", rating: 4.4, reviews: 5400, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Greek-Style Almond Milk Yogurt (plain)", brand: "Kite Hill", note: "higher protein (~11g) than most non-dairy yogurts", rating: 4.2, reviews: 2300, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","calcium"] },
+    { name: "Dairy-Free Soy Yogurt (plain)", brand: "Silk", note: "~6g protein, calcium-fortified", rating: 4.3, reviews: 3100, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","calcium"] },
+    { name: "Coconutmilk Yogurt Alternative", brand: "So Delicious", note: "live cultures; some varieties calcium-fortified", rating: 4.3, reviews: 4800, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["calcium"] },
+  ] },
+  { category: "Dairy-free frozen desserts", items: [
+    { name: "Alphonso Mango Sorbetto", brand: "Talenti", note: "fruit-based sorbet; naturally dairy-free, no mammal", rating: 4.6, reviews: 6700, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Non-Dairy P.B. & Cookies (almond milk)", brand: "Ben & Jerry's", note: "almond-milk based; certified vegan", rating: 4.6, reviews: 5200, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Oatmilk Frozen Dessert", brand: "So Delicious", note: "oatmilk base; certified vegan, no mammal", rating: 4.5, reviews: 3800, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Oat Milk Frozen Dessert (Sea Salt Caramel)", brand: "Halo Top", note: "lower-sugar, higher-protein non-dairy pint", rating: 4.2, reviews: 2900, ratingSrc: "Amazon", stores: ["Amazon Fresh","Amazon"], nutrients: ["protein"] },
+  ] },
+  { category: "Breakfast", items: [
+    { name: "Classic Almond Butter Squeeze Packs", brand: "Justin's", note: "portable, 7g protein + calcium; dairy-free, gelatin-free", rating: 4.7, reviews: 30000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","calcium","fiber"] },
+    { name: "Original Ancient Grain Granola", brand: "Purely Elizabeth", note: "oats, quinoa, chia; dairy-free (no milk powder), gelatin-free", rating: 4.6, reviews: 13000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","iron","omega-3"] },
+    { name: "Heritage Flakes Cereal", brand: "Nature's Path", note: "whole-grain, 5g fiber + 6g protein; dairy-free, gelatin-free", rating: 4.6, reviews: 9000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","protein","iron"] },
+    { name: "Classic Instant Oatmeal Cups", brand: "Bob's Red Mill", note: "just-add-water microwave cup; dairy-free, gelatin-free", rating: 4.5, reviews: 12000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","protein","iron"] },
+    { name: "Overnight Oats Cup, Blueberry", brand: "mush", note: "ready-to-eat, no cooking; dairy-free, gelatin-free", rating: 4.3, reviews: 4000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","protein","omega-3"] },
+    { name: "Whole Wheat Fig Bars", brand: "Nature's Bakery", note: "soft grab-and-go bar; dairy-free, gelatin-free", rating: 4.6, reviews: 27000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","iron"] },
+  ] },
+  { category: "Study snacks & bars", items: [
+    { name: "Dark Chocolate Nuts & Sea Salt Bar", brand: "KIND", note: "dairy-free variant (no milk), gelatin-free; 6g protein, 5g fiber", rating: 4.7, reviews: 60000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","fiber"] },
+    { name: "Chocolate Sea Salt Protein Bar", brand: "RXBAR", note: "dairy-free, gelatin-free; 12g egg-white protein", rating: 4.6, reviews: 42000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","fiber"] },
+    { name: "Peanut Butter Chocolate Chip Bar", brand: "GoMacro", note: "vegan, dairy-free, gelatin-free; 11g plant protein + iron", rating: 4.6, reviews: 15000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","fiber"] },
+    { name: "Sea Salt Roasted Chickpea Snacks", brand: "Biena", note: "vegan, dairy-free, gelatin-free; 5g plant protein + iron", rating: 4.4, reviews: 9000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","fiber","iron"] },
+    { name: "Organic Roasted Seaweed Snack, Sea Salt", brand: "gimMe", note: "vegan, dairy-free, gelatin-free; low-cal, mineral-rich", rating: 4.5, reviews: 21000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["omega-3","iron"] },
+    { name: "Cashew Cookie Fruit & Nut Bar", brand: "Larabar", note: "vegan, dairy-free, gelatin-free; whole-food, 2 ingredients", rating: 4.7, reviews: 33000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber"] },
+    { name: "Simple Dark Chocolate Bar (70%)", brand: "Hu", note: "vegan, dairy-free, gelatin-free; no refined sugar/emulsifiers", rating: 4.5, reviews: 14000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["iron","fiber"] },
+  ] },
+  { category: "Gelatin-free treats", items: [
+    { name: "Organic Bunny Fruit Snacks", brand: "Annie's", note: "pectin-based (NO gelatin); dairy-free, single-serve pouches", rating: 4.7, reviews: 34000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Organic Gummy Bears", brand: "YumEarth", note: "pectin-based (NO gelatin); vegan, dairy-free, real fruit color", rating: 4.5, reviews: 28000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Original Vegan Marshmallows", brand: "Dandies", note: "tapioca-based, NO gelatin; dairy-free — safe for AGS s'mores", rating: 4.6, reviews: 11000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: [] },
+    { name: "Chocolate Chip Soft Baked Cookies", brand: "Enjoy Life", note: "free of 14 allergens (no milk), gelatin-free; vegan", rating: 4.5, reviews: 16000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber"] },
+    { name: "Classic Rich Sea Salt Crackers", brand: "Simple Mills", note: "almond-flour base; dairy-free (no milk), gelatin-free", rating: 4.5, reviews: 19000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber"] },
+    { name: "Semi-Sweet Mini Chocolate Chips", brand: "Enjoy Life", note: "allergen-free (no milk), gelatin-free; for baking/snacking", rating: 4.7, reviews: 25000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["iron"] },
+  ] },
+  { category: "Quick meals", items: [
+    { name: "Organic Lentil Vegetable Soup", brand: "Amy's Kitchen", note: "vegan (no cream), gelatin-free, mammal-free; shelf-stable", rating: 4.6, reviews: 14000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","fiber","iron"] },
+    { name: "Organic Brown Rice & Quinoa Ready Rice", brand: "Seeds of Change", note: "90-second microwave pouch; dairy-free, mammal-free", rating: 4.6, reviews: 20000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["fiber","protein","iron"] },
+    { name: "Chicken & Vegetable Bowl (poultry, halal)", brand: "Saffron Road", note: "dairy-free variant (no cream/yogurt), mammal-free; frozen", rating: 4.2, reviews: 3000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","iron","b12"] },
+    { name: "Thai Green Curry with Tofu Bowl", brand: "Amy's Kitchen", note: "coconut base, vegan, gelatin-free, mammal-free; frozen", rating: 4.4, reviews: 5000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","fiber","iron"] },
+    { name: "Organic Split Pea Soup", brand: "Pacific Foods", note: "no ham/cream, gelatin-free, mammal-free; carton", rating: 4.5, reviews: 8000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","fiber","iron"] },
+    { name: "Jaipur Vegetables Ready Meal (vegan)", brand: "Tasty Bite", note: "pick the vegan/no-cream variety; microwave pouch, mammal-free", rating: 4.4, reviews: 9000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon Fresh","Amazon"], nutrients: ["protein","fiber","iron"] },
+  ] },
+  { category: "Supplement — Iron", items: [
+    { name: "Blood Builder (iron + vitamin C, 26 mg)", brand: "MegaFood", note: "gentle iron + C + beet; veggie tablet, gelatin-free, dairy-free — confirm dose with her doctor", rating: 4.6, reviews: 31000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon","Amazon Fresh"], nutrients: ["iron"] },
+    { name: "Iron 18 mg (ferrous bisglycinate, gentle)", brand: "NOW Foods", note: "18 mg gentle chelated iron; veggie capsule, gelatin-free, dairy-free", rating: 4.7, reviews: 12000, ratingSrc: "Amazon", stores: ["Amazon","Amazon Fresh"], nutrients: ["iron"] },
+    { name: "Gentle Iron (bisglycinate, 25 mg)", brand: "Solgar", note: "non-constipating iron; veggie capsule, gelatin-free — pair with vitamin C", rating: 4.7, reviews: 15000, ratingSrc: "Amazon", stores: ["Amazon"], nutrients: ["iron"] },
+    { name: "Vitamin Code Raw Iron (22 mg + C & folate)", brand: "Garden of Life", note: "whole-food iron with C and B12; vegan capsule, gelatin-free, dairy-free", rating: 4.6, reviews: 9500, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: ["iron"] },
+  ] },
+  { category: "Supplement — Calcium & D", items: [
+    { name: "Calcium Citrate with Vitamin D3", brand: "NOW Foods", note: "well-absorbed calcium citrate + D3; veggie capsule, gelatin-free, dairy-free", rating: 4.7, reviews: 6000, ratingSrc: "Amazon", stores: ["Amazon","Amazon Fresh"], nutrients: ["calcium","vitamin-d"] },
+    { name: "mykind Organics Plant Calcium (+ D3 & magnesium)", brand: "Garden of Life", note: "whole-food calcium with lichen vegan D3; vegan tablet, gelatin-free, dairy-free", rating: 4.4, reviews: 2600, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: ["calcium","vitamin-d"] },
+    { name: "Vegan D3 (2500 IU, lichen-derived)", brand: "Doctor's Best", note: "plant/lichen vitamin D3; veggie capsule, gelatin-free, dairy-free (D3 without lanolin)", rating: 4.7, reviews: 4500, ratingSrc: "Amazon", stores: ["Amazon"], nutrients: ["vitamin-d"] },
+    { name: "Calcium Magnesium Plus Vitamin D3", brand: "Solgar", note: "calcium citrate/carbonate + D3; tablet, gelatin-free, dairy-free", rating: 4.7, reviews: 8000, ratingSrc: "Amazon", stores: ["Amazon"], nutrients: ["calcium","vitamin-d"] },
+  ] },
+  { category: "Supplement — Omega-3", items: [
+    { name: "Algae Omega (vegan DHA + EPA)", brand: "Nordic Naturals", note: "algae-based, no fish; plant softgel, gelatin-free, dairy-free — great for AGS", rating: 4.6, reviews: 8000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: ["omega-3"] },
+    { name: "Ovega-3 Vegan Omega-3 (DHA + EPA)", brand: "Ovega-3", note: "algal DHA/EPA; plant softgel, gelatin-free, dairy-free", rating: 4.5, reviews: 3500, ratingSrc: "Amazon", stores: ["Amazon","Amazon Fresh"], nutrients: ["omega-3"] },
+    { name: "Vegan Omega-3 (algae, 1000 mg)", brand: "Sports Research", note: "algal triglyceride omega-3; plant softgel, gelatin-free, dairy-free", rating: 4.5, reviews: 6000, ratingSrc: "Amazon", stores: ["Amazon"], nutrients: ["omega-3"] },
+  ] },
+  { category: "Supplement — B12 & multi", items: [
+    { name: "Methyl B-12 1000 mcg (lozenge)", brand: "NOW Foods", note: "methylcobalamin; chewable lozenge, gelatin-free, dairy-free", rating: 4.8, reviews: 14000, ratingSrc: "Amazon", stores: ["Amazon","Amazon Fresh"], nutrients: ["b12"] },
+    { name: "Women's One Daily Multivitamin", brand: "MegaFood", note: "whole-food multi with iron, B12 & D; veggie tablet, gelatin-free, dairy-free", rating: 4.6, reviews: 12000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: ["multivitamin","iron","b12","vitamin-d"] },
+    { name: "mykind Organics Women's Once Daily Multi", brand: "Garden of Life", note: "organic whole-food women's multi with iron, B12 & D; vegan, gelatin-free, dairy-free", rating: 4.6, reviews: 5000, ratingSrc: "Amazon", stores: ["Whole Foods","Amazon"], nutrients: ["multivitamin","iron","b12","vitamin-d"] },
+    { name: "Essential for Women 18+ Multivitamin", brand: "Ritual", note: "methylated B12, D3 & iron; delayed-release veggie capsule, gelatin-free, dairy-free", rating: 4.3, reviews: 8000, ratingSrc: "Amazon", stores: ["Amazon"], nutrients: ["multivitamin","iron","b12","vitamin-d"] },
+  ] },
+];
 if (typeof module !== "undefined") {
-  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, NUTRITION, GROCERY, FACTS };
+  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, NUTRITION, GROCERY, GROCERY_ITEMS, FACTS };
 }

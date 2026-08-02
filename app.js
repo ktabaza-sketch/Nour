@@ -413,6 +413,17 @@ function twoCourses(dishes) {
   return other ? [protein, other] : [protein];
 }
 
+// Nutrition tags for a pairing — protein is guaranteed; omega-3/iron/calcium
+// are inferred from the dishes so the health angle is visible at a glance.
+function nutriTags(courses) {
+  const t = courses.map(c => c.dish + " " + (c.note || "")).join(" ").toLowerCase();
+  const tags = ["💪 Protein"];
+  if (/salmon|tuna|ahi|fish|shrimp|poke|sashimi|nigiri|crab|lobster|scallop|lox|nova|sardine|anchovy|eel|seafood|ceviche|halibut|cod|bangus|milkfish/.test(t)) tags.push("🐟 Omega-3");
+  if (/chicken|turkey|duck|fish|salmon|tuna|shrimp|tofu|bean|lentil|chickpea|chana|daal|dal|spinach|falafel|hummus|edamame/.test(t)) tags.push("🩸 Iron");
+  if (/tahini|hummus|greens|kale|spinach|tofu|sesame|almond|broccoli|bok choy/.test(t)) tags.push("🦴 Calcium");
+  return tags;
+}
+
 // A restaurant option rendered as a two-course pairing.
 function optionCard(o, idx) {
   const courses = twoCourses(o.dishes);
@@ -422,6 +433,7 @@ function optionCard(o, idx) {
       <span class="course-n">${labels[i] || "Course " + (i + 1)}</span>
       <span class="course-dish">${escapeHtml(d.dish)}${d.note ? ` <span class="course-note">— ${escapeHtml(d.note)}</span>` : ""}</span>
     </div>`).join("");
+  const tags = nutriTags(courses).map(x => `<span class="ntag">${x}</span>`).join("");
   return `
     <div class="opt">
       <div class="opt-head">
@@ -431,6 +443,7 @@ function optionCard(o, idx) {
       </div>
       <div class="opt-status">${openBadge(o)}</div>
       <div class="courses">${courseHtml}</div>
+      <div class="ntags">${tags}</div>
       <a class="dd-btn sm" href="${ddSearchUrl(o)}" target="_blank" rel="noopener noreferrer">🛵 Order on DoorDash</a>
     </div>`;
 }
@@ -511,13 +524,129 @@ function renderWeek() {
   if (explore) explore.addEventListener("click", () => switchTab("order"));
 }
 
+// ---- Grocery (Whole Foods / Amazon / Amazon Fresh) -------------------------
+let currentStore = "";        // "" = all stores
+let currentGrocCat = null;    // null = all categories
+
+const NUTRIENT_LABEL = {
+  protein: "💪 Protein", iron: "🩸 Iron", calcium: "🦴 Calcium", "omega-3": "🐟 Omega-3",
+  fiber: "🌾 Fiber", b12: "⚡ B12", "vitamin-d": "☀️ Vit D", "vitamin-c": "🍊 Vit C",
+  multivitamin: "💊 Multi", magnesium: "✨ Magnesium",
+};
+const STORE_SHORT = { "Whole Foods": "Whole Foods", "Amazon Fresh": "Fresh", "Amazon": "Amazon" };
+function storeKey(s) { return s.toLowerCase().replace(/[^a-z]+/g, "-"); }
+
+// Generate an Amazon search link (stable, unlike ASINs). Scope to the store
+// department when a specific store is selected.
+function amazonUrl(item) {
+  const clean = ((item.brand ? item.brand + " " : "") + item.name).replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim();
+  let dept = "";
+  if (currentStore === "Amazon Fresh") dept = "&i=amazonfresh";
+  else if (currentStore === "Whole Foods") dept = "&i=wholefoods";
+  return "https://www.amazon.com/s?k=" + encodeURIComponent(clean) + dept;
+}
+
+function nutrientChips(ns) {
+  return (ns || []).map(n => `<span class="ntag">${NUTRIENT_LABEL[n] || escapeHtml(n)}</span>`).join("");
+}
+function storeBadges(ss) {
+  return (ss || []).map(s => `<span class="store-badge sb-${storeKey(s)}">${escapeHtml(STORE_SHORT[s] || s)}</span>`).join("");
+}
+
+function groceryMatches(it, q) {
+  if (currentStore && !(it.stores || []).includes(currentStore)) return false;
+  if (!q) return true;
+  const hay = (it.name + " " + (it.brand || "") + " " + (it.note || "") + " " + (it.nutrients || []).join(" ")).toLowerCase();
+  return hay.includes(q);
+}
+
+function groceryCard(it) {
+  return `
+    <div class="resto groc">
+      <div class="resto-head"><h3>${escapeHtml(it.name)}</h3></div>
+      ${it.brand ? `<div class="groc-brand">${escapeHtml(it.brand)}</div>` : ""}
+      <div class="resto-rating">${ratingBadge(it)}${storeBadges(it.stores)}</div>
+      ${it.note ? `<div class="groc-note">${escapeHtml(it.note)}</div>` : ""}
+      ${(it.nutrients && it.nutrients.length) ? `<div class="ntags">${nutrientChips(it.nutrients)}</div>` : ""}
+      <a class="dd-btn amzn" href="${amazonUrl(it)}" target="_blank" rel="noopener noreferrer">🛒 Find on ${escapeHtml(currentStore || "Amazon")}</a>
+    </div>`;
+}
+
+function renderGrocCatChips() {
+  const el = document.getElementById("grocCatChips");
+  if (!el || typeof GROCERY_ITEMS === "undefined") return;
+  const cats = GROCERY_ITEMS.map(c => c.category);
+  const chip = (label, val, active) =>
+    `<button class="chip${active ? " active" : ""}" data-cat="${val === null ? "" : escapeHtml(val)}">${escapeHtml(label)}</button>`;
+  el.innerHTML = chip("All", null, currentGrocCat === null) +
+    cats.map(c => chip(c, c, currentGrocCat === c)).join("");
+  el.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+    currentGrocCat = b.dataset.cat || null;
+    renderGrocCatChips();
+    renderGrocery();
+  }));
+}
+
+// A balanced weekly basket covering protein / iron / calcium / omega-3.
+const GROC_ROLES = [
+  { label: "Poultry or eggs", pred: it => /Poultry|eggs/i.test(it.category) },
+  { label: "Omega-3 fish", pred: it => (it.nutrients || []).includes("omega-3") && /Fish|seafood|Calcium/i.test(it.category) },
+  { label: "Plant protein", pred: it => /Plant proteins/i.test(it.category) },
+  { label: "Calcium plant milk", pred: it => /milk/i.test(it.category) && (it.nutrients || []).includes("calcium") },
+  { label: "Iron food", pred: it => /Iron-rich/i.test(it.category) },
+  { label: "Calcium food", pred: it => /Calcium-rich/i.test(it.category) },
+  { label: "Whole grain", pred: it => /grain|carb/i.test(it.category) },
+  { label: "Vitamin-C produce", pred: it => /Vitamin C/i.test(it.category) },
+  { label: "Study snack", pred: it => /snack|bar|breakfast/i.test(it.category) },
+];
+
+function renderGrocWeekly() {
+  const el = document.getElementById("grocWeekly");
+  if (!el || typeof GROCERY_ITEMS === "undefined") return;
+  const flat = [];
+  GROCERY_ITEMS.forEach(c => c.items.forEach(it => flat.push(Object.assign({ category: c.category }, it))));
+  const week = weekIndex(new Date());
+  const picks = GROC_ROLES.map((r, i) => {
+    const pool = flat.filter(r.pred);
+    if (!pool.length) return null;
+    return { role: r.label, it: pool[rotIndex(pool.length, week, 0, i + 1)] };
+  }).filter(Boolean);
+
+  el.innerHTML = `
+    <div class="card weekly-card">
+      <div class="weekly-title">🧺 This week's grocery list</div>
+      <p class="weekly-why">A balanced basket that covers your week's <b>protein, iron, calcium &amp; omega-3</b> — every item dairy-free &amp; mammal-free. It refreshes each week.</p>
+      <ul class="weekly-list">
+        ${picks.map(p => `
+          <li>
+            <div class="wl-main"><span class="wl-role">${escapeHtml(p.role)}</span>
+            <span class="wl-name">${escapeHtml(p.it.name)}${p.it.brand ? ` · <span class="muted">${escapeHtml(p.it.brand)}</span>` : ""}</span></div>
+            <a class="wl-add" href="${amazonUrl(p.it)}" target="_blank" rel="noopener noreferrer">Add</a>
+          </li>`).join("")}
+      </ul>
+    </div>`;
+}
+
 function renderGrocery() {
-  document.getElementById("grocProteins").innerHTML =
-    GROCERY.proteins.map(p => `<li>${escapeHtml(p)}</li>`).join("");
-  document.getElementById("grocSwaps").innerHTML =
-    GROCERY.swaps.map(s => `<li><span class="from">${escapeHtml(s.instead)}</span><span class="arrow">→</span><span class="to">${escapeHtml(s.use)}</span></li>`).join("");
-  document.getElementById("grocLabels").innerHTML =
-    GROCERY.labelCheck.map(l => `<li>${escapeHtml(l)}</li>`).join("");
+  const labels = document.getElementById("grocLabels");
+  if (labels) labels.innerHTML = GROCERY.labelCheck.map(l => `<li>${escapeHtml(l)}</li>`).join("");
+  if (typeof GROCERY_ITEMS === "undefined") return;
+
+  renderGrocWeekly();
+  const q = (document.getElementById("grocSearch").value || "").trim().toLowerCase();
+  const cats = GROCERY_ITEMS.filter(c => !currentGrocCat || c.category === currentGrocCat);
+  let count = 0;
+  const html = cats.map(cat => {
+    const items = cat.items.filter(it => groceryMatches(it, q)).sort(byRating);
+    count += items.length;
+    if (!items.length) return "";
+    return `<div class="cat-head">${escapeHtml(cat.category)}</div>` + items.map(groceryCard).join("");
+  }).join("");
+
+  const meta = document.getElementById("grocMeta");
+  if (meta) meta.textContent = `${currentGrocCat ? currentGrocCat + " · " : ""}${currentStore || "All stores"} · ${count} item${count === 1 ? "" : "s"} · ratings from Amazon`;
+  const el = document.getElementById("grocList");
+  el.innerHTML = count ? html : `<div class="card muted">No matches. Try another store, category, or search term.</div>`;
 }
 
 function renderAllergyCardDairy() {
@@ -532,6 +661,7 @@ function switchTab(name) {
   // Re-render time-sensitive tabs so open-now badges reflect the current time.
   if (name === "week") renderWeek();
   if (name === "order") renderRestaurants(document.getElementById("restoSearch").value);
+  if (name === "grocery") renderGrocery();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -561,9 +691,19 @@ function init() {
   renderCuisineChips();
   renderRestaurants();
   renderWeek();
+  renderGrocCatChips();
   renderGrocery();
   renderAllergyCardDairy();
   bindSettings();
+
+  const grocSearch = document.getElementById("grocSearch");
+  if (grocSearch) grocSearch.addEventListener("input", renderGrocery);
+  document.querySelectorAll("#storeSeg .seg-btn").forEach(b =>
+    b.addEventListener("click", () => {
+      currentStore = b.dataset.store;
+      document.querySelectorAll("#storeSeg .seg-btn").forEach(x => x.classList.toggle("active", x === b));
+      renderGrocery();
+    }));
 
   document.getElementById("checkBtn").addEventListener("click", () => {
     const text = document.getElementById("checkInput").value;
