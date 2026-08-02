@@ -20,7 +20,10 @@
         <p class="tagline">Alpha-gal safe food helper</p>
       </div>
     </div>
-    <button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙️</button>
+    <div class="header-actions">
+      <button id="favOpen" class="icon-btn" aria-label="Favorites">⭐</button>
+      <button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙️</button>
+    </div>
   </header>
 
   <!-- Emergency banner -->
@@ -79,7 +82,7 @@
     <section id="tab-grocery" class="tab">
       <div class="card">
         <h2>Safe grocery picks</h2>
-        <p class="muted">Dairy-free &amp; mammal-free staples on <b>Whole Foods, Amazon &amp; Amazon Fresh</b>, ranked by Amazon rating and tagged for the nutrients you need. Tap <b>Find on Amazon</b> to add — Whole Foods &amp; Fresh are ordered through Amazon; same-day/Prime speed depends on your address.</p>
+        <p class="muted">Each pick is a <b>specific product</b> whose ingredients we checked to be <b>dairy-free &amp; mammal-free</b> (no milk, whey, casein, red meat or gelatin) — tap <b>Buy on Amazon</b> to open that exact item, or <b>Find on</b> for fresh produce. Organised into the same <b>Whole Foods / Amazon Fresh aisles</b> (Produce, Bakery, Deli, Snacks, Ready Meals…) and tagged for the nutrients you need. Menus &amp; formulas change — glance at the label the site shows before you check out.</p>
         <div class="seg" id="storeSeg" role="tablist">
           <button class="seg-btn active" data-store="">All stores</button>
           <button class="seg-btn" data-store="Whole Foods">Whole Foods</button>
@@ -156,6 +159,15 @@
           <li>Reactions can be delayed 2–6 hours — stay alert after eating something new.</li>
         </ol>
       </div>
+    </section>
+
+    <!-- FAVORITES TAB (opened from the header ⭐) -->
+    <section id="tab-favorites" class="tab">
+      <div class="card">
+        <h2>Your favorites ⭐</h2>
+        <p class="muted">Everything you've saved — restaurants, groceries &amp; meal-prep — grouped just like the app, for quick shortcuts. Tap the ♥ again to remove.</p>
+      </div>
+      <div id="favList" class="list"></div>
     </section>
   </main>
 

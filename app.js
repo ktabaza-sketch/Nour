@@ -15,6 +15,22 @@ function saveSettings(s) {
 }
 let settings = loadSettings();
 
+// ---- Favorites (saved per-device; stores just the ids) --------------------
+function loadFavs() {
+  try { return JSON.parse(localStorage.getItem("nour.favs") || "{}"); } catch { return {}; }
+}
+function saveFavs() {
+  try { localStorage.setItem("nour.favs", JSON.stringify(favs)); } catch {}
+}
+let favs = loadFavs();
+
+function favId(kind, name, sub) { return kind + "|" + name + "|" + (sub || ""); }
+function isFav(id) { return !!favs[id]; }
+function favBtn(id) {
+  return `<button class="fav-btn${isFav(id) ? " on" : ""}" data-fav="${escapeHtml(id)}" aria-label="Save to favorites" title="Save to favorites">${isFav(id) ? "♥" : "♡"}</button>`;
+}
+function favCount() { return Object.keys(favs).length; }
+
 // ---- Checker engine -------------------------------------------------------
 // Returns whether a personal-toggle rule is active for the current settings.
 function personalActive(rule) {
@@ -254,17 +270,16 @@ function formatCount(n) {
 }
 
 function restaurantCard(r) {
+  const id = favId("order", r.name, r.area);
   const area = r.area ? `<span class="area-tag">${escapeHtml(r.area)}</span>` : "";
   const dishes = (r.safeDishes || []).map(dishItem).join("");
   const watch = r.watchOut
     ? `<p class="watch"><b>Skip:</b> ${escapeHtml(r.watchOut)}</p>` : "";
   return `
     <div class="resto">
-      <div class="resto-head">
-        <h3>${escapeHtml(r.name)}</h3>
-        ${area}
-      </div>
-      <div class="resto-rating">${ratingBadge(r)}${openBadge(r)}</div>
+      ${favBtn(id)}
+      <div class="resto-head"><h3>${escapeHtml(r.name)}</h3></div>
+      <div class="resto-rating">${area}${ratingBadge(r)}${openBadge(r)}</div>
       <ul class="dishes">${dishes}</ul>
       ${watch}
       ${platformButtons(r)}
@@ -455,14 +470,15 @@ function optionCard(o, idx) {
       <span class="course-dish">${escapeHtml(d.dish)}${d.note ? ` <span class="course-note">— ${escapeHtml(d.note)}</span>` : ""}</span>
     </div>`).join("");
   const tags = nutriTags(courses).map(x => `<span class="ntag">${x}</span>`).join("");
+  const id = favId("order", o.name, o.area);
   return `
     <div class="opt">
+      ${favBtn(id)}
       <div class="opt-head">
         <span class="opt-tag">Option ${idx === 0 ? "A" : "B"}</span>
         <span class="opt-name">${escapeHtml(o.name)}</span>
-        <span class="area-tag">${escapeHtml(o.area)}</span>
       </div>
-      <div class="opt-status">${openBadge(o)}</div>
+      <div class="opt-status">${openBadge(o)} <span class="area-tag">${escapeHtml(o.area)}</span></div>
       <div class="courses">${courseHtml}</div>
       <div class="ntags">${tags}</div>
       ${platformButtons(o, true)}
@@ -569,15 +585,19 @@ const NUTRIENT_LABEL = {
 const STORE_SHORT = { "Whole Foods": "Whole Foods", "Amazon Fresh": "Fresh", "Amazon": "Amazon" };
 function storeKey(s) { return s.toLowerCase().replace(/[^a-z]+/g, "-"); }
 
-// Generate an Amazon search link (stable, unlike ASINs). Scope to the store
-// department when a specific store is selected.
+// Link straight to the specific product page when we have a verified ASIN;
+// otherwise fall back to a precise product search (never a fabricated ASIN).
 function amazonUrl(item) {
+  if (item.asin && /^B0[A-Z0-9]{8}$/i.test(item.asin)) {
+    return "https://www.amazon.com/dp/" + item.asin.toUpperCase();
+  }
   const clean = ((item.brand ? item.brand + " " : "") + item.name).replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim();
   let dept = "";
   if (currentStore === "Amazon Fresh") dept = "&i=amazonfresh";
   else if (currentStore === "Whole Foods") dept = "&i=wholefoods";
   return "https://www.amazon.com/s?k=" + encodeURIComponent(clean) + dept;
 }
+function isSpecificItem(item) { return !!(item.asin && /^B0[A-Z0-9]{8}$/i.test(item.asin)); }
 
 function nutrientChips(ns) {
   return (ns || []).map(n => `<span class="ntag">${NUTRIENT_LABEL[n] || escapeHtml(n)}</span>`).join("");
@@ -594,14 +614,21 @@ function groceryMatches(it, q) {
 }
 
 function groceryCard(it) {
+  const verifiedText = it.verified ? escapeHtml(it.verified) : "Dairy-free & mammal-free";
+  const dietTag = it.diet ? ` · ${escapeHtml(it.diet)}` : "";
+  const specific = isSpecificItem(it);
+  const label = specific ? "Buy on" : "Find on";
+  const id = favId("grocery", it.name, it.brand);
   return `
     <div class="resto groc">
+      ${favBtn(id)}
       <div class="resto-head"><h3>${escapeHtml(it.name)}</h3></div>
       ${it.brand ? `<div class="groc-brand">${escapeHtml(it.brand)}</div>` : ""}
       <div class="resto-rating">${ratingBadge(it)}${storeBadges(it.stores)}</div>
-      ${it.note ? `<div class="groc-note">${escapeHtml(it.note)}</div>` : ""}
+      <div class="groc-verified">✓ Dairy-free &amp; mammal-free${dietTag}</div>
+      ${it.verified ? `<div class="groc-note">${escapeHtml(it.verified)}</div>` : (it.note ? `<div class="groc-note">${escapeHtml(it.note)}</div>` : "")}
       ${(it.nutrients && it.nutrients.length) ? `<div class="ntags">${nutrientChips(it.nutrients)}</div>` : ""}
-      <a class="dd-btn amzn" href="${amazonUrl(it)}" target="_blank" rel="noopener noreferrer">🛒 Find on ${escapeHtml(currentStore || "Amazon")}</a>
+      <a class="dd-btn amzn" href="${amazonUrl(it)}" target="_blank" rel="noopener noreferrer">🛒 ${label} ${escapeHtml(currentStore || "Amazon")}</a>
     </div>`;
 }
 
@@ -622,15 +649,15 @@ function renderGrocCatChips() {
 
 // A balanced weekly basket covering protein / iron / calcium / omega-3.
 const GROC_ROLES = [
-  { label: "Poultry or eggs", pred: it => /Poultry|eggs/i.test(it.category) },
-  { label: "Omega-3 fish", pred: it => (it.nutrients || []).includes("omega-3") && /Fish|seafood|Calcium/i.test(it.category) },
-  { label: "Plant protein", pred: it => /Plant proteins/i.test(it.category) },
-  { label: "Calcium plant milk", pred: it => /milk/i.test(it.category) && (it.nutrients || []).includes("calcium") },
-  { label: "Iron food", pred: it => /Iron-rich/i.test(it.category) },
-  { label: "Calcium food", pred: it => /Calcium-rich/i.test(it.category) },
-  { label: "Whole grain", pred: it => /grain|carb/i.test(it.category) },
-  { label: "Vitamin-C produce", pred: it => /Vitamin C/i.test(it.category) },
-  { label: "Study snack", pred: it => /snack|bar|breakfast/i.test(it.category) },
+  { label: "Poultry or eggs", pred: it => it.category === "Poultry & Seafood" && /chicken|turkey|egg/i.test(it.name) },
+  { label: "Omega-3 fish", pred: it => (it.nutrients || []).includes("omega-3") && it.category !== "Vitamins & Supplements" && it.category !== "Dairy Alternatives & Eggs" },
+  { label: "Plant protein", pred: it => /bean|lentil|chickpea|garbanzo|tofu|tempeh|edamame/i.test(it.name) },
+  { label: "Calcium plant milk", pred: it => it.category === "Dairy Alternatives & Eggs" && (it.nutrients || []).includes("calcium") },
+  { label: "Iron food", pred: it => (it.nutrients || []).includes("iron") && it.category !== "Vitamins & Supplements" && !/milk/i.test(it.name) },
+  { label: "Calcium food", pred: it => (it.nutrients || []).includes("calcium") && it.category !== "Vitamins & Supplements" && it.category !== "Dairy Alternatives & Eggs" },
+  { label: "Whole grain", pred: it => it.category === "Pantry & Dry Goods" && /oat|quinoa|rice|pasta|farro/i.test(it.name) },
+  { label: "Vitamin-C produce", pred: it => it.category === "Produce" && (it.nutrients || []).includes("vitamin-c") },
+  { label: "Study snack", pred: it => it.category === "Snacks" },
 ];
 
 function renderGrocWeekly() {
@@ -696,10 +723,12 @@ function prepMatches(s, q) {
 function prepCard(s) {
   const tags = (s.tags || []).map(t => `<span class="ntag">${escapeHtml(t)}</span>`).join("");
   const delivers = s.deliversTo ? `<span class="area-tag">🚚 ${escapeHtml(s.deliversTo)}</span>` : "";
+  const id = favId("prep", s.name, "");
   return `
     <div class="resto groc prep">
-      <div class="resto-head"><h3>${escapeHtml(s.name)}</h3><span class="prep-type">${escapeHtml(s.type || "")}</span></div>
-      <div class="resto-rating">${ratingBadge(s)}${delivers}</div>
+      ${favBtn(id)}
+      <div class="resto-head"><h3>${escapeHtml(s.name)}</h3></div>
+      <div class="resto-rating">${ratingBadge(s)}${delivers}<span class="prep-type">${escapeHtml(s.type || "")}</span></div>
       ${s.note ? `<div class="groc-note">${escapeHtml(s.note)}</div>` : ""}
       ${tags ? `<div class="ntags">${tags}</div>` : ""}
       ${s.watchOut ? `<p class="watch"><b>Watch:</b> ${escapeHtml(s.watchOut)}</p>` : ""}
@@ -763,6 +792,63 @@ function renderPrep() {
   el.innerHTML = count ? html : `<div class="card muted">No matches. Try another type or search term.</div>`;
 }
 
+// ---- Favorites view -------------------------------------------------------
+function favSection(icon, title, groups, cardFn) {
+  const cats = Object.keys(groups);
+  if (!cats.length) return "";
+  return `<div class="fav-kind"><div class="fav-kind-head">${icon} ${escapeHtml(title)}</div>` +
+    cats.map(cat => `<div class="cat-head">${escapeHtml(cat)}</div>` + groups[cat].map(cardFn).join("")).join("") +
+    `</div>`;
+}
+
+function renderFavorites() {
+  const el = document.getElementById("favList");
+  if (!el) return;
+
+  const seen = new Set();
+  const restoGroups = {};
+  ["breakfast", "lightLunch", "dinner"].forEach(meal => (ORDER_MENU[meal] || []).forEach(c => c.restaurants.forEach(r => {
+    const id = favId("order", r.name, r.area);
+    if (favs[id] && !seen.has(id)) { seen.add(id); (restoGroups[c.category] = restoGroups[c.category] || []).push(r); }
+  })));
+
+  const grocGroups = {};
+  (typeof GROCERY_ITEMS !== "undefined" ? GROCERY_ITEMS : []).forEach(c => c.items.forEach(it => {
+    const id = favId("grocery", it.name, it.brand);
+    if (favs[id]) (grocGroups[c.category] = grocGroups[c.category] || []).push(it);
+  }));
+
+  const prepGroups = {};
+  (typeof PREP_SERVICES !== "undefined" ? PREP_SERVICES : []).forEach(c => c.services.forEach(s => {
+    const id = favId("prep", s.name, "");
+    if (favs[id]) (prepGroups[c.category] = prepGroups[c.category] || []).push(s);
+  }));
+
+  const html = favSection("🛵", "Restaurants", restoGroups, restaurantCard) +
+    favSection("🛒", "Grocery", grocGroups, groceryCard) +
+    favSection("🍱", "Meal-prep", prepGroups, prepCard);
+
+  el.innerHTML = html || `<div class="card muted">No favorites yet. Tap the ♡ heart on any restaurant, grocery product, or meal-prep service to save it here for quick access — grouped just like the app.</div>`;
+}
+
+function bindFavorites() {
+  document.addEventListener("click", e => {
+    const b = e.target.closest(".fav-btn");
+    if (!b) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const id = b.dataset.fav;
+    if (favs[id]) delete favs[id]; else favs[id] = true;
+    saveFavs();
+    const on = !!favs[id];
+    document.querySelectorAll(".fav-btn").forEach(x => {
+      if (x.dataset.fav === id) { x.classList.toggle("on", on); x.textContent = on ? "♥" : "♡"; }
+    });
+    const favTab = document.getElementById("tab-favorites");
+    if (favTab && favTab.classList.contains("active")) renderFavorites();
+  });
+}
+
 function renderAllergyCardDairy() {
   document.getElementById("acDairy").textContent =
     settings.dairy ? " · dairy (milk, cheese, butter, whey)" : "";
@@ -777,6 +863,7 @@ function switchTab(name) {
   if (name === "order") renderRestaurants(document.getElementById("restoSearch").value);
   if (name === "grocery") renderGrocery();
   if (name === "prep") renderPrep();
+  if (name === "favorites") renderFavorites();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -812,6 +899,10 @@ function init() {
   renderPrep();
   renderAllergyCardDairy();
   bindSettings();
+  bindFavorites();
+
+  const favOpen = document.getElementById("favOpen");
+  if (favOpen) favOpen.addEventListener("click", () => switchTab("favorites"));
 
   const grocSearch = document.getElementById("grocSearch");
   if (grocSearch) grocSearch.addEventListener("input", renderGrocery);
