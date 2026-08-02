@@ -288,9 +288,73 @@ function renderRestaurants(filter = "") {
   el.innerHTML = html;
 }
 
-// ---- Week planner --------------------------------------------------------
+// ---- Week planner (generated, rotates weekly, season-aware) ----------------
+const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const MEAL_ORDER = ["Breakfast", "Lunch", "Dinner"];
+const MEAL_KEY = { Breakfast: "breakfast", Lunch: "lightLunch", Dinner: "dinner" };
 let selectedDayIdx = null;
+
 function todayPlanIdx() { return (new Date().getDay() + 6) % 7; } // Mon=0 … Sun=6
+
+// Week bucket: 7-day periods aligned to Monday, from the device's local date.
+function weekIndex(now) {
+  const local = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayNum = Math.floor(local.getTime() / 86400000);
+  return Math.floor((dayNum - 4) / 7);
+}
+
+function seasonFor(now) {
+  const m = now.getMonth();
+  if (m === 11 || m <= 1) return SEASONS.winter;
+  if (m <= 4) return SEASONS.spring;
+  if (m <= 7) return SEASONS.summer;
+  return SEASONS.fall;
+}
+
+// One representative candidate (headline dish) per restaurant, per meal.
+function mealPool(mealLabel) {
+  const out = [];
+  (ORDER_MENU[MEAL_KEY[mealLabel]] || []).forEach(cat =>
+    cat.restaurants.forEach(r => {
+      const sd = (r.safeDishes || [])[0];
+      if (sd) out.push({ meal: mealLabel, name: r.name, area: r.area, dish: sd.dish, note: sd.note || "", cuisine: cat.category });
+    }));
+  return out;
+}
+
+function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+
+// Pick a deterministic index that is distinct across the 7 weekdays (within a
+// week) and shifts every week. stride coprime to n keeps the 7 picks distinct.
+function rotIndex(n, week, day, seed) {
+  const stride = [7, 5, 3, 2].find(s => gcd(s, n) === 1) || 1;
+  return (((week * 11 + day * stride + seed * 3) % n) + n) % n;
+}
+
+function optionCounts() {
+  const names = new Set();
+  let dishes = 0;
+  ["breakfast", "lightLunch", "dinner"].forEach(m =>
+    (ORDER_MENU[m] || []).forEach(c => c.restaurants.forEach(r => {
+      names.add(r.name + "|" + r.area);
+      dishes += (r.safeDishes || []).length;
+    })));
+  return { restaurants: names.size, dishes: Math.floor(dishes / 10) * 10 };
+}
+
+// Season-favored subset if it's big enough for 7 distinct days, else full pool.
+function seasonPool(mealLabel, season) {
+  const full = mealPool(mealLabel);
+  const fav = full.filter(c => season.favored[mealLabel].includes(c.cuisine));
+  return fav.length >= 7 ? fav : full;
+}
+
+function planForDay(week, day, season) {
+  return MEAL_ORDER.map((meal, mi) => {
+    const pool = seasonPool(meal, season);
+    return pool[rotIndex(pool.length, week, day, mi)];
+  });
+}
 
 function pickCard(p) {
   return `
@@ -309,23 +373,43 @@ function pickCard(p) {
 function renderWeek() {
   const chipsEl = document.getElementById("dayChips");
   const planEl = document.getElementById("dayPlan");
+  const statsEl = document.getElementById("weekStats");
   if (!chipsEl || !planEl) return;
-  if (selectedDayIdx == null) selectedDayIdx = todayPlanIdx();
 
-  chipsEl.innerHTML = DAY_PLANS.map((p, i) =>
-    `<button class="day-chip${i === selectedDayIdx ? " active" : ""}${i === todayPlanIdx() ? " is-today" : ""}" data-i="${i}">${escapeHtml(p.day.slice(0, 3))}</button>`
+  const now = new Date();
+  const week = weekIndex(now);
+  const season = seasonFor(now);
+  const counts = optionCounts();
+  const todayIdx = todayPlanIdx();
+  if (selectedDayIdx == null) selectedDayIdx = todayIdx;
+
+  if (statsEl) {
+    statsEl.innerHTML = `<b>${counts.restaurants} safe restaurants · ${counts.dishes}+ dairy-free, mammal-free dishes.</b> You're never limited, Nour 💚`;
+  }
+
+  chipsEl.innerHTML = WEEKDAYS.map((d, i) =>
+    `<button class="day-chip${i === selectedDayIdx ? " active" : ""}${i === todayIdx ? " is-today" : ""}" data-i="${i}">${escapeHtml(d.slice(0, 3))}</button>`
   ).join("");
   chipsEl.querySelectorAll(".day-chip").forEach(b =>
     b.addEventListener("click", () => { selectedDayIdx = +b.dataset.i; renderWeek(); }));
 
-  const plan = DAY_PLANS[selectedDayIdx];
-  const isToday = selectedDayIdx === todayPlanIdx();
+  const dayName = WEEKDAYS[selectedDayIdx];
+  const isToday = selectedDayIdx === todayIdx;
+  const picks = planForDay(week, selectedDayIdx, season);
+
+  const note = `Hi Nour 💚 Palo Alto is deep in ${season.label.split(" ")[0].toLowerCase()} right now — usually ${season.weather} this time of year — the kind of weather that calls for ${season.lean}. So ${isToday ? "today's" : dayName + "'s"} picks lean that way, each one hand-checked to be <b>100% dairy-free and mammal-free</b>, just for you. This is only a little taste of your options — there's always something new next week. 💛`;
+
   planEl.innerHTML = `
     <div class="day-head">
-      <div class="day-title">${plan.emoji} ${escapeHtml(plan.day)}${isToday ? ' <span class="today-tag">Today</span>' : ""}</div>
-      <div class="day-theme">${escapeHtml(plan.theme)}</div>
+      <div class="day-title">${season.emoji} ${escapeHtml(dayName)}${isToday ? ' <span class="today-tag">Today</span>' : ""}</div>
+      <div class="day-theme">${escapeHtml(season.label)} · a fresh plan every week</div>
     </div>
-    ${plan.picks.map(pickCard).join("")}`;
+    <div class="day-note">${note}</div>
+    ${picks.map(pickCard).join("")}
+    <button class="explore-btn" id="exploreAll">🍽️ You've got ${counts.restaurants} spots &amp; ${counts.dishes}+ safe dishes — explore them all →</button>`;
+
+  const explore = document.getElementById("exploreAll");
+  if (explore) explore.addEventListener("click", () => switchTab("order"));
 }
 
 function renderGrocery() {

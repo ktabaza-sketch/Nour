@@ -710,47 +710,55 @@ const HOURS = {
 };
 
 // ---------------------------------------------------------------------------
-// WEEK PLANNER — one distinct suggestion per day, no two days alike.
-// Each pick references a real restaurant + dairy-free & mammal-free dish.
+// WEEK PLANNER config — the day plans are GENERATED in app.js from the full
+// menu, seeded by the week number so they rotate every week and no two days
+// in a week repeat. SEASONS biases each day's picks toward what suits the
+// current Palo Alto season, and supplies the warm, personal note for Nour.
+// (Palo Alto has a Mediterranean climate: warm dry summers, mild wet winters.)
 // ---------------------------------------------------------------------------
 
-const DAY_PLANS = [
-  { day: "Monday", theme: "Fresh start — bowls & poke", emoji: "🥗", picks: [
-    { meal: "Breakfast", name: "Palmetto Superfoods", area: "Palo Alto", dish: "Signature açaí bowl", note: "default vegan; dairy-free" },
-    { meal: "Lunch", name: "Sweetgreen", area: "Palo Alto", dish: "Harvest Bowl (chicken, wild rice, sweet potato)", note: "no goat cheese; balsamic" },
-    { meal: "Dinner", name: "Go Fish Poke Bar", area: "Palo Alto", dish: "Ahi tuna poke bowl", note: "shoyu/ponzu, no creamy mayo" },
-  ] },
-  { day: "Tuesday", theme: "Taco Tuesday — Mexican", emoji: "🌮", picks: [
-    { meal: "Breakfast", name: "Los Altos Taqueria", area: "Mountain View", dish: "Egg & potato breakfast burrito", note: "no chorizo/bacon, no cheese, no sour cream" },
-    { meal: "Lunch", name: "Sancho's Taqueria", area: "Palo Alto", dish: "Grilled fish tacos", note: "no crema/cheese, cabbage & salsa" },
-    { meal: "Dinner", name: "Celia's Mexican Restaurant", area: "Palo Alto", dish: "Chicken fajitas", note: "no cheese/sour cream; tortillas without lard" },
-  ] },
-  { day: "Wednesday", theme: "Mezze midweek — Mediterranean", emoji: "🧆", picks: [
-    { meal: "Breakfast", name: "Boichik Bagels", area: "Palo Alto", dish: "Bagel with lox, tomato, onion & capers", note: "hold the cream cheese — water bagels are dairy-free" },
-    { meal: "Lunch", name: "Oren's Hummus", area: "Palo Alto", dish: "Falafel pita or plate", note: "tahini; dairy-free" },
-    { meal: "Dinner", name: "Nick the Greek", area: "Palo Alto", dish: "Chicken souvlaki bowl", note: "rice + salad, no tzatziki/feta" },
-  ] },
-  { day: "Thursday", theme: "Asian night — sushi & rice bowls", emoji: "🍣", picks: [
-    { meal: "Breakfast", name: "Verve Coffee Roasters", area: "Palo Alto", dish: "Avocado toast, add egg", note: "no cheese, dry / no butter" },
-    { meal: "Lunch", name: "Asian Box", area: "Palo Alto", dish: "Lemongrass chicken box over rice", note: "tamarind or lemongrass vinaigrette; dairy-free" },
-    { meal: "Dinner", name: "Sushi Tomi", area: "Mountain View", dish: "Sashimi & nigiri + chicken teriyaki", note: "dairy-free; skip cream-cheese rolls" },
-  ] },
-  { day: "Friday", theme: "Pizza Friday — Italian", emoji: "🍕", picks: [
-    { meal: "Breakfast", name: "The Farm", area: "Palo Alto", dish: "Açaí bowl", note: "confirm dairy-free granola, no yogurt drizzle" },
-    { meal: "Lunch", name: "Mendocino Farms", area: "Palo Alto", dish: "Vegan Banh Mi", note: "marinated tofu, pickled veg; dairy-free" },
-    { meal: "Dinner", name: "Terún", area: "Palo Alto", dish: "Pizza Marinara", note: "tomato, garlic, oregano, olive oil — no cheese" },
-  ] },
-  { day: "Saturday", theme: "Weekend feast — brunch & Indian", emoji: "🍛", picks: [
-    { meal: "Brunch", name: "Stacks", area: "Menlo Park", dish: "Two eggs with potatoes & toast", note: "dry toast / no butter; no meat side" },
-    { meal: "Lunch", name: "True Food Kitchen", area: "Palo Alto", dish: "Ahi Poke Bowl", note: "sushi rice, avocado, soy — dairy-free" },
-    { meal: "Dinner", name: "Zareen's", area: "Palo Alto", dish: "Madras Chicken Curry (coconut-milk based)", note: "confirm no cream added" },
-  ] },
-  { day: "Sunday", theme: "Cozy Sunday — Thai & comfort", emoji: "🍜", picks: [
-    { meal: "Breakfast", name: "Palo Alto Creamery", area: "Palo Alto", dish: "Two eggs with hash browns & toast", note: "dry toast / no butter; no bacon/sausage" },
-    { meal: "Lunch", name: "CAVA", area: "Mountain View", dish: "Crispy Falafel Pita", note: "vegan; hummus, eggplant, slaw, garlic dressing" },
-    { meal: "Dinner", name: "Amarin Thai Cuisine", area: "Mountain View", dish: "Panang Curry", note: "coconut-based; chicken or tofu" },
-  ] },
-];
+const SEASONS = {
+  winter: {
+    emoji: "🌧️", label: "Winter in Palo Alto",
+    weather: "cool and often rainy",
+    lean: "warm, comforting things — steamy Thai and Indian curries, chicken pho, and hearty grain bowls",
+    favored: {
+      Breakfast: ["American breakfast", "Cafés & bakeries"],
+      Lunch: ["Mediterranean", "Cafés & light bites", "Sandwiches & wraps"],
+      Dinner: ["Thai", "Indian & Nepalese", "Vietnamese", "Chinese", "Korean"],
+    },
+  },
+  spring: {
+    emoji: "🌸", label: "Spring in Palo Alto",
+    weather: "mild and blossoming",
+    lean: "bright, fresh plates — Mediterranean mezze, garden bowls, and herby, colorful food",
+    favored: {
+      Breakfast: ["Cafés & bakeries", "Açaí & smoothie bowls"],
+      Lunch: ["Salads & bowls", "Mediterranean", "Poke"],
+      Dinner: ["Mediterranean & Middle Eastern", "Thai", "Japanese & sushi", "American", "Seafood & poke"],
+    },
+  },
+  summer: {
+    emoji: "☀️", label: "Summer at Stanford",
+    weather: "warm, dry and sunny",
+    lean: "cool and light things — chilled poke, crisp salads, and açaí bowls",
+    favored: {
+      Breakfast: ["Açaí & smoothie bowls", "Cafés & bakeries"],
+      Lunch: ["Poke", "Salads & bowls", "Mediterranean", "Smoothies & açaí bowls"],
+      Dinner: ["Seafood & poke", "Mediterranean & Middle Eastern", "Japanese & sushi", "Mexican", "Vietnamese"],
+    },
+  },
+  fall: {
+    emoji: "🍂", label: "Fall in the Bay",
+    weather: "golden and mild",
+    lean: "cozy-but-fresh food — warm spices, roasted veggies, and satisfying bowls",
+    favored: {
+      Breakfast: ["American breakfast", "Bagels", "Cafés & bakeries"],
+      Lunch: ["Sandwiches & wraps", "Salads & bowls", "Mediterranean"],
+      Dinner: ["Indian & Nepalese", "American", "Pizza & Italian", "Chinese", "Mediterranean & Middle Eastern"],
+    },
+  },
+};
 
 // ---------------------------------------------------------------------------
 // WHOLE FOODS GROCERY GUIDE
@@ -800,5 +808,5 @@ const FACTS = [
 ];
 
 if (typeof module !== "undefined") {
-  module.exports = { RULES, ORDER_MENU, HOURS, DAY_PLANS, GROCERY, FACTS };
+  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, GROCERY, FACTS };
 }
