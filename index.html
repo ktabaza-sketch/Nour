@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f766e" />
+  <title>Nour — AGS Safe Food</title>
+  <meta name="description" content="Check whether meals and groceries are safe for Alpha-gal Syndrome (AGS)." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <img src="icons/icon.svg" alt="" class="logo" width="28" height="28" />
+      <div>
+        <h1>Nour</h1>
+        <p class="tagline">Alpha-gal safe food helper</p>
+      </div>
+    </div>
+    <button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙️</button>
+  </header>
+
+  <!-- Emergency banner -->
+  <div class="safety-strip" role="note">
+    Helper only — not medical advice. Read full labels, ask restaurants, and carry your epinephrine.
+  </div>
+
+  <main>
+    <!-- CHECK TAB -->
+    <section id="tab-check" class="tab active">
+      <div class="card">
+        <h2>Is this safe to eat?</h2>
+        <p class="muted">Paste a menu item's description or an ingredients list. I'll flag anything with alpha-gal.</p>
+        <textarea id="checkInput" rows="4" placeholder="e.g. Grilled chicken burrito bowl with rice, black beans, cheese, natural flavors, and gelatin…"></textarea>
+        <div class="btn-row">
+          <button id="checkBtn" class="btn primary">Check it</button>
+          <button id="clearBtn" class="btn ghost">Clear</button>
+        </div>
+      </div>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="card tips-card">
+        <h3>Quick facts</h3>
+        <ul id="factsList" class="facts"></ul>
+      </div>
+    </section>
+
+    <!-- DOORDASH TAB -->
+    <section id="tab-order" class="tab">
+      <div class="card">
+        <h2>Safe DoorDash picks</h2>
+        <p class="muted">Curated safe orders at chains around Stanford &amp; Palo Alto. Always confirm with the restaurant.</p>
+        <input id="restoSearch" class="search" type="search" placeholder="Search cuisines or spots…" />
+      </div>
+      <div id="restoList" class="list"></div>
+    </section>
+
+    <!-- WHOLE FOODS TAB -->
+    <section id="tab-grocery" class="tab">
+      <div class="card">
+        <h2>Whole Foods guide</h2>
+        <p class="muted">Safe staples, easy swaps, and a label cheat-sheet to scan while you shop.</p>
+      </div>
+      <div class="card">
+        <h3>Safe protein staples</h3>
+        <ul id="grocProteins" class="checklist"></ul>
+      </div>
+      <div class="card">
+        <h3>Smart swaps</h3>
+        <ul id="grocSwaps" class="swaps"></ul>
+      </div>
+      <div class="card warn-card">
+        <h3>Label cheat-sheet</h3>
+        <p class="muted">If you see these words on a package:</p>
+        <ul id="grocLabels" class="labels"></ul>
+      </div>
+    </section>
+
+    <!-- CARD TAB (emergency) -->
+    <section id="tab-card" class="tab">
+      <div class="card allergy-card">
+        <h2>My allergy card</h2>
+        <p class="lead">I have <strong>Alpha-gal Syndrome</strong> — a serious allergy to mammalian meat and byproducts.</p>
+        <div class="ac-block danger">
+          <strong>I cannot eat:</strong>
+          <span>Beef, pork, lamb, goat, venison, bison &amp; other mammal meat · gelatin · lard/tallow · beef/pork broth · collagen<span id="acDairy"></span></span>
+        </div>
+        <div class="ac-block ok">
+          <strong>I can eat:</strong>
+          <span>Chicken, turkey, duck · fish &amp; shellfish · eggs · all plant foods</span>
+        </div>
+        <div class="ac-block">
+          <strong>Please tell me:</strong>
+          <span>Are there any mammal products, shared grills, or beef/pork broths in this dish? Reactions can be delayed hours and severe.</span>
+        </div>
+        <p class="muted small">Show this to restaurant staff. Keep epinephrine nearby.</p>
+      </div>
+      <div class="card">
+        <h3>If a reaction starts</h3>
+        <ol class="steps">
+          <li>Stop eating immediately.</li>
+          <li>Take antihistamine for mild symptoms (hives, itching).</li>
+          <li>For trouble breathing, throat tightness, swelling, or faintness: <strong>use epinephrine now</strong> and call 911.</li>
+          <li>Reactions can be delayed 2–6 hours — stay alert after eating something new.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <!-- Settings sheet -->
+  <div id="settingsSheet" class="sheet" hidden>
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <h2>Personalize</h2>
+        <button id="closeSettings" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <p class="muted">AGS sensitivity varies. Set how strict the checker should be for you.</p>
+      <label class="toggle">
+        <input type="checkbox" id="setDairy" />
+        <span><strong>Avoid dairy</strong><br /><span class="muted small">Flag milk, cheese, butter, whey, etc. as unsafe.</span></span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="setFlavors" checked />
+        <span><strong>Flag "natural flavors"</strong><br /><span class="muted small">Undisclosed flavors can be mammal-derived.</span></span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="setAdditives" checked />
+        <span><strong>Flag ambiguous additives</strong><br /><span class="muted small">Glycerin, mono/diglycerides, magnesium stearate.</span></span>
+      </label>
+      <p class="muted small">Saved on this device only.</p>
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="tabbar">
+    <button class="tab-btn active" data-tab="check"><span>🔍</span>Check</button>
+    <button class="tab-btn" data-tab="order"><span>🛵</span>Order</button>
+    <button class="tab-btn" data-tab="grocery"><span>🛒</span>Grocery</button>
+    <button class="tab-btn" data-tab="card"><span>🆘</span>Card</button>
+  </nav>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

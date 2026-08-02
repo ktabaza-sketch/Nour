@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14b8a6"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <!-- leaf / plate mark -->
+  <path d="M256 120c-70 0-128 54-128 130 0 74 58 142 128 142s128-68 128-142c0-76-58-130-128-130z" fill="#ffffff" opacity="0.14"/>
+  <path d="M256 150c58 0 96 46 96 100 0 62-46 112-96 112s-96-50-96-112c0-54 38-100 96-100z" fill="none" stroke="#ffffff" stroke-width="14"/>
+  <path d="M256 176v186M256 240c-26-8-46-6-64 6M256 288c26-8 46-6 64 6" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+</svg>
