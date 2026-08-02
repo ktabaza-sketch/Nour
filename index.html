@@ -100,6 +100,33 @@
       </div>
     </section>
 
+    <!-- PREP TAB -->
+    <section id="tab-prep" class="tab">
+      <div class="card">
+        <h2>Meal-prep services</h2>
+        <p class="muted">Weekly plans of <b>dairy-free &amp; mammal-free</b> meals — cooked for you, plant-based, or a cook-at-home kit. Set your filters once (dairy-free + poultry / fish / plant, never red meat) and skip anything with cream or cheese. These arrive on a <b>weekly schedule</b>, not same-day.</p>
+        <div class="seg" id="prepTypeSeg" role="tablist">
+          <button class="seg-btn active" data-ptype="">All</button>
+          <button class="seg-btn" data-ptype="Plant-based">Plant-based</button>
+          <button class="seg-btn" data-ptype="Prepared">Ready to heat</button>
+          <button class="seg-btn" data-ptype="Meal kit">Cook-at-home</button>
+        </div>
+        <input id="prepSearch" class="search" type="search" placeholder="Search services or diets…" />
+        <div id="prepCatChips" class="chips"></div>
+      </div>
+      <div id="prepMeta" class="resto-meta"></div>
+      <div id="prepList" class="list"></div>
+      <div class="card warn-card">
+        <h3>Setting it up safely</h3>
+        <ul class="labels">
+          <li>Set the diet filter to <b>dairy-free</b> and <b>pescatarian / poultry / plant</b> — never beef, pork or lamb.</li>
+          <li>Fully <b>plant-based</b> services are mammal-free by default — the easiest, safest start.</li>
+          <li>Watch cream/cheese sauces and butter finishes; leave out any cheese packet a kit includes.</li>
+          <li>Check each recipe's allergens for milk, and message support to flag her dairy allergy + no mammal meat.</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- CARD TAB (emergency) -->
     <section id="tab-card" class="tab">
       <div class="card allergy-card">
@@ -161,6 +188,7 @@
     <button class="tab-btn" data-tab="order"><span>🛵</span>Order</button>
     <button class="tab-btn" data-tab="week"><span>📅</span>Week</button>
     <button class="tab-btn" data-tab="grocery"><span>🛒</span>Grocery</button>
+    <button class="tab-btn" data-tab="prep"><span>🍱</span>Prep</button>
     <button class="tab-btn" data-tab="card"><span>🆘</span>Card</button>
   </nav>
 

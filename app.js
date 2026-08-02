@@ -660,6 +660,62 @@ function renderGrocery() {
   el.innerHTML = count ? html : `<div class="card muted">No matches. Try another store, category, or search term.</div>`;
 }
 
+// ---- Meal-prep services ---------------------------------------------------
+let currentPrepType = "";
+let currentPrepCat = null;
+
+function prepMatches(s, q) {
+  if (currentPrepType && s.type !== currentPrepType) return false;
+  if (!q) return true;
+  const hay = (s.name + " " + (s.note || "") + " " + (s.tags || []).join(" ") + " " + (s.type || "")).toLowerCase();
+  return hay.includes(q);
+}
+
+function prepCard(s) {
+  const tags = (s.tags || []).map(t => `<span class="ntag">${escapeHtml(t)}</span>`).join("");
+  const delivers = s.deliversTo ? `<span class="area-tag">🚚 ${escapeHtml(s.deliversTo)}</span>` : "";
+  return `
+    <div class="resto groc prep">
+      <div class="resto-head"><h3>${escapeHtml(s.name)}</h3><span class="prep-type">${escapeHtml(s.type || "")}</span></div>
+      <div class="resto-rating">${ratingBadge(s)}${delivers}</div>
+      ${s.note ? `<div class="groc-note">${escapeHtml(s.note)}</div>` : ""}
+      ${tags ? `<div class="ntags">${tags}</div>` : ""}
+      ${s.watchOut ? `<p class="watch"><b>Watch:</b> ${escapeHtml(s.watchOut)}</p>` : ""}
+      <a class="dd-btn prep-btn" href="${escapeHtml(s.url || "#")}" target="_blank" rel="noopener noreferrer">🍱 Set up on ${escapeHtml(s.name)}</a>
+    </div>`;
+}
+
+function renderPrepCatChips() {
+  const el = document.getElementById("prepCatChips");
+  if (!el || typeof PREP_SERVICES === "undefined") return;
+  const cats = PREP_SERVICES.map(c => c.category);
+  const chip = (label, val, active) =>
+    `<button class="chip${active ? " active" : ""}" data-pcat="${val === null ? "" : escapeHtml(val)}">${escapeHtml(label)}</button>`;
+  el.innerHTML = chip("All", null, currentPrepCat === null) + cats.map(c => chip(c, c, currentPrepCat === c)).join("");
+  el.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+    currentPrepCat = b.dataset.pcat || null;
+    renderPrepCatChips();
+    renderPrep();
+  }));
+}
+
+function renderPrep() {
+  if (typeof PREP_SERVICES === "undefined") return;
+  const q = (document.getElementById("prepSearch").value || "").trim().toLowerCase();
+  const cats = PREP_SERVICES.filter(c => !currentPrepCat || c.category === currentPrepCat);
+  let count = 0;
+  const html = cats.map(cat => {
+    const svcs = cat.services.filter(s => prepMatches(s, q)).sort(byRating);
+    count += svcs.length;
+    if (!svcs.length) return "";
+    return `<div class="cat-head">${escapeHtml(cat.category)}</div>` + svcs.map(prepCard).join("");
+  }).join("");
+  const meta = document.getElementById("prepMeta");
+  if (meta) meta.textContent = `${currentPrepCat ? currentPrepCat + " · " : ""}${currentPrepType || "All types"} · ${count} service${count === 1 ? "" : "s"} · ratings from Trustpilot / App Store`;
+  const el = document.getElementById("prepList");
+  el.innerHTML = count ? html : `<div class="card muted">No matches. Try another type or search term.</div>`;
+}
+
 function renderAllergyCardDairy() {
   document.getElementById("acDairy").textContent =
     settings.dairy ? " · dairy (milk, cheese, butter, whey)" : "";
@@ -673,6 +729,7 @@ function switchTab(name) {
   if (name === "week") renderWeek();
   if (name === "order") renderRestaurants(document.getElementById("restoSearch").value);
   if (name === "grocery") renderGrocery();
+  if (name === "prep") renderPrep();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -704,6 +761,8 @@ function init() {
   renderWeek();
   renderGrocCatChips();
   renderGrocery();
+  renderPrepCatChips();
+  renderPrep();
   renderAllergyCardDairy();
   bindSettings();
 
@@ -714,6 +773,15 @@ function init() {
       currentStore = b.dataset.store;
       document.querySelectorAll("#storeSeg .seg-btn").forEach(x => x.classList.toggle("active", x === b));
       renderGrocery();
+    }));
+
+  const prepSearch = document.getElementById("prepSearch");
+  if (prepSearch) prepSearch.addEventListener("input", renderPrep);
+  document.querySelectorAll("#prepTypeSeg .seg-btn").forEach(b =>
+    b.addEventListener("click", () => {
+      currentPrepType = b.dataset.ptype;
+      document.querySelectorAll("#prepTypeSeg .seg-btn").forEach(x => x.classList.toggle("active", x === b));
+      renderPrep();
     }));
 
   document.getElementById("checkBtn").addEventListener("click", () => {

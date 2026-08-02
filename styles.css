@@ -302,6 +302,9 @@ textarea:focus, .search:focus { outline: none; border-color: var(--teal); }
 .sb-amazon { background: #fef3c7; color: #92400e; }
 .dd-btn.amzn { background: #232f3e; }
 .dd-btn.amzn:active { background: #131a24; }
+.dd-btn.prep-btn { background: #7c3aed; }
+.dd-btn.prep-btn:active { background: #6d28d9; }
+.prep-type { font-size: 11px; color: var(--muted); font-weight: 600; flex: 0 0 auto; text-transform: uppercase; letter-spacing: .3px; }
 
 /* Weekly grocery basket */
 .weekly-card { border-left: 4px solid var(--teal); }
