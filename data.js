@@ -379,11 +379,6 @@ const ORDER_MENU = {
           { dish: "Green or Red Curry", note: "coconut; chicken or tofu" },
           { dish: "Tom Yum (or coconut Tom Kha) soup", note: "chicken or shrimp" },
         ], watchOut: "most stir-fries/curries offer a pork or beef protein — always specify chicken/tofu/shrimp; no dairy in standard Thai dishes" },
-        { name: "Siam Fine Thai Cuisine", area: "Palo Alto", rating: null, reviews: null, ratingSrc: null, safeDishes: [
-          { dish: "Pad Thai", note: "chicken, tofu or shrimp" },
-          { dish: "Yellow or Green Curry", note: "coconut; chicken or tofu" },
-          { dish: "Basil Fried Rice", note: "chicken or tofu, no pork" },
-        ], watchOut: "choose chicken/tofu/shrimp and avoid pork/beef; coconut curries are dairy-free" },
       ],
     },
     {
@@ -619,12 +614,6 @@ const ORDER_MENU = {
           { dish: "Salmon poke bowl", note: "no creamy sauce" },
           { dish: "Shrimp or veggie bowl", note: "dairy-free" },
         ], watchOut: "all-seafood menu, no mammal; avoid creamy/spicy-mayo sauces — choose shoyu/ponzu" },
-        { name: "The Fish Market", area: "Palo Alto", rating: 4.0, reviews: null, ratingSrc: "Tripadvisor", safeDishes: [
-          { dish: "Grilled salmon or halibut", note: "grilled dry or olive oil, NO garlic butter" },
-          { dish: "Grilled shrimp skewer", note: "no butter baste" },
-          { dish: "Fish tacos", note: "no crema" },
-          { dish: "Steamed fish", note: "no butter sauce" },
-        ], watchOut: "skip clam chowder (cream + bacon = dairy & mammal) and any butter-basted/garlic-butter fish; ask for olive oil instead of butter" },
         { name: "Pokeworks", area: "Mountain View", rating: null, reviews: null, ratingSrc: null, safeDishes: [
           { dish: "Build-your-own tuna bowl", note: "shoyu/ponzu; dairy-free" },
           { dish: "Salmon bowl", note: "dairy-free" },
@@ -634,6 +623,134 @@ const ORDER_MENU = {
     },
   ],
 };
+
+// ---------------------------------------------------------------------------
+// OPENING HOURS  (keyed "Name|Area"; per-day 24h local ranges; [] = closed;
+// missing key or null = unknown). Populated from Google/Yelp; approximate and
+// point-in-time — DoorDash shows true live availability at order time.
+// ---------------------------------------------------------------------------
+
+const HOURS = {
+  // Cafés / breakfast / bagels / bowls
+  "The Farm|Palo Alto": { mon:[["07:30","18:00"]], tue:[["07:30","18:00"]], wed:[["07:30","20:00"]], thu:[["07:30","20:00"]], fri:[["07:30","20:00"]], sat:[["08:00","20:00"]], sun:[["08:00","20:00"]] },
+  "Verve Coffee Roasters|Palo Alto": { mon:[["07:00","18:00"]], tue:[["07:00","18:00"]], wed:[["07:00","18:00"]], thu:[["07:00","18:00"]], fri:[["07:00","18:00"]], sat:[["07:00","18:00"]], sun:[["07:00","18:00"]] },
+  "Coupa Cafe|Palo Alto": { mon:[["07:00","20:00"]], tue:[["07:00","20:00"]], wed:[["07:00","20:00"]], thu:[["07:00","20:00"]], fri:[["07:00","20:00"]], sat:[["07:00","20:00"]], sun:[["07:00","20:00"]] },
+  "Coupa Café|Palo Alto": { mon:[["07:00","20:00"]], tue:[["07:00","20:00"]], wed:[["07:00","20:00"]], thu:[["07:00","20:00"]], fri:[["07:00","20:00"]], sat:[["07:00","20:00"]], sun:[["07:00","20:00"]] },
+  "Douce France|Palo Alto": { mon:[["07:00","19:00"]], tue:[["07:00","19:00"]], wed:[["07:00","19:00"]], thu:[["07:00","19:00"]], fri:[["07:00","19:00"]], sat:[["07:00","19:00"]], sun:[["08:00","16:00"]] },
+  "Joanie's Café|Palo Alto": { mon:[["08:00","14:00"]], tue:[["08:00","14:00"]], wed:[["08:00","14:00"]], thu:[["08:00","14:00"]], fri:[["08:00","14:00"]], sat:[["08:00","14:00"]], sun:[["08:00","14:00"]] },
+  "Stacks|Menlo Park": { mon:[["07:00","14:00"]], tue:[["07:00","14:00"]], wed:[["07:00","14:00"]], thu:[["07:00","14:00"]], fri:[["07:00","14:30"]], sat:[["07:00","14:30"]], sun:[["07:00","14:30"]] },
+  "Palo Alto Creamery|Palo Alto": { mon:[["08:00","21:00"]], tue:[["08:00","21:00"]], wed:[["08:00","21:00"]], thu:[["08:00","21:00"]], fri:[["08:00","22:00"]], sat:[["08:00","22:00"]], sun:[["08:00","21:00"]] },
+  "Hatched|Palo Alto": { mon:[["07:00","16:00"]], tue:[["07:00","16:00"]], wed:[["07:00","16:00"]], thu:[["07:00","16:00"]], fri:[["07:00","16:30"]], sat:[["07:00","16:30"]], sun:[["07:00","16:30"]] },
+  "Izzy's Brooklyn Bagels|Palo Alto": { mon:[["07:00","15:00"]], tue:[["07:00","15:00"]], wed:[["07:00","15:00"]], thu:[["07:00","15:00"]], fri:[["07:00","15:00"]], sat:[["07:00","15:00"]], sun:[["07:00","15:00"]] },
+  "House of Bagels|Mountain View": { mon:[["06:30","15:30"]], tue:[["06:30","15:30"]], wed:[["06:30","15:30"]], thu:[["06:30","15:30"]], fri:[["06:30","15:30"]], sat:[["06:30","15:30"]], sun:[["06:30","15:30"]] },
+  "Bagel Street Cafe|Mountain View": { mon:[["06:30","16:00"]], tue:[["06:30","16:00"]], wed:[["06:30","16:00"]], thu:[["06:30","16:00"]], fri:[["06:30","16:00"]], sat:[["06:30","16:00"]], sun:[["07:00","15:00"]] },
+  "Boichik Bagels|Palo Alto": { mon:[["07:00","16:30"]], tue:[["07:00","16:30"]], wed:[["07:00","16:30"]], thu:[["07:00","16:30"]], fri:[["07:00","16:30"]], sat:[["07:00","16:30"]], sun:[["07:00","16:30"]] },
+  "Palmetto Superfoods|Palo Alto": { mon:[["08:00","20:00"]], tue:[["08:00","20:00"]], wed:[["08:00","20:00"]], thu:[["08:00","20:00"]], fri:[["08:00","20:00"]], sat:[["08:00","20:00"]], sun:[["08:00","20:00"]] },
+  "Pressed|Palo Alto": { mon:[["07:00","22:00"]], tue:[["07:00","22:00"]], wed:[["07:00","22:00"]], thu:[["07:00","22:00"]], fri:[["07:00","22:00"]], sat:[["07:00","22:00"]], sun:[["07:00","22:00"]] },
+  "Vitality Bowls|Palo Alto": { mon:[["07:30","19:00"]], tue:[["07:30","19:00"]], wed:[["07:30","19:00"]], thu:[["07:30","19:00"]], fri:[["07:30","19:00"]], sat:[["09:00","18:00"]], sun:[["09:00","18:00"]] },
+  "Bare Bowls|Palo Alto": { mon:[["08:00","16:00"]], tue:[["08:00","16:00"]], wed:[["08:00","16:00"]], thu:[["08:00","16:00"]], fri:[["08:00","16:00"]], sat:[["08:00","16:00"]], sun:[["08:00","16:00"]] },
+  "Jamba|Palo Alto": { mon:[["07:00","19:30"]], tue:[["07:00","19:30"]], wed:[["07:00","19:30"]], thu:[["07:00","19:30"]], fri:[["07:00","19:30"]], sat:[["07:30","19:30"]], sun:[["08:00","19:00"]] },
+
+  // Light lunch / salads / poke / mexican
+  "True Food Kitchen|Palo Alto": { mon:[["11:00","21:00"]], tue:[["11:00","21:00"]], wed:[["11:00","21:00"]], thu:[["11:00","21:00"]], fri:[["11:00","22:00"]], sat:[["10:00","22:00"]], sun:[["10:00","21:00"]] },
+  "Asian Box|Palo Alto": { mon:[["10:30","21:00"]], tue:[["10:30","21:00"]], wed:[["10:30","21:00"]], thu:[["10:30","21:00"]], fri:[["10:30","21:00"]], sat:[["10:30","21:00"]], sun:[["10:30","20:00"]] },
+  "Sweetgreen|Palo Alto": { mon:[["10:30","21:00"]], tue:[["10:30","21:00"]], wed:[["10:30","21:00"]], thu:[["10:30","21:00"]], fri:[["10:30","21:00"]], sat:[["10:30","21:00"]], sun:[["10:30","21:00"]] },
+  "Go Fish Poke Bar|Palo Alto": { mon:[["11:00","20:00"]], tue:[["11:00","20:00"]], wed:[["11:00","20:00"]], thu:[["11:00","20:00"]], fri:[["11:00","20:00"]], sat:[["11:00","20:00"]], sun:[["11:00","19:00"]] },
+  "Poke House|Palo Alto": { mon:[["11:00","21:00"]], tue:[["11:00","21:00"]], wed:[["11:00","21:00"]], thu:[["11:00","21:00"]], fri:[["11:00","21:00"]], sat:[["11:00","21:00"]], sun:[["11:00","21:00"]] },
+  "Mendocino Farms|Palo Alto": { mon:[["10:00","21:00"]], tue:[["10:00","21:00"]], wed:[["10:00","21:00"]], thu:[["10:00","21:00"]], fri:[["10:00","21:00"]], sat:[["10:00","21:00"]], sun:[["10:00","21:00"]] },
+  "Ike's Love & Sandwiches|Palo Alto": { mon:[["10:00","19:00"]], tue:[["10:00","19:00"]], wed:[["10:00","19:00"]], thu:[["10:00","19:00"]], fri:[["10:00","19:00"]], sat:[["10:00","19:00"]], sun:[["10:00","19:00"]] },
+  "Oren's Hummus|Palo Alto": { mon:[["11:00","23:00"]], tue:[["11:00","23:00"]], wed:[["11:00","23:00"]], thu:[["11:00","23:00"]], fri:[["11:00","23:30"]], sat:[["11:00","23:30"]], sun:[["11:00","23:00"]] },
+  "Zareen's|Palo Alto": { mon:[["11:00","24:00"]], tue:[["11:00","24:00"]], wed:[["11:00","24:00"]], thu:[["11:00","24:00"]], fri:[["11:00","24:00"]], sat:[["11:00","24:00"]], sun:[["11:00","24:00"]] },
+  "SAJJ Mediterranean|Sunnyvale": { mon:[["11:00","21:00"]], tue:[["11:00","21:00"]], wed:[["11:00","21:00"]], thu:[["11:00","21:00"]], fri:[["11:00","21:00"]], sat:[["11:00","21:00"]], sun:[["11:00","21:00"]] },
+  "Garden Fresh (vegan Chinese)|Mountain View": { mon:[], tue:[["11:30","14:30"],["16:30","21:30"]], wed:[["11:30","14:30"],["16:30","21:30"]], thu:[["11:30","14:30"],["16:30","21:30"]], fri:[["11:30","14:30"],["16:30","21:30"]], sat:[["11:30","14:30"],["16:30","21:30"]], sun:[["11:30","14:30"],["16:30","21:30"]] },
+  "CAVA|Mountain View": { mon:[["10:45","22:00"]], tue:[["10:45","22:00"]], wed:[["10:45","22:00"]], thu:[["10:45","22:00"]], fri:[["10:45","22:00"]], sat:[["10:45","22:00"]], sun:[["10:45","22:00"]] },
+  "Los Altos Taqueria|Mountain View": { mon:[["07:00","22:00"]], tue:[["07:00","22:00"]], wed:[["07:00","22:00"]], thu:[["07:00","22:00"]], fri:[["07:00","22:00"]], sat:[["07:00","22:00"]], sun:[["07:00","22:00"]] },
+  "Sancho's Taqueria|Palo Alto": { mon:[["10:00","21:00"]], tue:[["10:00","21:00"]], wed:[["10:00","21:00"]], thu:[["10:00","21:00"]], fri:[["10:00","21:00"]], sat:[["10:00","21:00"]], sun:[["10:00","20:00"]] },
+  "Reposado|Palo Alto": { mon:[["11:30","15:00"],["16:00","22:00"]], tue:[["11:30","15:00"],["16:00","22:00"]], wed:[["11:30","15:00"],["16:00","22:00"]], thu:[["11:30","15:00"],["16:00","22:00"]], fri:[["11:30","15:00"],["16:00","22:30"]], sat:[["11:00","15:00"],["16:00","22:30"]], sun:[["11:00","15:00"],["16:00","21:00"]] },
+  "Celia's Mexican Restaurant|Palo Alto": { mon:[["11:00","21:30"]], tue:[["11:00","21:30"]], wed:[["11:00","21:30"]], thu:[["11:00","21:30"]], fri:[["11:00","22:00"]], sat:[["11:00","22:00"]], sun:[["11:00","21:30"]] },
+  "Toluco Mexican Kitchen|East Palo Alto": { mon:[["09:00","21:00"]], tue:[["09:00","21:00"]], wed:[["09:00","21:00"]], thu:[["09:00","21:00"]], fri:[["09:00","21:00"]], sat:[["08:00","21:00"]], sun:[["08:00","16:00"]] },
+
+  // Asian dinner
+  "Amarin Thai Cuisine|Mountain View": { mon:[["11:30","14:30"],["17:00","21:00"]], tue:[["11:30","14:30"],["17:00","21:00"]], wed:[["11:30","14:30"],["17:00","21:00"]], thu:[["11:30","14:30"],["17:00","21:00"]], fri:[["11:30","14:30"],["17:00","21:30"]], sat:[["12:00","15:00"],["17:00","21:30"]], sun:[["12:00","15:00"],["17:00","21:00"]] },
+  "Thaiphoon|Palo Alto": { mon:[["11:00","14:30"],["16:00","21:00"]], tue:[["11:00","14:30"],["16:00","21:00"]], wed:[["11:00","14:30"],["16:00","21:30"]], thu:[["11:00","14:30"],["16:00","21:30"]], fri:[["11:00","14:30"],["16:00","22:00"]], sat:[["16:00","22:00"]], sun:[["16:00","21:30"]] },
+  "Taste Restaurant|Palo Alto": { mon:[["11:00","15:00"],["17:00","21:30"]], tue:[["11:00","15:00"],["17:00","21:30"]], wed:[["11:00","15:00"],["17:00","21:30"]], thu:[["11:00","15:00"],["17:00","21:30"]], fri:[["11:00","15:00"],["17:00","21:30"]], sat:[["11:00","15:00"],["17:00","21:30"]], sun:[["11:00","15:00"],["17:00","21:30"]] },
+  "Chef Zhao Kitchen|Palo Alto": { mon:[], tue:[["11:00","14:30"],["17:00","21:00"]], wed:[["11:00","14:30"],["17:00","21:00"]], thu:[["11:00","14:30"],["17:00","21:00"]], fri:[["11:00","14:30"],["17:00","21:00"]], sat:[["11:00","14:30"],["17:00","21:00"]], sun:[["11:00","14:30"],["17:00","21:00"]] },
+  "Tai Pan|Palo Alto": { mon:[["11:00","14:30"],["17:00","20:30"]], tue:[["11:00","14:30"],["17:00","20:30"]], wed:[["11:00","14:30"],["17:00","20:30"]], thu:[["11:00","14:30"],["17:00","20:30"]], fri:[["11:00","14:30"],["17:00","20:30"]], sat:[["11:00","14:30"],["17:00","20:30"]], sun:[["11:00","14:30"],["17:00","20:30"]] },
+  "P.F. Chang's|Palo Alto": { mon:[["11:00","21:00"]], tue:[["11:00","21:00"]], wed:[["11:00","21:00"]], thu:[["11:00","21:00"]], fri:[["11:00","22:00"]], sat:[["11:00","22:00"]], sun:[["11:00","21:00"]] },
+  "Sushi Tomi|Mountain View": { mon:[["11:30","13:30"],["17:00","20:00"]], tue:[], wed:[["11:30","13:30"],["17:00","20:00"]], thu:[["11:30","13:30"],["17:00","20:00"]], fri:[["11:30","13:30"],["17:00","20:30"]], sat:[["11:30","13:30"],["17:00","20:30"]], sun:[["11:30","13:30"],["17:00","20:00"]] },
+  "MJ Sushi|Palo Alto": { mon:[["11:30","22:30"]], tue:[["11:30","22:30"]], wed:[["11:30","22:30"]], thu:[["11:30","22:30"]], fri:[["11:30","24:00"]], sat:[["11:30","24:00"]], sun:[["11:30","22:30"]] },
+  "Taro San Japanese Noodle Bar|Palo Alto": { mon:[["11:00","21:00"]], tue:[["11:00","21:00"]], wed:[["11:00","21:00"]], thu:[["11:00","21:00"]], fri:[["11:00","22:00"]], sat:[["11:00","22:00"]], sun:[["11:00","21:00"]] },
+  "Fuki Sushi|Palo Alto": { mon:[["11:30","13:30"],["17:15","20:30"]], tue:[["11:30","13:30"],["17:15","20:30"]], wed:[["11:30","13:30"],["17:15","20:30"]], thu:[["11:30","13:30"],["17:15","20:30"]], fri:[["11:30","13:30"],["17:15","21:00"]], sat:[["17:15","21:00"]], sun:[] },
+  "Pho Anh|Mountain View": { mon:[["10:00","20:30"]], tue:[["10:00","20:30"]], wed:[["10:00","20:30"]], thu:[["10:00","20:30"]], fri:[["10:00","22:00"]], sat:[["10:00","22:00"]], sun:[["10:00","22:00"]] },
+  "Pho Ha Noi|Palo Alto": { mon:[["11:30","14:00"],["17:00","21:00"]], tue:[["11:30","14:00"],["17:00","21:00"]], wed:[["11:30","14:00"],["17:00","21:00"]], thu:[["11:30","14:00"],["17:00","21:00"]], fri:[["11:30","14:00"],["17:00","22:00"]], sat:[["11:00","15:00"],["17:00","22:00"]], sun:[["11:00","15:00"],["17:00","21:00"]] },
+  "Pho Avenue|Mountain View": { mon:[["11:00","21:00"]], tue:[["11:00","21:00"]], wed:[["11:00","21:00"]], thu:[["11:00","21:00"]], fri:[["11:00","21:00"]], sat:[["11:00","21:00"]], sun:[["11:00","21:00"]] },
+  "Kunjip Tofu|Mountain View": { mon:[["11:00","14:00"],["16:30","21:00"]], tue:[["11:00","14:00"],["16:30","21:00"]], wed:[["11:00","14:00"],["16:30","21:00"]], thu:[["11:00","14:00"],["16:30","21:00"]], fri:[["11:00","14:30"],["16:30","22:00"]], sat:[["11:00","22:00"]], sun:[["11:00","21:00"]] },
+  "So Gong Dong Tofu House|Palo Alto": { mon:[["11:30","14:00"],["16:30","20:30"]], tue:[["11:30","14:00"],["16:30","20:30"]], wed:[["11:30","14:00"],["16:30","20:30"]], thu:[["11:30","14:00"],["16:30","20:30"]], fri:[["11:30","14:00"],["16:30","20:30"]], sat:[["11:30","14:30"],["16:30","20:30"]], sun:[["11:30","14:30"],["16:30","20:30"]] },
+  "Tapsilog Bistro|Campbell": { mon:[], tue:[["09:00","14:30"],["16:30","20:30"]], wed:[["09:00","14:30"],["16:30","20:30"]], thu:[["09:00","14:30"],["16:30","20:30"]], fri:[["09:00","14:30"],["16:30","21:00"]], sat:[["09:00","21:00"]], sun:[["09:00","16:30"]] },
+
+  // Mediterranean / Indian / pizza / american / seafood
+  "Nick the Greek|Palo Alto": { mon:[["11:00","22:00"]], tue:[["11:00","22:00"]], wed:[["11:00","22:00"]], thu:[["11:00","22:00"]], fri:[["11:00","24:00"]], sat:[["11:00","24:00"]], sun:[["11:00","22:00"]] },
+  "Mediterranean Wraps|Palo Alto": { mon:[["11:00","20:30"]], tue:[["11:00","20:30"]], wed:[["11:00","20:00"]], thu:[["11:00","20:00"]], fri:[["11:00","20:30"]], sat:[["11:00","20:30"]], sun:[["11:00","20:30"]] },
+  "Hummus Mediterranean Kitchen|Palo Alto": { mon:[["10:30","21:00"]], tue:[["10:30","21:00"]], wed:[["10:30","21:00"]], thu:[["10:30","21:00"]], fri:[["10:30","21:30"]], sat:[["09:30","21:30"]], sun:[["09:30","21:00"]] },
+  "Darbar Indian Cuisine|Palo Alto": { mon:[["11:00","14:30"],["17:00","21:30"]], tue:[["11:00","14:30"],["17:00","21:30"]], wed:[["11:00","14:30"],["17:00","21:30"]], thu:[["11:00","14:30"],["17:00","22:00"]], fri:[["11:00","14:30"],["17:00","22:00"]], sat:[["11:30","14:30"],["17:00","22:00"]], sun:[["17:00","21:30"]] },
+  "Broadway Masala|Redwood City": { mon:[["11:30","14:30"],["17:00","21:30"]], tue:[["11:30","14:30"],["17:00","21:30"]], wed:[["11:30","14:30"],["17:00","21:30"]], thu:[["11:30","14:30"],["17:00","21:30"]], fri:[["11:30","14:30"],["17:00","22:00"]], sat:[["11:30","15:00"],["17:00","22:00"]], sun:[["11:30","15:00"],["17:00","21:30"]] },
+  "Chaat Bhavan|Mountain View": { mon:[["11:00","22:00"]], tue:[["11:00","22:00"]], wed:[["11:00","22:00"]], thu:[["11:00","22:00"]], fri:[["11:00","22:00"]], sat:[["11:00","22:00"]], sun:[["11:00","22:00"]] },
+  "Namaste Indian Cuisine|Palo Alto": { mon:[["11:30","14:30"],["17:00","21:00"]], tue:[["11:30","14:30"],["17:00","21:00"]], wed:[["11:30","14:30"],["17:00","21:00"]], thu:[["11:30","14:30"],["17:00","21:00"]], fri:[["11:30","14:30"],["17:00","21:30"]], sat:[["11:30","14:30"],["17:00","21:30"]], sun:[["11:30","14:30"],["17:00","21:00"]] },
+  "Ettan|Palo Alto": { mon:[["11:30","14:00"],["17:00","21:00"]], tue:[["11:30","14:00"],["17:00","21:00"]], wed:[["11:30","14:00"],["17:00","21:00"]], thu:[["11:30","14:00"],["17:00","21:00"]], fri:[["11:30","14:00"],["17:00","22:00"]], sat:[["11:00","14:00"],["17:00","22:00"]], sun:[["11:00","14:00"],["17:00","21:00"]] },
+  "Delhi to Kathmandu|Sunnyvale": { mon:[["11:00","24:00"]], tue:[["11:00","24:00"]], wed:[["11:00","24:00"]], thu:[["11:00","24:00"]], fri:[["11:00","24:00"]], sat:[["11:00","24:00"]], sun:[["11:00","24:00"]] },
+  "Everest Cuisine|Mountain View": { mon:[["11:00","23:00"]], tue:[], wed:[["11:00","23:00"]], thu:[["11:00","23:00"]], fri:[["11:00","23:00"]], sat:[["11:00","23:00"]], sun:[["11:00","23:00"]] },
+  "Amber India|Los Altos": { mon:[["11:30","14:30"],["17:00","21:30"]], tue:[["11:30","14:30"],["17:00","21:30"]], wed:[["11:30","14:30"],["17:00","21:30"]], thu:[["11:30","14:30"],["17:00","21:30"]], fri:[["11:30","14:30"],["17:00","21:30"]], sat:[["11:30","14:30"],["17:00","21:30"]], sun:[["11:30","14:30"],["17:00","21:30"]] },
+  "Curry Up Now|Palo Alto": { mon:[["11:30","20:30"]], tue:[["11:30","20:30"]], wed:[["11:30","20:30"]], thu:[["11:30","20:30"]], fri:[["11:30","21:00"]], sat:[["11:30","20:00"]], sun:[["11:30","20:00"]] },
+  "Il Fornaio|Mountain View": { mon:[["11:30","21:30"]], tue:[["11:30","21:30"]], wed:[["11:30","21:30"]], thu:[["11:30","21:30"]], fri:[["11:30","21:30"]], sat:[["11:30","21:30"]], sun:[["11:30","21:30"]] },
+  "Terún|Palo Alto": { mon:[["11:30","14:00"],["17:00","21:00"]], tue:[["11:30","14:00"],["17:00","21:00"]], wed:[["11:30","14:00"],["17:00","21:00"]], thu:[["11:30","14:00"],["17:00","21:00"]], fri:[["11:30","14:00"],["17:00","21:30"]], sat:[["11:30","14:00"],["17:00","21:30"]], sun:[["11:30","14:00"],["17:00","21:00"]] },
+  "Pizzeria Delfina|Palo Alto": { mon:[["17:00","21:00"]], tue:[["17:00","21:00"]], wed:[["12:00","21:00"]], thu:[["12:00","21:00"]], fri:[["12:00","22:00"]], sat:[["12:00","22:00"]], sun:[["12:00","21:00"]] },
+  "Starbird Chicken|Palo Alto": { mon:[["10:30","22:00"]], tue:[["10:30","22:00"]], wed:[["10:30","22:00"]], thu:[["10:30","22:00"]], fri:[["10:30","22:00"]], sat:[["10:30","22:00"]], sun:[["10:30","21:00"]] },
+  "Poké Bar|Mountain View": { mon:[["11:00","20:00"]], tue:[["11:00","20:00"]], wed:[["11:00","20:00"]], thu:[["11:00","20:00"]], fri:[["11:00","20:00"]], sat:[["11:00","20:00"]], sun:[["11:00","20:00"]] },
+  "Pokeworks|Mountain View": { mon:[["10:30","21:00"]], tue:[["10:30","21:00"]], wed:[["10:30","21:00"]], thu:[["10:30","21:00"]], fri:[["10:30","21:00"]], sat:[["10:30","21:00"]], sun:[["10:30","21:00"]] },
+};
+
+// ---------------------------------------------------------------------------
+// WEEK PLANNER — one distinct suggestion per day, no two days alike.
+// Each pick references a real restaurant + dairy-free & mammal-free dish.
+// ---------------------------------------------------------------------------
+
+const DAY_PLANS = [
+  { day: "Monday", theme: "Fresh start — bowls & poke", emoji: "🥗", picks: [
+    { meal: "Breakfast", name: "Palmetto Superfoods", area: "Palo Alto", dish: "Signature açaí bowl", note: "default vegan; dairy-free" },
+    { meal: "Lunch", name: "Sweetgreen", area: "Palo Alto", dish: "Harvest Bowl (chicken, wild rice, sweet potato)", note: "no goat cheese; balsamic" },
+    { meal: "Dinner", name: "Go Fish Poke Bar", area: "Palo Alto", dish: "Ahi tuna poke bowl", note: "shoyu/ponzu, no creamy mayo" },
+  ] },
+  { day: "Tuesday", theme: "Taco Tuesday — Mexican", emoji: "🌮", picks: [
+    { meal: "Breakfast", name: "Los Altos Taqueria", area: "Mountain View", dish: "Egg & potato breakfast burrito", note: "no chorizo/bacon, no cheese, no sour cream" },
+    { meal: "Lunch", name: "Sancho's Taqueria", area: "Palo Alto", dish: "Grilled fish tacos", note: "no crema/cheese, cabbage & salsa" },
+    { meal: "Dinner", name: "Celia's Mexican Restaurant", area: "Palo Alto", dish: "Chicken fajitas", note: "no cheese/sour cream; tortillas without lard" },
+  ] },
+  { day: "Wednesday", theme: "Mezze midweek — Mediterranean", emoji: "🧆", picks: [
+    { meal: "Breakfast", name: "Boichik Bagels", area: "Palo Alto", dish: "Bagel with lox, tomato, onion & capers", note: "hold the cream cheese — water bagels are dairy-free" },
+    { meal: "Lunch", name: "Oren's Hummus", area: "Palo Alto", dish: "Falafel pita or plate", note: "tahini; dairy-free" },
+    { meal: "Dinner", name: "Nick the Greek", area: "Palo Alto", dish: "Chicken souvlaki bowl", note: "rice + salad, no tzatziki/feta" },
+  ] },
+  { day: "Thursday", theme: "Asian night — sushi & rice bowls", emoji: "🍣", picks: [
+    { meal: "Breakfast", name: "Verve Coffee Roasters", area: "Palo Alto", dish: "Avocado toast, add egg", note: "no cheese, dry / no butter" },
+    { meal: "Lunch", name: "Asian Box", area: "Palo Alto", dish: "Lemongrass chicken box over rice", note: "tamarind or lemongrass vinaigrette; dairy-free" },
+    { meal: "Dinner", name: "Sushi Tomi", area: "Mountain View", dish: "Sashimi & nigiri + chicken teriyaki", note: "dairy-free; skip cream-cheese rolls" },
+  ] },
+  { day: "Friday", theme: "Pizza Friday — Italian", emoji: "🍕", picks: [
+    { meal: "Breakfast", name: "The Farm", area: "Palo Alto", dish: "Açaí bowl", note: "confirm dairy-free granola, no yogurt drizzle" },
+    { meal: "Lunch", name: "Mendocino Farms", area: "Palo Alto", dish: "Vegan Banh Mi", note: "marinated tofu, pickled veg; dairy-free" },
+    { meal: "Dinner", name: "Terún", area: "Palo Alto", dish: "Pizza Marinara", note: "tomato, garlic, oregano, olive oil — no cheese" },
+  ] },
+  { day: "Saturday", theme: "Weekend feast — brunch & Indian", emoji: "🍛", picks: [
+    { meal: "Brunch", name: "Stacks", area: "Menlo Park", dish: "Two eggs with potatoes & toast", note: "dry toast / no butter; no meat side" },
+    { meal: "Lunch", name: "True Food Kitchen", area: "Palo Alto", dish: "Ahi Poke Bowl", note: "sushi rice, avocado, soy — dairy-free" },
+    { meal: "Dinner", name: "Zareen's", area: "Palo Alto", dish: "Madras Chicken Curry (coconut-milk based)", note: "confirm no cream added" },
+  ] },
+  { day: "Sunday", theme: "Cozy Sunday — Thai & comfort", emoji: "🍜", picks: [
+    { meal: "Breakfast", name: "Palo Alto Creamery", area: "Palo Alto", dish: "Two eggs with hash browns & toast", note: "dry toast / no butter; no bacon/sausage" },
+    { meal: "Lunch", name: "CAVA", area: "Mountain View", dish: "Crispy Falafel Pita", note: "vegan; hummus, eggplant, slaw, garlic dressing" },
+    { meal: "Dinner", name: "Amarin Thai Cuisine", area: "Mountain View", dish: "Panang Curry", note: "coconut-based; chicken or tofu" },
+  ] },
+];
 
 // ---------------------------------------------------------------------------
 // WHOLE FOODS GROCERY GUIDE
@@ -683,5 +800,5 @@ const FACTS = [
 ];
 
 if (typeof module !== "undefined") {
-  module.exports = { RULES, ORDER_MENU, GROCERY, FACTS };
+  module.exports = { RULES, ORDER_MENU, HOURS, DAY_PLANS, GROCERY, FACTS };
 }

@@ -58,9 +58,20 @@
           <button class="seg-btn" data-meal="dinner">🍽️ Lunch / dinner</button>
         </div>
         <input id="restoSearch" class="search" type="search" placeholder="Search dishes, cuisines, or spots…" />
+        <div id="cuisineChips" class="chips"></div>
       </div>
       <div id="restoMeta" class="resto-meta"></div>
       <div id="restoList" class="list"></div>
+    </section>
+
+    <!-- WEEK TAB -->
+    <section id="tab-week" class="tab">
+      <div class="card">
+        <h2>Your week</h2>
+        <p class="muted">A different safe plan for every day — tap a day to see its breakfast, lunch &amp; dinner picks. All dairy-free &amp; mammal-free. The <b>Open now</b> tag is estimated from your device's clock; DoorDash shows live availability.</p>
+        <div id="dayChips" class="day-chips"></div>
+      </div>
+      <div id="dayPlan"></div>
     </section>
 
     <!-- WHOLE FOODS TAB -->
@@ -143,6 +154,7 @@
   <nav class="tabbar">
     <button class="tab-btn active" data-tab="check"><span>🔍</span>Check</button>
     <button class="tab-btn" data-tab="order"><span>🛵</span>Order</button>
+    <button class="tab-btn" data-tab="week"><span>📅</span>Week</button>
     <button class="tab-btn" data-tab="grocery"><span>🛒</span>Grocery</button>
     <button class="tab-btn" data-tab="card"><span>🆘</span>Card</button>
   </nav>

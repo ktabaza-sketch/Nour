@@ -154,6 +154,60 @@ textarea:focus, .search:focus { outline: none; border-color: var(--teal); }
 .dd-btn:active { background: #d92806; }
 .dd-btn .sub { font-weight: 500; font-size: 11px; opacity: .85; }
 .area-tag { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+/* Cuisine shortcut chips + day chips (horizontal scroll) */
+.chips, .day-chips {
+  display: flex; gap: 8px; margin-top: 12px; overflow-x: auto;
+  padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.chips::-webkit-scrollbar, .day-chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto; border: 1.5px solid var(--line); background: #fff; color: var(--ink);
+  padding: 7px 13px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.chip.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+.day-chip {
+  flex: 0 0 auto; border: 1.5px solid var(--line); background: #fff; color: var(--ink);
+  padding: 9px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; position: relative;
+}
+.day-chip.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+.day-chip.is-today::after {
+  content: ""; position: absolute; top: 5px; right: 6px; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--avoid);
+}
+.day-chip.active.is-today::after { background: #fff; }
+
+/* Open-now badge */
+.open-badge { font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
+.open-badge.open { color: var(--safe); }
+.open-badge.soon { color: var(--caution); }
+.open-badge.closed { color: var(--muted); }
+.open-badge.unknown { color: var(--muted); font-weight: 500; }
+.resto-rating { flex-wrap: wrap; gap: 6px 12px; }
+.resto-rating .rating + .open-badge { margin-left: 0; }
+
+/* Week planner */
+.day-head { margin: 4px 4px 12px; }
+.day-title { font-size: 19px; font-weight: 800; }
+.day-theme { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+.today-tag {
+  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+  background: var(--safe-bg); color: var(--safe); padding: 2px 7px; border-radius: 20px; vertical-align: middle;
+}
+.pick {
+  background: var(--card); border-radius: var(--radius); padding: 14px; margin-bottom: 12px;
+  box-shadow: var(--shadow); display: flex; gap: 12px;
+}
+.pick-meal {
+  flex: 0 0 68px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+  color: var(--teal-dark); padding-top: 2px;
+}
+.pick-body { flex: 1; min-width: 0; }
+.pick-dish { font-size: 15px; font-weight: 700; }
+.pick-note { font-size: 13px; color: var(--caution); font-weight: 600; margin-top: 2px; }
+.pick-resto { font-size: 13.5px; margin-top: 6px; }
+.pick-status { margin-top: 6px; }
+.dd-btn.sm { margin-top: 10px; padding: 9px 14px; font-size: 13px; }
 .resto {
   background: var(--card); border-radius: var(--radius); padding: 15px; box-shadow: var(--shadow);
 }

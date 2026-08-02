@@ -1,6 +1,6 @@
 /* Nour service worker — offline-first caching.
    Bump CACHE when you change any asset so clients update. */
-const CACHE = "nour-v1";
+const CACHE = "nour-v2";
 const ASSETS = [
   "./",
   "./index.html",

@@ -111,6 +111,61 @@ function escapeHtml(s) {
   ));
 }
 
+// ---- Open-now status (approximate, from the device's local clock) ----------
+// HOURS is keyed "Name|Area". Missing/null => unknown. DoorDash is the true
+// source of live availability; this is a best-effort pre-check.
+const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
+function toMin(hm) { const [h, m] = hm.split(":").map(Number); return h * 60 + m; }
+function fmtTime(hm) {
+  let [h, m] = hm.split(":").map(Number);
+  if (h >= 24) h -= 24;
+  const ap = h >= 12 ? "pm" : "am";
+  const hr = ((h + 11) % 12) + 1;
+  return m ? `${hr}:${String(m).padStart(2, "0")}${ap}` : `${hr}${ap}`;
+}
+
+function openStatus(r, now) {
+  const h = (typeof HOURS !== "undefined") ? HOURS[r.name + "|" + r.area] : null;
+  if (!h) return { state: "unknown" };
+  now = now || new Date();
+  const M = now.getHours() * 60 + now.getMinutes();
+  const today = h[DAY_KEYS[now.getDay()]];
+  const yest = h[DAY_KEYS[(now.getDay() + 6) % 7]];
+
+  // Overnight spillover from yesterday (a range whose close is past midnight)
+  if (Array.isArray(yest)) {
+    for (const [o, c] of yest) {
+      if (toMin(c) <= toMin(o) && M < toMin(c)) return { state: "open", label: "Open now", until: c };
+    }
+  }
+  if (!Array.isArray(today)) return { state: "unknown" };
+  if (today.length === 0) return { state: "closed", label: "Closed today" };
+
+  for (const [o, c] of today) {
+    const om = toMin(o), cm = toMin(c);
+    const isOpen = cm > om ? (M >= om && M < cm) : (M >= om); // cm<=om => spans midnight
+    if (isOpen) {
+      const closeAbs = cm > om ? cm : cm + 1440;
+      const closesSoon = (closeAbs - M) <= 45;
+      return { state: "open", label: closesSoon ? "Closes soon" : "Open now", until: c, closesSoon };
+    }
+  }
+  const next = today.map(x => x[0]).filter(o => toMin(o) > M).sort((a, b) => toMin(a) - toMin(b))[0];
+  if (next) return { state: "closed", label: "Opens " + fmtTime(next) };
+  return { state: "closed", label: "Closed now" };
+}
+
+function openBadge(r) {
+  const s = openStatus(r);
+  if (s.state === "open") {
+    const till = (s.until && !s.closesSoon) ? ` · till ${fmtTime(s.until)}` : "";
+    return `<span class="open-badge ${s.closesSoon ? "soon" : "open"}">${s.closesSoon ? "🟠" : "🟢"} ${escapeHtml(s.label)}${till}</span>`;
+  }
+  if (s.state === "closed") return `<span class="open-badge closed">⚫ ${escapeHtml(s.label)}</span>`;
+  return `<span class="open-badge unknown">🕘 Hours vary — check DoorDash</span>`;
+}
+
 // ---- Rendering static content --------------------------------------------
 function renderFacts() {
   document.getElementById("factsList").innerHTML =
@@ -175,7 +230,7 @@ function restaurantCard(r) {
         <h3>${escapeHtml(r.name)}</h3>
         ${area}
       </div>
-      ${ratingBadge(r) ? `<div class="resto-rating">${ratingBadge(r)}</div>` : ""}
+      <div class="resto-rating">${ratingBadge(r)}${openBadge(r)}</div>
       <ul class="dishes">${dishes}</ul>
       ${watch}
       ${ddButton(r)}
@@ -190,11 +245,29 @@ function byRating(a, b) {
   return (b.reviews || 0) - (a.reviews || 0);
 }
 
+let currentCuisine = null; // null = all cuisines
+
+function renderCuisineChips() {
+  const el = document.getElementById("cuisineChips");
+  if (!el) return;
+  const cats = ((ORDER_MENU && ORDER_MENU[currentMeal]) || []).map(c => c.category);
+  const chip = (label, val, active) =>
+    `<button class="chip${active ? " active" : ""}" data-cuisine="${val === null ? "" : escapeHtml(val)}">${escapeHtml(label)}</button>`;
+  el.innerHTML = chip("All", null, currentCuisine === null) +
+    cats.map(c => chip(c, c, currentCuisine === c)).join("");
+  el.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+    currentCuisine = b.dataset.cuisine || null;
+    renderCuisineChips();
+    renderRestaurants(document.getElementById("restoSearch").value);
+  }));
+}
+
 function renderRestaurants(filter = "") {
   const q = filter.trim().toLowerCase();
   const el = document.getElementById("restoList");
   const meta = document.getElementById("restoMeta");
-  const categories = (ORDER_MENU && ORDER_MENU[currentMeal]) || [];
+  const categories = ((ORDER_MENU && ORDER_MENU[currentMeal]) || [])
+    .filter(c => !currentCuisine || c.category === currentCuisine);
 
   let count = 0;
   const html = categories.map(cat => {
@@ -205,13 +278,54 @@ function renderRestaurants(filter = "") {
       restos.map(restaurantCard).join("");
   }).join("");
 
-  meta.textContent = `${MEAL_LABEL[currentMeal]} · ${count} spot${count === 1 ? "" : "s"} that deliver to the Stanford area`;
+  const scope = currentCuisine ? `${currentCuisine} · ` : "";
+  meta.textContent = `${scope}${MEAL_LABEL[currentMeal]} · ${count} spot${count === 1 ? "" : "s"} · open-now is from your device time`;
 
   if (!count) {
-    el.innerHTML = `<div class="card muted">No matches here. Try another meal tab or a term like "chicken" or "poke".</div>`;
+    el.innerHTML = `<div class="card muted">No matches here. Try another cuisine, meal tab, or a term like "chicken" or "poke".</div>`;
     return;
   }
   el.innerHTML = html;
+}
+
+// ---- Week planner --------------------------------------------------------
+let selectedDayIdx = null;
+function todayPlanIdx() { return (new Date().getDay() + 6) % 7; } // Mon=0 … Sun=6
+
+function pickCard(p) {
+  return `
+    <div class="pick">
+      <div class="pick-meal">${escapeHtml(p.meal)}</div>
+      <div class="pick-body">
+        <div class="pick-dish">${escapeHtml(p.dish)}</div>
+        ${p.note ? `<div class="pick-note">${escapeHtml(p.note)}</div>` : ""}
+        <div class="pick-resto">${escapeHtml(p.name)} <span class="area-tag">${escapeHtml(p.area)}</span></div>
+        <div class="pick-status">${openBadge(p)}</div>
+        <a class="dd-btn sm" href="${ddSearchUrl(p)}" target="_blank" rel="noopener noreferrer">🛵 Order on DoorDash</a>
+      </div>
+    </div>`;
+}
+
+function renderWeek() {
+  const chipsEl = document.getElementById("dayChips");
+  const planEl = document.getElementById("dayPlan");
+  if (!chipsEl || !planEl) return;
+  if (selectedDayIdx == null) selectedDayIdx = todayPlanIdx();
+
+  chipsEl.innerHTML = DAY_PLANS.map((p, i) =>
+    `<button class="day-chip${i === selectedDayIdx ? " active" : ""}${i === todayPlanIdx() ? " is-today" : ""}" data-i="${i}">${escapeHtml(p.day.slice(0, 3))}</button>`
+  ).join("");
+  chipsEl.querySelectorAll(".day-chip").forEach(b =>
+    b.addEventListener("click", () => { selectedDayIdx = +b.dataset.i; renderWeek(); }));
+
+  const plan = DAY_PLANS[selectedDayIdx];
+  const isToday = selectedDayIdx === todayPlanIdx();
+  planEl.innerHTML = `
+    <div class="day-head">
+      <div class="day-title">${plan.emoji} ${escapeHtml(plan.day)}${isToday ? ' <span class="today-tag">Today</span>' : ""}</div>
+      <div class="day-theme">${escapeHtml(plan.theme)}</div>
+    </div>
+    ${plan.picks.map(pickCard).join("")}`;
 }
 
 function renderGrocery() {
@@ -232,6 +346,9 @@ function renderAllergyCardDairy() {
 function switchTab(name) {
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + name));
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+  // Re-render time-sensitive tabs so open-now badges reflect the current time.
+  if (name === "week") renderWeek();
+  if (name === "order") renderRestaurants(document.getElementById("restoSearch").value);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -258,7 +375,9 @@ function bindSettings() {
 // ---- Init -----------------------------------------------------------------
 function init() {
   renderFacts();
+  renderCuisineChips();
   renderRestaurants();
+  renderWeek();
   renderGrocery();
   renderAllergyCardDairy();
   bindSettings();
@@ -278,7 +397,9 @@ function init() {
   document.querySelectorAll("#mealSeg .seg-btn").forEach(b =>
     b.addEventListener("click", () => {
       currentMeal = b.dataset.meal;
+      currentCuisine = null;
       document.querySelectorAll("#mealSeg .seg-btn").forEach(x => x.classList.toggle("active", x === b));
+      renderCuisineChips();
       renderRestaurants(searchEl.value);
     }));
 
