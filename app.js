@@ -210,17 +210,28 @@ function restaurantMatches(r, q) {
     d.dish.toLowerCase().includes(q) || (d.note || "").toLowerCase().includes(q));
 }
 
-// Build a DoorDash search link from name + city. We generate this rather than
-// store fixed store IDs, because a stale store ID 404s — a name search always
-// lands on the right restaurant once she's signed in with a delivery address.
-function ddSearchUrl(r) {
+// Generate delivery links from name + city rather than fixed store IDs (which
+// go stale and 404) — a name search always lands on the right restaurant once
+// signed in with an address. Each restaurant lists the platform(s) it's on.
+function storeQuery(r) {
   const city = (r.area || "").split(/[(\/,]/)[0].trim();
-  const query = (r.name + " " + city).trim();
-  return "https://www.doordash.com/search/store/" + encodeURIComponent(query);
+  return encodeURIComponent((r.name + " " + city).trim());
 }
+function ddSearchUrl(r) { return "https://www.doordash.com/search/store/" + storeQuery(r); }
 
-function ddButton(r) {
-  return `<a class="dd-btn" href="${ddSearchUrl(r)}" target="_blank" rel="noopener noreferrer">🛵 Order on DoorDash</a>`;
+const PLATFORM = {
+  "DoorDash":  { cls: "",         url: r => "https://www.doordash.com/search/store/" + storeQuery(r) },
+  "Uber Eats": { cls: "ubereats", url: r => "https://www.ubereats.com/search?q=" + storeQuery(r) },
+  "Grubhub":   { cls: "grubhub",  url: r => "https://www.grubhub.com/search?queryText=" + storeQuery(r) },
+};
+function platformsOf(r) { return (r.platforms && r.platforms.length) ? r.platforms : ["DoorDash"]; }
+
+function platformButtons(r, sm) {
+  const btns = platformsOf(r).map(p => {
+    const cfg = PLATFORM[p] || PLATFORM["DoorDash"];
+    return `<a class="dd-btn ${sm ? "sm " : ""}${cfg.cls}" href="${cfg.url(r)}" target="_blank" rel="noopener noreferrer">🛵 ${escapeHtml(p)}</a>`;
+  }).join("");
+  return `<div class="plat-row">${btns}</div>`;
 }
 
 function dishItem(d) {
@@ -256,7 +267,7 @@ function restaurantCard(r) {
       <div class="resto-rating">${ratingBadge(r)}${openBadge(r)}</div>
       <ul class="dishes">${dishes}</ul>
       ${watch}
-      ${ddButton(r)}
+      ${platformButtons(r)}
     </div>`;
 }
 
@@ -340,7 +351,7 @@ function mealPool(mealLabel) {
   const out = [];
   (ORDER_MENU[MEAL_KEY[mealLabel]] || []).forEach(cat =>
     cat.restaurants.forEach(r => {
-      if ((r.safeDishes || []).length) out.push({ meal: mealLabel, name: r.name, area: r.area, cuisine: cat.category, dishes: r.safeDishes });
+      if ((r.safeDishes || []).length) out.push({ meal: mealLabel, name: r.name, area: r.area, cuisine: cat.category, dishes: r.safeDishes, platforms: r.platforms });
     }));
   return out;
 }
@@ -444,7 +455,7 @@ function optionCard(o, idx) {
       <div class="opt-status">${openBadge(o)}</div>
       <div class="courses">${courseHtml}</div>
       <div class="ntags">${tags}</div>
-      <a class="dd-btn sm" href="${ddSearchUrl(o)}" target="_blank" rel="noopener noreferrer">🛵 Order on DoorDash</a>
+      ${platformButtons(o, true)}
     </div>`;
 }
 

@@ -153,6 +153,12 @@ textarea:focus, .search:focus { outline: none; border-color: var(--teal); }
 }
 .dd-btn:active { background: #d92806; }
 .dd-btn .sub { font-weight: 500; font-size: 11px; opacity: .85; }
+.dd-btn.ubereats { background: #06c167; }
+.dd-btn.ubereats:active { background: #05a556; }
+.dd-btn.grubhub { background: #f63440; }
+.dd-btn.grubhub:active { background: #d81f2a; }
+.plat-row { display: flex; gap: 8px; margin-top: 12px; }
+.plat-row .dd-btn { flex: 1; margin-top: 0; }
 .area-tag { font-size: 11px; color: var(--muted); font-weight: 500; }
 
 /* Cuisine shortcut chips + day chips (horizontal scroll) */
