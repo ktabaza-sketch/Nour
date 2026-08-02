@@ -364,11 +364,26 @@ function optionCounts() {
   return { restaurants: names.size, dishes: Math.floor(dishes / 10) * 10 };
 }
 
+// A dish counts as a real protein course if it can be had with chicken or
+// seafood (checks the dish name and its note, e.g. "Pad Thai — chicken or tofu").
+const PROTEIN_RE = /\b(chicken|turkey|duck|poultry|karaage|fish|salmon|tuna|ahi|shrimp|prawn|crab|lobster|scallop|poke|sashimi|nigiri|chirashi|seafood|lox|nova|halibut|cod|bangus|milkfish|eel|unagi|ceviche|anchovy)\b/i;
+function hasProtein(d) { return PROTEIN_RE.test(d.dish + " " + (d.note || "")); }
+function restaurantHasProtein(r) { return (r.dishes || []).some(hasProtein); }
+
 // Season-favored subset if it's big enough, else the full pool.
 function seasonPool(mealLabel, season) {
   const full = mealPool(mealLabel);
   const fav = full.filter(c => season.favored[mealLabel].includes(c.cuisine));
   return fav.length >= 8 ? fav : full;
+}
+
+// Restaurants that can serve a chicken/seafood course — so every meal option
+// carries protein. Prefer season-favored; widen if too few.
+function proteinPool(mealLabel, season) {
+  const seasonal = seasonPool(mealLabel, season).filter(restaurantHasProtein);
+  if (seasonal.length >= 2) return seasonal;
+  const full = mealPool(mealLabel).filter(restaurantHasProtein);
+  return full.length >= 2 ? full : seasonPool(mealLabel, season);
 }
 
 // Two distinct restaurant options for a meal (rotates weekly).
@@ -385,13 +400,22 @@ function planForDay(week, day, season) {
   return MEAL_ORDER.map((meal, mi) => ({
     meal,
     kcal: (NUTRITION.splits.find(s => s.meal === meal) || {}).kcal || "",
-    options: twoOptions(seasonPool(meal, season), week, day, mi + 1),
+    options: twoOptions(proteinPool(meal, season), week, day, mi + 1),
   }));
+}
+
+// Build a two-course pairing that always leads with a chicken/seafood course.
+function twoCourses(dishes) {
+  const pi = (dishes || []).findIndex(hasProtein);
+  if (pi < 0) return (dishes || []).slice(0, 2);
+  const protein = dishes[pi];
+  const other = dishes.find((d, i) => i !== pi);
+  return other ? [protein, other] : [protein];
 }
 
 // A restaurant option rendered as a two-course pairing.
 function optionCard(o, idx) {
-  const courses = (o.dishes || []).slice(0, 2);
+  const courses = twoCourses(o.dishes);
   const labels = courses.length > 1 ? ["Main", "Second course"] : ["Dish"];
   const courseHtml = courses.map((d, i) => `
     <div class="course">
@@ -427,7 +451,7 @@ function designPanel(dayLabel) {
     <div class="design-card">
       <div class="design-title">🧠 How I built ${dayLabel}'s plan for you</div>
       <p>I balanced it to about <b>2,000–2,200 kcal</b> across the day (≈500 breakfast · ≈650 lunch · ≈750 dinner, with room for a snack), with <b>protein in every meal</b> and <b>complex carbs</b> — rice, grains, oats — so your energy and focus stay steady through long study sessions.</p>
-      <p>Since you skip <b>dairy and red meat</b>, I leaned on <b>fish, tofu, beans, chicken &amp; leafy greens for iron</b> (with vitamin-C veg so your body absorbs it) and <b>tahini, greens &amp; fortified sides for calcium</b>, plus <b>omega-3 fish and eggs</b> for memory and energy. Two options per meal, each a little two-course combo — pick whatever sounds best. 💛</p>
+      <p>Since you skip <b>dairy and red meat</b>, I leaned on <b>fish, tofu, beans, chicken &amp; leafy greens for iron</b> (with vitamin-C veg so your body absorbs it) and <b>tahini, greens &amp; fortified sides for calcium</b>, plus <b>omega-3 fish and eggs</b> for memory and energy. Two options per meal, each a two-course combo where <b>at least one course is chicken or seafood</b> so you always get solid protein — pick whatever sounds best. 💛</p>
     </div>`;
 }
 
