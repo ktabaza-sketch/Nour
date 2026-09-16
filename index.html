@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0f766e" />
-  <title>Nour — AGS Safe Food</title>
-  <meta name="description" content="Check whether meals and groceries are safe for Alpha-gal Syndrome (AGS)." />
+  <title>Nour — Safe Food</title>
+  <meta name="description" content="Find meals and groceries that are safe for someone allergic to red meat, milk and wheat." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon-180.png" />
@@ -17,7 +17,7 @@
       <img src="icons/icon.svg" alt="" class="logo" width="28" height="28" />
       <div>
         <h1>Nour</h1>
-        <p class="tagline">Alpha-gal safe food helper</p>
+        <p class="tagline">No red meat · no dairy · no wheat</p>
       </div>
     </div>
     <div class="header-actions">
@@ -36,8 +36,8 @@
     <section id="tab-check" class="tab active">
       <div class="card">
         <h2>Is this safe to eat?</h2>
-        <p class="muted">Paste a menu item's description or an ingredients list. I'll flag anything with alpha-gal.</p>
-        <textarea id="checkInput" rows="4" placeholder="e.g. Grilled chicken burrito bowl with rice, black beans, cheese, natural flavors, and gelatin…"></textarea>
+        <p class="muted">Paste a menu item's description or an ingredients list. I'll flag <b>red meat, dairy and wheat</b> — including hidden ones like gelatin, whey and soy sauce.</p>
+        <textarea id="checkInput" rows="4" placeholder="e.g. Teriyaki chicken bowl with rice, broccoli, sesame, and a side of miso soup…"></textarea>
         <div class="btn-row">
           <button id="checkBtn" class="btn primary">Check it</button>
           <button id="clearBtn" class="btn ghost">Clear</button>
@@ -53,8 +53,8 @@
     <!-- DOORDASH TAB -->
     <section id="tab-order" class="tab">
       <div class="card">
-        <h2>Safe DoorDash picks</h2>
-        <p class="muted">Spots that deliver to the Stanford area, ranked by rating. Every dish is <b>dairy-free &amp; mammal-free</b>. Tap <b>Order on DoorDash</b>, then order the safe dishes listed — following any "no cheese / no butter" note. Menus change; confirm when you order.</p>
+        <h2>Safe delivery picks</h2>
+        <p class="muted">Spots that deliver to the Stanford area, ranked by rating. Every dish is free of <b>red meat, dairy and wheat</b>. Tap a platform button, then order the safe dishes listed — following the note ("corn tortillas", "tamari, not soy sauce", "no bun", "no cheese"). Menus change; say it's an allergy when you order.</p>
         <div class="seg" id="mealSeg" role="tablist">
           <button class="seg-btn active" data-meal="breakfast">🍳 Breakfast</button>
           <button class="seg-btn" data-meal="lightLunch">🥗 Light lunch</button>
@@ -71,7 +71,7 @@
     <section id="tab-week" class="tab">
       <div class="card">
         <h2>Your week</h2>
-        <p class="muted">A fresh plan for every day that <b>changes each week</b> and follows the Palo Alto seasons. Tap a day for its breakfast, lunch &amp; dinner picks — all dairy-free &amp; mammal-free. The <b>Open now</b> tag is estimated from your device's clock; DoorDash shows live availability.</p>
+        <p class="muted">A fresh plan for every day that <b>changes each week</b> and follows the Palo Alto seasons. Tap a day for its breakfast, lunch &amp; dinner picks — all free of red meat, dairy and wheat. The <b>Open now</b> tag is estimated from your device's clock; the delivery app shows live availability.</p>
         <div id="weekStats" class="week-stats"></div>
         <div id="dayChips" class="day-chips"></div>
       </div>
@@ -82,7 +82,7 @@
     <section id="tab-grocery" class="tab">
       <div class="card">
         <h2>Safe grocery picks</h2>
-        <p class="muted">Each pick is a <b>specific product</b> whose ingredients we checked to be <b>dairy-free &amp; mammal-free</b> (no milk, whey, casein, red meat or gelatin) — tap <b>Buy on Amazon</b> to open that exact item, or <b>Find on</b> for fresh produce. Organised into the same <b>Whole Foods / Amazon Fresh aisles</b> (Produce, Bakery, Deli, Snacks, Ready Meals…) and tagged for the nutrients you need. Menus &amp; formulas change — glance at the label the site shows before you check out.</p>
+        <p class="muted">Each pick is a <b>specific product</b> whose ingredients we checked for all three: <b>no red meat or gelatin, no milk/whey/casein, no wheat</b> (a <b>GF label</b> tag means it's labelled gluten-free). Tap <b>Buy on Amazon</b> to open that exact item, or <b>Find on</b> for fresh produce. Organised into the same <b>Whole Foods / Amazon Fresh aisles</b> (Produce, Bakery, Deli, Snacks, Ready Meals…) and tagged for the nutrients you need. Formulas change — glance at the label the site shows before you check out.</p>
         <div class="seg" id="storeSeg" role="tablist">
           <button class="seg-btn active" data-store="">All stores</button>
           <button class="seg-btn" data-store="Whole Foods">Whole Foods</button>
@@ -99,7 +99,7 @@
         <h3>Label cheat-sheet</h3>
         <p class="muted">If you see these on a package, put it back:</p>
         <ul id="grocLabels" class="labels"></ul>
-        <p class="muted small" style="margin-top:10px">Two extras for you: pick <b>gelatin-free / veggie capsules</b> (gelatin is mammal-derived), and note some vitamin D3 is from <b>lanolin (sheep's wool)</b> — vegan/lichen D3 avoids it. Supplements aren't medical advice; check doses with your doctor.</p>
+        <p class="muted small" style="margin-top:10px">Two extras for you: pick <b>gelatin-free / veggie capsules</b> (gelatin is made from pork and beef), and look for a <b>certified gluten-free</b> mark on oats, granola and supplements — "wheat-free" is rarely printed, but "gluten-free" guarantees it. Supplements aren't medical advice; check doses with your doctor.</p>
       </div>
     </section>
 
@@ -107,7 +107,7 @@
     <section id="tab-prep" class="tab">
       <div class="card">
         <h2>Meal-prep services</h2>
-        <p class="muted">Weekly plans of <b>dairy-free &amp; mammal-free</b> meals — cooked for you, plant-based, or a cook-at-home kit. Set your filters once (dairy-free + poultry / fish / plant, never red meat) and skip anything with cream or cheese. These arrive on a <b>weekly schedule</b>, not same-day.</p>
+        <p class="muted">Weekly plans of meals with <b>no red meat, no dairy and no wheat</b> — cooked for you, plant-based, or a cook-at-home kit. Set your filters once (gluten-free + dairy-free + poultry / fish / plant, never beef or pork) and skip anything with cream, cheese, bread or soy-sauce marinades. These arrive on a <b>weekly schedule</b>, not same-day.</p>
         <div class="seg" id="prepTypeSeg" role="tablist">
           <button class="seg-btn active" data-ptype="">All</button>
           <button class="seg-btn" data-ptype="Plant-based">Plant-based</button>
@@ -123,10 +123,10 @@
       <div class="card warn-card">
         <h3>Setting it up safely</h3>
         <ul class="labels">
-          <li>Set the diet filter to <b>dairy-free</b> and <b>pescatarian / poultry / plant</b> — never beef, pork or lamb.</li>
-          <li>Fully <b>plant-based</b> services are mammal-free by default — the easiest, safest start.</li>
-          <li>Watch cream/cheese sauces and butter finishes; leave out any cheese packet a kit includes.</li>
-          <li>Check each recipe's allergens for milk, and message support to flag her dairy allergy + no mammal meat.</li>
+          <li>Set the diet filter to <b>gluten-free</b> and <b>dairy-free</b>, and <b>pescatarian / poultry / plant</b> — never beef, pork or lamb.</li>
+          <li>Services that are <b>gluten-free and dairy-free by default</b> (like Thistle) are the easiest, safest start. Plant-based alone isn't enough — bread, pasta and seitan are vegan.</li>
+          <li>Watch cream/cheese sauces, butter finishes, bread or roll sides, soy-sauce marinades and breaded items; leave out any cheese or bread a kit includes.</li>
+          <li>Check each recipe's allergen line for <b>milk</b> and <b>wheat</b>, and message support to flag the three allergies.</li>
         </ul>
       </div>
     </section>
@@ -135,18 +135,18 @@
     <section id="tab-card" class="tab">
       <div class="card allergy-card">
         <h2>My allergy card</h2>
-        <p class="lead">I have <strong>Alpha-gal Syndrome</strong> — a serious allergy to mammalian meat and byproducts.</p>
+        <p class="lead">I have serious food allergies to <strong>red meat, milk and wheat</strong>.</p>
         <div class="ac-block danger">
           <strong>I cannot eat:</strong>
-          <span>Beef, pork, lamb, goat, venison, bison &amp; other mammal meat · gelatin · lard/tallow · beef/pork broth · collagen<span id="acDairy"></span></span>
+          <span><b>Red meat:</b> beef, pork, lamb, goat, veal, venison, bison — and broth, lard or gelatin made from them · <b>Dairy:</b> milk, butter, ghee, cheese, cream, yogurt, whey · <b>Wheat:</b> bread, buns, wraps, flour tortillas, pasta, noodles, breading, batter, croutons, soy sauce &amp; teriyaki</span>
         </div>
         <div class="ac-block ok">
           <strong>I can eat:</strong>
-          <span>Chicken, turkey, duck · fish &amp; shellfish · eggs · all plant foods</span>
+          <span>Chicken, turkey, duck · fish &amp; shellfish · eggs · rice, corn, quinoa, potatoes · fruit, vegetables, beans, nuts · anything labelled gluten-free <em>and</em> dairy-free</span>
         </div>
         <div class="ac-block">
           <strong>Please tell me:</strong>
-          <span>Are there any mammal products, shared grills, or beef/pork broths in this dish? Reactions can be delayed hours and severe.</span>
+          <span>Does this dish have any beef, pork or lamb (or their broth/lard)? Any milk, butter, cheese or cream? Any flour, bread, breading or soy sauce? Shared fryers and buttered grills matter too. Reactions can be severe.</span>
         </div>
         <p class="muted small">Show this to restaurant staff. Keep epinephrine nearby.</p>
       </div>
@@ -178,18 +178,14 @@
         <h2>Personalize</h2>
         <button id="closeSettings" class="icon-btn" aria-label="Close">✕</button>
       </div>
-      <p class="muted">AGS sensitivity varies. Set how strict the checker should be for you.</p>
+      <p class="muted">Nour's three allergies — <b>red meat, milk and wheat</b> <span class="allergy-badge">always on</span> — can't be switched off. Two optional strictness settings:</p>
       <label class="toggle">
-        <input type="checkbox" id="setDairy" />
-        <span><strong>Avoid dairy</strong> <span class="allergy-badge">Nour's allergy</span><br /><span class="muted small">Flags milk, cheese, butter, ghee, cream, yogurt, whey as unsafe. On by default.</span></span>
+        <input type="checkbox" id="setMayContain" checked />
+        <span><strong>Flag "may contain" warnings</strong><br /><span class="muted small">Shared-equipment / shared-fryer notes for wheat or milk. Fine for many people, risky for some.</span></span>
       </label>
       <label class="toggle">
-        <input type="checkbox" id="setFlavors" checked />
-        <span><strong>Flag "natural flavors"</strong><br /><span class="muted small">Undisclosed flavors can be mammal-derived.</span></span>
-      </label>
-      <label class="toggle">
-        <input type="checkbox" id="setAdditives" checked />
-        <span><strong>Flag ambiguous additives</strong><br /><span class="muted small">Glycerin, mono/diglycerides, magnesium stearate.</span></span>
+        <input type="checkbox" id="setGluten" />
+        <span><strong>Strict gluten-free</strong><br /><span class="muted small">Also flag barley, rye, malt and oats that aren't certified gluten-free. Off by default — wheat is the allergy, not gluten.</span></span>
       </label>
       <p class="muted small">Saved on this device only.</p>
     </div>

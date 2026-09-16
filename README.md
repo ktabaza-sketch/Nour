@@ -1,10 +1,11 @@
-# Nour — Alpha-gal Syndrome (AGS) Safe-Food Helper
+# Nour — Safe-Food Helper (no red meat · no dairy · no wheat)
 
-A small, mobile-first, installable web app that helps someone with **Alpha-gal
-Syndrome** decide what's safe to eat — whether ordering on DoorDash, shopping at
-Whole Foods, or reading an ingredient label.
+A small, mobile-first, installable web app that helps someone allergic to
+**red meat, milk products and wheat** decide what's safe to eat — whether
+ordering delivery, shopping at Whole Foods / Amazon Fresh, or reading an
+ingredient label.
 
-Built for a Stanford student with AGS. Works offline once installed.
+Built for a Stanford student. Works offline once installed.
 
 > ⚠️ **This is a helper, not medical advice.** Always read full labels, ask
 > restaurants directly, and carry your prescribed epinephrine. When in doubt,
@@ -13,32 +14,40 @@ Built for a Stanford student with AGS. Works offline once installed.
 ## What it does
 
 - **🔍 Check** — Paste a menu description or ingredient list. The app scans for
-  alpha-gal sources and returns a clear **Avoid / Check first / Looks safe**
-  verdict, listing every flagged word and *why*.
-- **🛵 Order** — Curated safe orders (and the traps to avoid) at chains common
-  around Stanford & Palo Alto: Chipotle, Sweetgreen, CAVA, poke, sushi, Thai,
-  Panda Express, Chick-fil-A, Indian, pho, and more. Searchable.
-- **🛒 Grocery** — Whole Foods safe protein staples, smart swaps
-  (gelatin → agar, lard → oil, dairy milk → oat), and a hidden-ingredient label
-  cheat-sheet.
+  red meat, dairy and wheat (including hidden forms like gelatin, whey and
+  soy sauce) and returns a clear **Avoid / Check first / Looks safe** verdict,
+  listing every flagged word and *why*.
+- **🛵 Order** — Restaurants that deliver to Stanford on DoorDash, Uber Eats
+  and Grubhub, ranked by rating, grouped by cuisine, with the exact dishes and
+  modifications ("corn tortillas", "tamari, not soy sauce", "no bun") that are
+  free of all three allergens. Shows whether each spot is open right now.
+- **📅 Week** — A different two-course plan for every day, rotating weekly and
+  tuned to the Palo Alto season, with daily nutrition targets for an 18-year-old
+  and a note explaining how it was built.
+- **🛒 Grocery** — Specific products (direct links) on Whole Foods, Amazon &
+  Amazon Fresh, verified free of red meat, dairy and wheat, organised into the
+  store's own aisles, tagged for nutrients, with a rotating weekly basket.
+- **🍱 Prep** — Meal-prep and meal-kit services that can reliably deliver
+  wheat-free, dairy-free, non-red-meat meals, with setup tips.
+- **⭐ Favorites** — Heart any restaurant, product or service; the favorites
+  view groups them the same way the app does.
 - **🆘 Card** — A show-to-staff allergy card and a what-to-do-in-a-reaction
   checklist.
-- **⚙️ Personalize** — AGS sensitivity varies. Toggle whether to flag dairy,
-  "natural flavors," and ambiguous additives. Saved on-device.
+- **⚙️ Personalize** — The three allergies are always on. Optional strictness:
+  flag "may contain" cross-contact warnings, and treat barley/rye/uncertified
+  oats as unsafe (full gluten-free). Saved on-device.
 
-## The science it encodes
+## The rules it encodes
 
-Alpha-gal (galactose-α-1,3-galactose) is a sugar in **all non-primate mammals**.
-
-- **Avoid:** beef, pork, lamb, goat, venison, bison, rabbit and other mammal
-  meat; gelatin; lard/tallow; beef/pork/bone broth; collagen.
-- **Often hidden:** gelatin (marshmallows, gummies, pill capsules), broth,
-  mono-/di-glycerides, magnesium stearate, glycerin, "natural flavors."
-- **Personal:** dairy and other mammal byproducts — many tolerate them, some
-  don't.
-- **Safe:** poultry, fish, shellfish, eggs, and all plant foods.
-
-Reactions are often **delayed 2–6 hours** and can be severe.
+- **Red meat:** beef, pork, lamb, goat, veal, venison, bison — and anything
+  made from them: beef/pork/bone broth, lard, tallow, gelatin, collagen.
+- **Milk:** all dairy — milk, cream, butter, ghee, cheese, yogurt, whey,
+  casein, lactose, milk solids.
+- **Wheat:** wheat flour in every form — bread, pasta, wraps, flour tortillas,
+  couscous, farro, bulgur, seitan, breading, batter, croutons, most noodles —
+  and hidden wheat in soy sauce, teriyaki, hoisin, ponzu, many marinades.
+- **Safe base:** poultry, fish, shellfish, eggs, rice, corn, quinoa, potatoes,
+  fruit, vegetables, beans, nuts; "gluten-free" + "dairy-free" labels together.
 
 Rules live in [`data.js`](./data.js) — each with a plain-language reason. Add or
 adjust foods there and the checker and guides update automatically.
@@ -64,16 +73,15 @@ deploy from branch). The app will be live at a shareable URL — no server neede
 
 | File | Purpose |
 |------|---------|
-| `index.html` | App shell and all four tabs |
+| `index.html` | App shell and all tabs |
 | `styles.css` | Mobile-first styling |
 | `app.js` | Checker engine + UI logic |
-| `data.js` | AGS rules, restaurant picks, grocery guide (edit here) |
+| `data.js` | Allergen rules, restaurant picks, grocery catalog, prep services (edit here) |
 | `manifest.webmanifest`, `sw.js` | PWA install + offline support |
 | `icons/` | App icons |
 
-## Customizing for her
+## Customizing
 
-- Open **Settings (⚙️)** in the app to match her personal sensitivities.
-- To add a favorite restaurant or a food the checker missed, edit the arrays in
-  `data.js` (they're commented). Bump `CACHE = "nour-v1"` in `sw.js` to `v2`
-  after changes so installed copies refresh.
+- Open **Settings (⚙️)** in the app to adjust strictness.
+- To add a restaurant or product, edit the arrays in `data.js` (they're
+  commented). Bump `CACHE` in `sw.js` after changes so installed copies refresh.

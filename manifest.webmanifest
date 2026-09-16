@@ -1,7 +1,7 @@
 {
-  "name": "Nour — AGS Safe Food",
+  "name": "Nour — Safe Food",
   "short_name": "Nour",
-  "description": "Check whether meals and groceries are safe for Alpha-gal Syndrome (AGS).",
+  "description": "Find meals and groceries that are safe for someone allergic to red meat, milk and wheat.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
