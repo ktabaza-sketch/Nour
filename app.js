@@ -1,9 +1,9 @@
 /* Nour — app logic: ingredient checker + UI */
 
 // ---- Settings (persisted per-device) --------------------------------------
-// Nour has a dairy allergy, so dairy defaults to "avoid" (treated like mammal
-// meat). The toggle remains so the strictness is visible and adjustable.
-const DEFAULT_SETTINGS = { dairy: true, flavors: true, additives: true };
+// Nour's three allergies (red meat, milk, wheat) are always on. The only
+// toggles are strictness extras: cross-contact warnings and full gluten-free.
+const DEFAULT_SETTINGS = { maycontain: true, gluten: false };
 
 function loadSettings() {
   try {
@@ -35,32 +35,59 @@ function favCount() { return Object.keys(favs).length; }
 // Returns whether a personal-toggle rule is active for the current settings.
 function personalActive(rule) {
   if (!rule.personal) return true;          // not gated by a toggle
-  if (rule.personal === "dairy")     return settings.dairy;     // only flag if user avoids dairy
-  if (rule.personal === "flavors")   return settings.flavors;
-  if (rule.personal === "additives") return settings.additives;
+  if (rule.personal === "maycontain") return settings.maycontain; // "may contain" / shared-line warnings
+  if (rule.personal === "gluten")     return settings.gluten;     // strict: barley, rye, uncertified oats
   return true;
 }
 
 // Escape a term for use in a word-boundary-ish regex.
 function esc(t) { return t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 
+// Multi-word qualifiers from the reassuring rules ("corn tortilla", "dairy-free
+// cheese", "rice noodles") and the cross-contact rule ("may contain wheat") are
+// blanked out before the avoid/caution rules run, so a safe phrase can't trip
+// the risky word inside it. Longest phrases are blanked first.
+let QUALIFIERS = null;
+function qualifierPhrases() {
+  if (QUALIFIERS) return QUALIFIERS;
+  const q = [];
+  for (const rule of RULES) {
+    if (rule.severity === "safe" || rule.personal === "maycontain") {
+      for (const t of rule.terms) if (/[\s-]/.test(t)) q.push(t);
+    }
+  }
+  QUALIFIERS = q.sort((a, b) => b.length - a.length);
+  return QUALIFIERS;
+}
+function blankQualifiers(hay) {
+  let out = hay;
+  for (const q of qualifierPhrases()) {
+    out = out.replace(new RegExp("(^|[^a-z0-9])" + esc(q) + "(?=[^a-z0-9]|$)", "gi"), (m, pre) => pre + " ".repeat(q.length));
+  }
+  return out;
+}
+
 function analyze(text) {
   const hay = " " + text.toLowerCase().replace(/[\n\r]+/g, " ") + " ";
+  const hayStrict = blankQualifiers(hay);
   const findings = [];
   const seen = new Set();
 
   for (const rule of RULES) {
+    // Reassuring and cross-contact rules read the full text; risky rules read
+    // the text with the reassuring phrases blanked out.
+    const src = (rule.severity === "safe" || rule.personal === "maycontain") ? hay : hayStrict;
     for (const term of rule.terms) {
       // match whole words/phrases: boundary that isn't a letter/number
       const re = new RegExp("(^|[^a-z0-9])" + esc(term) + "([^a-z0-9]|$)", "i");
-      if (re.test(hay)) {
+      if (re.test(src)) {
         const key = rule.category + "|" + term;
         if (seen.has(key)) continue;
         seen.add(key);
 
-        // Personal toggle can either suppress (dairy off) or downgrade behavior.
-        let severity = rule.severity;
-        if (rule.personal === "dairy" && settings.dairy) severity = "avoid";
+        // Personal toggles only ever add caution rules; the three allergies
+        // themselves can't be switched off.
+        const severity = rule.severity;
         if (rule.personal && !personalActive(rule)) {
           // user opted out of flagging this class -> skip
           continue;
@@ -81,9 +108,9 @@ function verdictLevel(findings) {
 }
 
 const VERDICT_COPY = {
-  avoid:   { icon: "⛔", title: "Avoid this", sub: "Contains an alpha-gal source. Don't order without a safe swap." },
-  caution: { icon: "⚠️", title: "Check first", sub: "Might contain a mammal-derived ingredient. Verify before eating." },
-  safe:    { icon: "✅", title: "Looks safe", sub: "No alpha-gal sources found — still read the full label." },
+  avoid:   { icon: "⛔", title: "Avoid this", sub: "Contains red meat, dairy or wheat. Don't order without a safe swap." },
+  caution: { icon: "⚠️", title: "Check first", sub: "Might contain red meat, dairy or wheat (often hidden). Verify before eating." },
+  safe:    { icon: "✅", title: "Looks safe", sub: "No red meat, dairy or wheat found — still read the full label." },
   unknown: { icon: "🤔", title: "Not enough info", sub: "Nothing recognized. Paste the full ingredient list or ask the restaurant." },
 };
 
@@ -265,6 +292,12 @@ function ratingBadge(r) {
   return `<span class="rating" title="${r.rating}${src} rating"><span class="stars">${stars}</span> ${r.rating.toFixed(1)}${count}</span>`;
 }
 
+// Spots added from local knowledge rather than a live menu read carry
+// `unverified` so the card says so instead of implying a checked rating.
+function newTag(r) {
+  return r.unverified ? `<span class="new-tag" title="Added without a live menu check — confirm dishes in the delivery app">🆕 new · confirm</span>` : "";
+}
+
 function formatCount(n) {
   return n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
 }
@@ -279,7 +312,7 @@ function restaurantCard(r) {
     <div class="resto">
       ${favBtn(id)}
       <div class="resto-head"><h3>${escapeHtml(r.name)}</h3></div>
-      <div class="resto-rating">${area}${ratingBadge(r)}${openBadge(r)}</div>
+      <div class="resto-rating">${area}${ratingBadge(r)}${openBadge(r)}${newTag(r)}</div>
       <ul class="dishes">${dishes}</ul>
       ${watch}
       ${platformButtons(r)}
@@ -478,7 +511,7 @@ function optionCard(o, idx) {
         <span class="opt-tag">Option ${idx === 0 ? "A" : "B"}</span>
         <span class="opt-name">${escapeHtml(o.name)}</span>
       </div>
-      <div class="opt-status">${openBadge(o)} <span class="area-tag">${escapeHtml(o.area)}</span></div>
+      <div class="opt-status">${openBadge(o)} <span class="area-tag">${escapeHtml(o.area)}</span>${newTag(o)}</div>
       <div class="courses">${courseHtml}</div>
       <div class="ntags">${tags}</div>
       ${platformButtons(o, true)}
@@ -500,8 +533,8 @@ function designPanel(dayLabel) {
   return `
     <div class="design-card">
       <div class="design-title">🧠 How I built ${dayLabel}'s plan for you</div>
-      <p>I balanced it to about <b>2,000–2,200 kcal</b> across the day (≈500 breakfast · ≈650 lunch · ≈750 dinner, with room for a snack), with <b>protein in every meal</b> and <b>complex carbs</b> — rice, grains, oats — so your energy and focus stay steady through long study sessions.</p>
-      <p>Since you skip <b>dairy and red meat</b>, I leaned on <b>fish, tofu, beans, chicken &amp; leafy greens for iron</b> (with vitamin-C veg so your body absorbs it) and <b>tahini, greens &amp; fortified sides for calcium</b>, plus <b>omega-3 fish and eggs</b> for memory and energy. Two options per meal, each a two-course combo where <b>at least one course is chicken or seafood</b> so you always get solid protein — pick whatever sounds best. 💛</p>
+      <p>I balanced it to about <b>2,000–2,200 kcal</b> across the day (≈500 breakfast · ≈650 lunch · ≈750 dinner, with room for a snack), with <b>protein in every meal</b> and <b>wheat-free complex carbs</b> — rice, quinoa, potatoes, corn — so your energy and focus stay steady through long study sessions.</p>
+      <p>Since you skip <b>red meat, dairy and wheat</b>, I leaned on <b>fish, tofu, beans, chicken &amp; leafy greens for iron</b> (with vitamin-C veg so your body absorbs it), <b>tahini, greens &amp; fortified sides for calcium</b>, <b>beans, greens &amp; eggs for the fiber and B-vitamins</b> you'd otherwise get from wheat, plus <b>omega-3 fish and eggs</b> for memory and energy. Two options per meal, each a two-course combo where <b>at least one course is chicken or seafood</b> so you always get solid protein — pick whatever sounds best. 💛</p>
     </div>`;
 }
 
@@ -541,7 +574,7 @@ function renderWeek() {
   if (selectedDayIdx == null) selectedDayIdx = todayIdx;
 
   if (statsEl) {
-    statsEl.innerHTML = `<b>${counts.restaurants} safe restaurants · ${counts.dishes}+ dairy-free, mammal-free dishes.</b> You're never limited, Nour 💚`;
+    statsEl.innerHTML = `<b>${counts.restaurants} safe restaurants · ${counts.dishes}+ dishes with no red meat, no dairy and no wheat.</b> You're never limited, Nour 💚`;
   }
 
   chipsEl.innerHTML = WEEKDAYS.map((d, i) =>
@@ -555,7 +588,7 @@ function renderWeek() {
   const dayLabel = isToday ? "today" : dayName;
   const plan = planForDay(week, selectedDayIdx, season);
 
-  const note = `Hi Nour 💚 Palo Alto is deep in ${season.label.split(" ")[0].toLowerCase()} right now — usually ${season.weather} this time of year — the kind of weather that calls for ${season.lean}. So ${isToday ? "today's" : dayName + "'s"} picks lean that way, each one hand-checked to be <b>100% dairy-free and mammal-free</b>, just for you. 💛`;
+  const note = `Hi Nour 💚 Palo Alto is deep in ${season.label.split(" ")[0].toLowerCase()} right now — usually ${season.weather} this time of year — the kind of weather that calls for ${season.lean}. So ${isToday ? "today's" : dayName + "'s"} picks lean that way, each one hand-checked to be <b>free of red meat, dairy and wheat</b> — with the exact thing to ask for (corn tortillas, tamari, no bun) — just for you. 💛`;
 
   planEl.innerHTML = `
     <div class="day-head">
@@ -609,13 +642,13 @@ function storeBadges(ss) {
 function groceryMatches(it, q) {
   if (currentStore && !(it.stores || []).includes(currentStore)) return false;
   if (!q) return true;
-  const hay = (it.name + " " + (it.brand || "") + " " + (it.note || "") + " " + (it.nutrients || []).join(" ")).toLowerCase();
+  const hay = (it.name + " " + (it.brand || "") + " " + (it.note || "") + " " + (it.verified || "") + " " + (it.diet || "") + " " + (it.gfLabel ? "gluten-free gf" : "") + " " + (it.nutrients || []).join(" ")).toLowerCase();
   return hay.includes(q);
 }
 
 function groceryCard(it) {
-  const verifiedText = it.verified ? escapeHtml(it.verified) : "Dairy-free & mammal-free";
   const dietTag = it.diet ? ` · ${escapeHtml(it.diet)}` : "";
+  const gfBadge = it.gfLabel ? `<span class="gf-badge" title="Labelled gluten-free">GF label</span>` : "";
   const specific = isSpecificItem(it);
   const label = specific ? "Buy on" : "Find on";
   const id = favId("grocery", it.name, it.brand);
@@ -625,7 +658,7 @@ function groceryCard(it) {
       <div class="resto-head"><h3>${escapeHtml(it.name)}</h3></div>
       ${it.brand ? `<div class="groc-brand">${escapeHtml(it.brand)}</div>` : ""}
       <div class="resto-rating">${ratingBadge(it)}${storeBadges(it.stores)}</div>
-      <div class="groc-verified">✓ Dairy-free &amp; mammal-free${dietTag}</div>
+      <div class="groc-verified">✓ No red meat · no dairy · no wheat${dietTag} ${gfBadge}</div>
       ${it.verified ? `<div class="groc-note">${escapeHtml(it.verified)}</div>` : (it.note ? `<div class="groc-note">${escapeHtml(it.note)}</div>` : "")}
       ${(it.nutrients && it.nutrients.length) ? `<div class="ntags">${nutrientChips(it.nutrients)}</div>` : ""}
       <a class="dd-btn amzn" href="${amazonUrl(it)}" target="_blank" rel="noopener noreferrer">🛒 ${label} ${escapeHtml(currentStore || "Amazon")}</a>
@@ -655,7 +688,7 @@ const GROC_ROLES = [
   { label: "Calcium plant milk", pred: it => it.category === "Dairy Alternatives & Eggs" && (it.nutrients || []).includes("calcium") },
   { label: "Iron food", pred: it => (it.nutrients || []).includes("iron") && it.category !== "Vitamins & Supplements" && !/milk/i.test(it.name) },
   { label: "Calcium food", pred: it => (it.nutrients || []).includes("calcium") && it.category !== "Vitamins & Supplements" && it.category !== "Dairy Alternatives & Eggs" },
-  { label: "Whole grain", pred: it => it.category === "Pantry & Dry Goods" && /oat|quinoa|rice|pasta|farro/i.test(it.name) },
+  { label: "Wheat-free grain", pred: it => it.category === "Pantry & Dry Goods" && /oat|quinoa|rice|pasta|buckwheat|millet|tortilla/i.test(it.name) },
   { label: "Vitamin-C produce", pred: it => it.category === "Produce" && (it.nutrients || []).includes("vitamin-c") },
   { label: "Study snack", pred: it => it.category === "Snacks" },
 ];
@@ -675,7 +708,7 @@ function renderGrocWeekly() {
   el.innerHTML = `
     <div class="card weekly-card">
       <div class="weekly-title">🧺 This week's grocery list</div>
-      <p class="weekly-why">A balanced basket that covers your week's <b>protein, iron, calcium &amp; omega-3</b> — every item dairy-free &amp; mammal-free. It refreshes each week.</p>
+      <p class="weekly-why">A balanced basket that covers your week's <b>protein, iron, calcium, fiber &amp; omega-3</b> — every item free of red meat, dairy and wheat. It refreshes each week.</p>
       <ul class="weekly-list">
         ${picks.map(p => `
           <li>
@@ -767,7 +800,7 @@ function renderPrepFeatured() {
       <div class="featured-tag">★ Best starting point for you, Nour</div>
       <div class="featured-name">${escapeHtml(top.name)} <span class="prep-type">${escapeHtml(top.type)}</span></div>
       <div class="resto-rating">${ratingBadge(top)}<span class="area-tag">🚚 ${escapeHtml(top.deliversTo)}</span></div>
-      <p class="featured-why">${escapeHtml(top.note)} It's dairy-free by default, so there's almost nothing to screen — just add salmon or chicken for extra protein.</p>
+      <p class="featured-why">${escapeHtml(top.note)} Every meal is gluten-free <em>and</em> dairy-free by default with no red meat on the menu, so there's almost nothing to screen — just add salmon or chicken for extra protein.</p>
       ${tags ? `<div class="ntags">${tags}</div>` : ""}
       <a class="dd-btn prep-btn" href="${escapeHtml(top.url)}" target="_blank" rel="noopener noreferrer">🍱 Start with ${escapeHtml(top.name)}</a>
       <p class="featured-alt">Also great: <b>Mosaic Foods</b> (frozen, protein-forward, fully plant-based) and <b>Territory Foods</b> (prepared chicken/fish, dairy-free by default).</p>
@@ -850,8 +883,7 @@ function bindFavorites() {
 }
 
 function renderAllergyCardDairy() {
-  document.getElementById("acDairy").textContent =
-    settings.dairy ? " · dairy (milk, cheese, butter, whey)" : "";
+  // The allergy card is static: all three allergies are always on.
 }
 
 // ---- Tabs -----------------------------------------------------------------
@@ -869,15 +901,14 @@ function switchTab(name) {
 
 // ---- Settings sheet -------------------------------------------------------
 function openSettings() {
-  document.getElementById("setDairy").checked = settings.dairy;
-  document.getElementById("setFlavors").checked = settings.flavors;
-  document.getElementById("setAdditives").checked = settings.additives;
+  document.getElementById("setMayContain").checked = settings.maycontain;
+  document.getElementById("setGluten").checked = settings.gluten;
   document.getElementById("settingsSheet").hidden = false;
 }
 function closeSettings() { document.getElementById("settingsSheet").hidden = true; }
 
 function bindSettings() {
-  const map = { setDairy: "dairy", setFlavors: "flavors", setAdditives: "additives" };
+  const map = { setMayContain: "maycontain", setGluten: "gluten" };
   Object.entries(map).forEach(([id, key]) => {
     document.getElementById(id).addEventListener("change", e => {
       settings[key] = e.target.checked;
