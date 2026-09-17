@@ -24,9 +24,12 @@ Built for a Stanford student. Works offline once installed.
 - **📅 Week** — A different two-course plan for every day, rotating weekly and
   tuned to the Palo Alto season, with daily nutrition targets for an 18-year-old
   and a note explaining how it was built.
-- **🛒 Grocery** — Specific products (direct links) on Whole Foods, Amazon &
-  Amazon Fresh, verified free of red meat, dairy and wheat, organised into the
-  store's own aisles, tagged for nutrients, with a rotating weekly basket.
+- **🛒 Grocery** — Specific products (direct links) on Whole Foods, Amazon,
+  Amazon Fresh, Walmart, Costco, Target, Sprouts, Thrive Market and dozens of
+  bakeries, specialty grocers and online shops — verified free of red meat,
+  dairy and wheat, organised into store aisles, tagged for nutrients, with a
+  rotating weekly basket and a **Where to shop** directory of every retailer
+  that delivers to Palo Alto or ships.
 - **🍱 Prep** — Meal-prep and meal-kit services that can reliably deliver
   wheat-free, dairy-free, non-red-meat meals, with setup tips.
 - **⭐ Favorites** — Heart any restaurant, product or service; the favorites

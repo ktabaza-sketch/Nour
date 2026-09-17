@@ -703,7 +703,8 @@ function renderStoreChips() {
   if (!el || typeof GROCERY_ITEMS === "undefined") return;
   const counts = {};
   GROCERY_ITEMS.forEach(c => c.items.forEach(it => itemStores(it).forEach(s => { counts[s] = (counts[s] || 0) + 1; })));
-  const order = [...AMAZON_FAMILY.filter(s => counts[s]), ...Object.keys(counts).filter(s => !AMAZON_FAMILY.includes(s)).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b))];
+  // Only retailers with a few products get a chip; the rest still show as badges and buy buttons.
+  const order = [...AMAZON_FAMILY.filter(s => counts[s]), ...Object.keys(counts).filter(s => !AMAZON_FAMILY.includes(s) && counts[s] >= 3).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b))];
   const chip = (label, val, active) => `<button class="chip${active ? " active" : ""}" data-store="${escapeHtml(val)}">${escapeHtml(label)}</button>`;
   el.innerHTML = chip("All stores", "", currentStore === "") + order.map(s => chip(`${storeShort(s)} · ${counts[s]}`, s, currentStore === s)).join("");
   el.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
