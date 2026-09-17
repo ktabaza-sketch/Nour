@@ -1230,7 +1230,33 @@ const FACTS = [
 ];
 
 // ---------------------------------------------------------------------------
+// STORES — every retailer the catalog links to. `how` says how it reaches a
+// Palo Alto studio; `kind` groups it in the "Where to shop" view. Any retailer
+// named in an item's `links` or in SHOPS should be registered here (the UI
+// falls back to a plain badge if it isn't).
+// ---------------------------------------------------------------------------
+
+const STORES = {
+  "Whole Foods":  { short: "Whole Foods", kind: "Supermarket", how: "Same-day delivery via Amazon/Prime from the Palo Alto store", url: "https://www.amazon.com/wholefoods" },
+  "Amazon Fresh": { short: "Fresh",       kind: "Supermarket", how: "Same-day grocery delivery via Amazon", url: "https://www.amazon.com/fresh" },
+  "Amazon":       { short: "Amazon",      kind: "Online retailer", how: "Ships in 1–2 days with Prime", url: "https://www.amazon.com" },
+  "Walmart":      { short: "Walmart",     kind: "Supermarket", how: "Walmart delivery from the Mountain View Supercenter (600 Showers Dr); walmart.com ships the rest", url: "https://www.walmart.com" },
+};
+
+// ---------------------------------------------------------------------------
+// SHOPS — where else to buy: bakeries, organic & specialty grocers, Asian &
+// international markets, online retailers and brand-direct stores that deliver
+// to Palo Alto or ship. Populated by research; each entry says what is good
+// there for Nour and how to order safely.
+// ---------------------------------------------------------------------------
+
+const SHOPS = [
+];
+
+// ---------------------------------------------------------------------------
 // GROCERY CATALOG — specific products on Whole Foods / Amazon / Amazon Fresh,
+// Walmart and the shops above. `links` maps a retailer name to that product's
+// page there (or a search there when no page was verified).
 // each verified free of red meat, dairy AND wheat (gfLabel = labelled
 // gluten-free), with approximate Amazon ratings. Ratings & availability drift;
 // treat as a guide. Supplement doses are not medical advice.
@@ -1433,5 +1459,5 @@ const PREP_SERVICES = [
 ];
 
 if (typeof module !== "undefined") {
-  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, NUTRITION, GROCERY, GROCERY_ITEMS, PREP_SERVICES, FACTS };
+  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, NUTRITION, GROCERY, GROCERY_ITEMS, STORES, SHOPS, PREP_SERVICES, FACTS };
 }

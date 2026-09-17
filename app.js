@@ -606,16 +606,29 @@ function renderWeek() {
   if (explore) explore.addEventListener("click", () => switchTab("order"));
 }
 
-// ---- Grocery (Whole Foods / Amazon / Amazon Fresh) -------------------------
+// ---- Grocery (Whole Foods / Amazon / Walmart / bakeries / specialty shops) ----
 let currentStore = "";        // "" = all stores
 let currentGrocCat = null;    // null = all categories
+let currentGrocView = "products"; // "products" | "shops"
+let currentShopType = null;   // null = all shop types
+
+const AMAZON_FAMILY = ["Whole Foods", "Amazon Fresh", "Amazon"];
+const STORE_REG = (typeof STORES !== "undefined") ? STORES : {};
+function storeShort(s) { return (STORE_REG[s] && STORE_REG[s].short) || s; }
+// Every retailer an item can be bought from: the Amazon family via `stores`,
+// everyone else via `links`.
+function itemStores(it) {
+  const set = new Set((it.stores || []).filter(s => AMAZON_FAMILY.includes(s)));
+  Object.keys(it.links || {}).forEach(s => set.add(s));
+  return [...set];
+}
+function looksLikeSearch(url) { return /\/search|[?&]q=|[?&]k=|[?&]query|[?&]search/i.test(url || ""); }
 
 const NUTRIENT_LABEL = {
   protein: "💪 Protein", iron: "🩸 Iron", calcium: "🦴 Calcium", "omega-3": "🐟 Omega-3",
   fiber: "🌾 Fiber", b12: "⚡ B12", "vitamin-d": "☀️ Vit D", "vitamin-c": "🍊 Vit C",
   multivitamin: "💊 Multi", magnesium: "✨ Magnesium",
 };
-const STORE_SHORT = { "Whole Foods": "Whole Foods", "Amazon Fresh": "Fresh", "Amazon": "Amazon" };
 function storeKey(s) { return s.toLowerCase().replace(/[^a-z]+/g, "-"); }
 
 // Link straight to the specific product page when we have a verified ASIN;
@@ -636,11 +649,32 @@ function nutrientChips(ns) {
   return (ns || []).map(n => `<span class="ntag">${NUTRIENT_LABEL[n] || escapeHtml(n)}</span>`).join("");
 }
 function storeBadges(ss) {
-  return (ss || []).map(s => `<span class="store-badge sb-${storeKey(s)}">${escapeHtml(STORE_SHORT[s] || s)}</span>`).join("");
+  return (ss || []).map(s => `<span class="store-badge sb-${storeKey(s)}">${escapeHtml(storeShort(s))}</span>`).join("");
+}
+
+// One buy button per retailer. The store being filtered on comes first.
+function buyButtons(it) {
+  const btns = [];
+  const amz = (it.stores || []).some(s => AMAZON_FAMILY.includes(s));
+  if (amz) {
+    const store = AMAZON_FAMILY.includes(currentStore) ? currentStore : "Amazon";
+    btns.push({ store, url: amazonUrl(it), specific: isSpecificItem(it) });
+  }
+  for (const [store, url] of Object.entries(it.links || {})) {
+    if (!url) continue;
+    btns.push({ store, url, specific: !looksLikeSearch(url) });
+  }
+  btns.sort((a, b) => (b.store === currentStore) - (a.store === currentStore));
+  return btns.map(b => `<a class="dd-btn store-btn sk-${storeKey(b.store)}" href="${escapeHtml(b.url)}" target="_blank" rel="noopener noreferrer">🛒 ${b.specific ? "Buy at" : "Find at"} ${escapeHtml(storeShort(b.store))}</a>`).join("");
+}
+function firstBuyUrl(it) {
+  if ((it.stores || []).some(s => AMAZON_FAMILY.includes(s))) return amazonUrl(it);
+  const first = Object.values(it.links || {}).find(Boolean);
+  return first || amazonUrl(it);
 }
 
 function groceryMatches(it, q) {
-  if (currentStore && !(it.stores || []).includes(currentStore)) return false;
+  if (currentStore && !itemStores(it).includes(currentStore)) return false;
   if (!q) return true;
   const hay = (it.name + " " + (it.brand || "") + " " + (it.note || "") + " " + (it.verified || "") + " " + (it.diet || "") + " " + (it.gfLabel ? "gluten-free gf" : "") + " " + (it.nutrients || []).join(" ")).toLowerCase();
   return hay.includes(q);
@@ -649,20 +683,98 @@ function groceryMatches(it, q) {
 function groceryCard(it) {
   const dietTag = it.diet ? ` · ${escapeHtml(it.diet)}` : "";
   const gfBadge = it.gfLabel ? `<span class="gf-badge" title="Labelled gluten-free">GF label</span>` : "";
-  const specific = isSpecificItem(it);
-  const label = specific ? "Buy on" : "Find on";
   const id = favId("grocery", it.name, it.brand);
   return `
     <div class="resto groc">
       ${favBtn(id)}
       <div class="resto-head"><h3>${escapeHtml(it.name)}</h3></div>
       ${it.brand ? `<div class="groc-brand">${escapeHtml(it.brand)}</div>` : ""}
-      <div class="resto-rating">${ratingBadge(it)}${storeBadges(it.stores)}</div>
+      <div class="resto-rating">${ratingBadge(it)}${storeBadges(itemStores(it))}</div>
       <div class="groc-verified">✓ No red meat · no dairy · no wheat${dietTag} ${gfBadge}</div>
       ${it.verified ? `<div class="groc-note">${escapeHtml(it.verified)}</div>` : (it.note ? `<div class="groc-note">${escapeHtml(it.note)}</div>` : "")}
       ${(it.nutrients && it.nutrients.length) ? `<div class="ntags">${nutrientChips(it.nutrients)}</div>` : ""}
-      <a class="dd-btn amzn" href="${amazonUrl(it)}" target="_blank" rel="noopener noreferrer">🛒 ${label} ${escapeHtml(currentStore || "Amazon")}</a>
+      <div class="buy-row">${buyButtons(it)}</div>
     </div>`;
+}
+
+// Store filter chips — built from whatever retailers the catalog actually links to.
+function renderStoreChips() {
+  const el = document.getElementById("storeChips");
+  if (!el || typeof GROCERY_ITEMS === "undefined") return;
+  const counts = {};
+  GROCERY_ITEMS.forEach(c => c.items.forEach(it => itemStores(it).forEach(s => { counts[s] = (counts[s] || 0) + 1; })));
+  const order = [...AMAZON_FAMILY.filter(s => counts[s]), ...Object.keys(counts).filter(s => !AMAZON_FAMILY.includes(s)).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b))];
+  const chip = (label, val, active) => `<button class="chip${active ? " active" : ""}" data-store="${escapeHtml(val)}">${escapeHtml(label)}</button>`;
+  el.innerHTML = chip("All stores", "", currentStore === "") + order.map(s => chip(`${storeShort(s)} · ${counts[s]}`, s, currentStore === s)).join("");
+  el.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+    currentStore = b.dataset.store || "";
+    renderStoreChips();
+    renderGrocery();
+  }));
+}
+
+// ---- Where to shop (bakeries, specialty grocers, online retailers) ----------
+const SHOP_TYPE_ORDER = ["Supermarket", "Bakery", "Organic & specialty", "Asian & international", "Online retailer", "Brand direct"];
+function shopList() { return (typeof SHOPS !== "undefined") ? SHOPS : []; }
+
+function shopCard(s) {
+  const id = favId("shop", s.name, "");
+  const best = (s.bestFor || []).map(t => `<span class="ntag">${escapeHtml(t)}</span>`).join("");
+  return `
+    <div class="resto shop">
+      ${favBtn(id)}
+      <div class="resto-head"><h3>${escapeHtml(s.name)}</h3></div>
+      <div class="resto-rating"><span class="shop-type">${escapeHtml(s.type)}</span>${s.area ? `<span class="area-tag">${escapeHtml(s.area)}</span>` : ""}${ratingBadge(s)}</div>
+      ${s.delivery ? `<div class="shop-delivery">🚚 ${escapeHtml(s.delivery)}</div>` : ""}
+      ${s.why ? `<div class="groc-note">${escapeHtml(s.why)}</div>` : ""}
+      ${best ? `<div class="ntags"><span class="ntags-label">Look for:</span>${best}</div>` : ""}
+      ${s.orderTip ? `<div class="shop-tip">💡 ${escapeHtml(s.orderTip)}</div>` : ""}
+      ${s.watchOut ? `<p class="watch"><b>Watch:</b> ${escapeHtml(s.watchOut)}</p>` : ""}
+      ${s.url ? `<a class="dd-btn store-btn sk-${storeKey(s.name)}" href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer">🏪 Open ${escapeHtml(s.name)}</a>` : ""}
+    </div>`;
+}
+
+function renderShopTypeChips() {
+  const el = document.getElementById("shopTypeChips");
+  if (!el) return;
+  const counts = {};
+  shopList().forEach(s => { counts[s.type] = (counts[s.type] || 0) + 1; });
+  const types = [...SHOP_TYPE_ORDER.filter(t => counts[t]), ...Object.keys(counts).filter(t => !SHOP_TYPE_ORDER.includes(t))];
+  const chip = (label, val, active) => `<button class="chip${active ? " active" : ""}" data-type="${escapeHtml(val)}">${escapeHtml(label)}</button>`;
+  el.innerHTML = chip("All", "", currentShopType === null) + types.map(t => chip(`${t} · ${counts[t]}`, t, currentShopType === t)).join("");
+  el.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+    currentShopType = b.dataset.type || null;
+    renderShopTypeChips();
+    renderShops();
+  }));
+}
+
+function renderShops() {
+  const el = document.getElementById("shopsList");
+  if (!el) return;
+  const q = (document.getElementById("grocSearch").value || "").trim().toLowerCase();
+  const list = shopList().filter(s => (!currentShopType || s.type === currentShopType) &&
+    (!q || (s.name + " " + s.type + " " + (s.area || "") + " " + (s.why || "") + " " + (s.bestFor || []).join(" ") + " " + (s.delivery || "")).toLowerCase().includes(q)));
+  const groups = {};
+  list.forEach(s => (groups[s.type] = groups[s.type] || []).push(s));
+  const types = [...SHOP_TYPE_ORDER.filter(t => groups[t]), ...Object.keys(groups).filter(t => !SHOP_TYPE_ORDER.includes(t))];
+  const meta = document.getElementById("shopsMeta");
+  if (meta) meta.textContent = `${currentShopType || "All types"} · ${list.length} shop${list.length === 1 ? "" : "s"} that deliver to Palo Alto or ship`;
+  el.innerHTML = list.length
+    ? types.map(t => `<div class="cat-head">${escapeHtml(t)}</div>` + groups[t].sort(byRating).map(shopCard).join("")).join("")
+    : `<div class="card muted">No shops match. Try another type or search term.</div>`;
+}
+
+function setGrocView(view) {
+  currentGrocView = view;
+  const products = view === "products";
+  const show = (id, on) => { const e = document.getElementById(id); if (e) e.hidden = !on; };
+  show("productsBlock", products); show("storeChips", products); show("grocCatChips", products);
+  show("shopsBlock", !products); show("shopTypeChips", !products);
+  const search = document.getElementById("grocSearch");
+  if (search) search.placeholder = products ? "Search products, brands, or nutrients…" : "Search shops, areas, or what they're good for…";
+  document.querySelectorAll("#grocView .seg-btn").forEach(b => b.classList.toggle("active", b.dataset.gview === view));
+  if (products) renderGrocery(); else { renderShopTypeChips(); renderShops(); }
 }
 
 function renderGrocCatChips() {
@@ -714,7 +826,7 @@ function renderGrocWeekly() {
           <li>
             <div class="wl-main"><span class="wl-role">${escapeHtml(p.role)}</span>
             <span class="wl-name">${escapeHtml(p.it.name)}${p.it.brand ? ` · <span class="muted">${escapeHtml(p.it.brand)}</span>` : ""}</span></div>
-            <a class="wl-add" href="${amazonUrl(p.it)}" target="_blank" rel="noopener noreferrer">Add</a>
+            <a class="wl-add" href="${firstBuyUrl(p.it)}" target="_blank" rel="noopener noreferrer">Add</a>
           </li>`).join("")}
       </ul>
     </div>`;
@@ -724,6 +836,7 @@ function renderGrocery() {
   const labels = document.getElementById("grocLabels");
   if (labels) labels.innerHTML = GROCERY.labelCheck.map(l => `<li>${escapeHtml(l)}</li>`).join("");
   if (typeof GROCERY_ITEMS === "undefined") return;
+  if (currentGrocView === "shops") { renderShops(); return; }
 
   renderGrocWeekly();
   const q = (document.getElementById("grocSearch").value || "").trim().toLowerCase();
@@ -737,7 +850,7 @@ function renderGrocery() {
   }).join("");
 
   const meta = document.getElementById("grocMeta");
-  if (meta) meta.textContent = `${currentGrocCat ? currentGrocCat + " · " : ""}${currentStore || "All stores"} · ${count} item${count === 1 ? "" : "s"} · ratings from Amazon`;
+  if (meta) meta.textContent = `${currentGrocCat ? currentGrocCat + " · " : ""}${currentStore ? storeShort(currentStore) : "All stores"} · ${count} item${count === 1 ? "" : "s"}`;
   const el = document.getElementById("grocList");
   el.innerHTML = count ? html : `<div class="card muted">No matches. Try another store, category, or search term.</div>`;
 }
@@ -857,8 +970,15 @@ function renderFavorites() {
     if (favs[id]) (prepGroups[c.category] = prepGroups[c.category] || []).push(s);
   }));
 
+  const shopGroups = {};
+  shopList().forEach(s => {
+    const id = favId("shop", s.name, "");
+    if (favs[id]) (shopGroups[s.type] = shopGroups[s.type] || []).push(s);
+  });
+
   const html = favSection("🛵", "Restaurants", restoGroups, restaurantCard) +
     favSection("🛒", "Grocery", grocGroups, groceryCard) +
+    favSection("🏪", "Shops", shopGroups, shopCard) +
     favSection("🍱", "Meal-prep", prepGroups, prepCard);
 
   el.innerHTML = html || `<div class="card muted">No favorites yet. Tap the ♡ heart on any restaurant, grocery product, or meal-prep service to save it here for quick access — grouped just like the app.</div>`;
@@ -925,6 +1045,7 @@ function init() {
   renderRestaurants();
   renderWeek();
   renderGrocCatChips();
+  renderStoreChips();
   renderGrocery();
   renderPrepCatChips();
   renderPrep();
@@ -937,12 +1058,8 @@ function init() {
 
   const grocSearch = document.getElementById("grocSearch");
   if (grocSearch) grocSearch.addEventListener("input", renderGrocery);
-  document.querySelectorAll("#storeSeg .seg-btn").forEach(b =>
-    b.addEventListener("click", () => {
-      currentStore = b.dataset.store;
-      document.querySelectorAll("#storeSeg .seg-btn").forEach(x => x.classList.toggle("active", x === b));
-      renderGrocery();
-    }));
+  document.querySelectorAll("#grocView .seg-btn").forEach(b =>
+    b.addEventListener("click", () => setGrocView(b.dataset.gview)));
 
   const prepSearch = document.getElementById("prepSearch");
   if (prepSearch) prepSearch.addEventListener("input", renderPrep);

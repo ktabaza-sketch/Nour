@@ -82,24 +82,34 @@
     <section id="tab-grocery" class="tab">
       <div class="card">
         <h2>Safe grocery picks</h2>
-        <p class="muted">Each pick is a <b>specific product</b> whose ingredients we checked for all three: <b>no red meat or gelatin, no milk/whey/casein, no wheat</b> (a <b>GF label</b> tag means it's labelled gluten-free). Tap <b>Buy on Amazon</b> to open that exact item, or <b>Find on</b> for fresh produce. Organised into the same <b>Whole Foods / Amazon Fresh aisles</b> (Produce, Bakery, Deli, Snacks, Ready Meals…) and tagged for the nutrients you need. Formulas change — glance at the label the site shows before you check out.</p>
-        <div class="seg" id="storeSeg" role="tablist">
-          <button class="seg-btn active" data-store="">All stores</button>
-          <button class="seg-btn" data-store="Whole Foods">Whole Foods</button>
-          <button class="seg-btn" data-store="Amazon Fresh">Fresh</button>
-          <button class="seg-btn" data-store="Amazon">Amazon</button>
+        <p class="muted">Each pick is a <b>specific product</b> whose ingredients we checked for all three: <b>no red meat or gelatin, no milk/whey/casein, no wheat</b> (a <b>GF label</b> tag means it's labelled gluten-free). Tap a <b>Buy at…</b> button to open that exact item at the store you prefer — Whole Foods, Amazon, Walmart, Thrive Market and more (<b>Find at…</b> means a store search). Filter by store, or switch to <b>Where to shop</b> for bakeries, specialty grocers and online shops that deliver to Palo Alto. Organised into store aisles and tagged for the nutrients you need. Formulas change — glance at the label before you check out.</p>
+        <div class="seg" id="grocView" role="tablist">
+          <button class="seg-btn active" data-gview="products">🛒 Products</button>
+          <button class="seg-btn" data-gview="shops">🏪 Where to shop</button>
         </div>
+        <div id="storeChips" class="chips"></div>
         <input id="grocSearch" class="search" type="search" placeholder="Search products, brands, or nutrients…" />
         <div id="grocCatChips" class="chips"></div>
+        <div id="shopTypeChips" class="chips" hidden></div>
       </div>
-      <div id="grocWeekly"></div>
-      <div id="grocMeta" class="resto-meta"></div>
-      <div id="grocList" class="list"></div>
-      <div class="card warn-card">
-        <h3>Label cheat-sheet</h3>
-        <p class="muted">If you see these on a package, put it back:</p>
-        <ul id="grocLabels" class="labels"></ul>
-        <p class="muted small" style="margin-top:10px">Two extras for you: pick <b>gelatin-free / veggie capsules</b> (gelatin is made from pork and beef), and look for a <b>certified gluten-free</b> mark on oats, granola and supplements — "wheat-free" is rarely printed, but "gluten-free" guarantees it. Supplements aren't medical advice; check doses with your doctor.</p>
+      <div id="productsBlock">
+        <div id="grocWeekly"></div>
+        <div id="grocMeta" class="resto-meta"></div>
+        <div id="grocList" class="list"></div>
+        <div class="card warn-card">
+          <h3>Label cheat-sheet</h3>
+          <p class="muted">If you see these on a package, put it back:</p>
+          <ul id="grocLabels" class="labels"></ul>
+          <p class="muted small" style="margin-top:10px">Two extras for you: pick <b>gelatin-free / veggie capsules</b> (gelatin is made from pork and beef), and look for a <b>certified gluten-free</b> mark on oats, granola and supplements — "wheat-free" is rarely printed, but "gluten-free" guarantees it. Supplements aren't medical advice; check doses with your doctor.</p>
+        </div>
+      </div>
+      <div id="shopsBlock" hidden>
+        <div class="card">
+          <h3>Where to shop</h3>
+          <p class="muted">Supermarkets, dedicated gluten-free bakeries, organic &amp; specialty grocers, Asian &amp; international markets and online retailers that <b>deliver to Palo Alto or ship</b> — each with what's good there for you and how to filter so nothing with wheat, dairy or red meat slips in. Heart the ones you like.</p>
+        </div>
+        <div id="shopsMeta" class="resto-meta"></div>
+        <div id="shopsList" class="list"></div>
       </div>
     </section>
 
