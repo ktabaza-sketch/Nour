@@ -1,7 +1,7 @@
 /* Nour service worker.
    Network-first for same-origin GETs so new deploys show up immediately when
    online, with the cache as an offline fallback. Bump CACHE on any change. */
-const CACHE = "nour-v16";
+const CACHE = "nour-v17";
 const ASSETS = [
   "./",
   "./index.html",

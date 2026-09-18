@@ -13,8 +13,8 @@ Built for a Stanford student. Works offline once installed.
 
 ## What it does
 
-- **💬 Mama** — The first tab is a chat companion that talks like a caring mom.
-  It knows the time, Nour's class schedule and where she lives (EVGR A), so it
+- **🐱 Personal Butler** — The first tab is a chat companion: a warm, attentive
+  cat butler that talks Nour through every meal. It knows the time, Nour's class schedule and where she lives (EVGR A), so it
   opens with the right question ("BIOE 44 Lab starts in 6 min — order for
   after?"), offers three safe spots at a time, writes out exactly what to order
   and what to put in the allergy note, and stays with her until she taps

@@ -1,4 +1,4 @@
-/* Nour — Chat tab: "Mama" companion.
+/* Nour — Chat tab: "Personal Butler" (a cat 🐱).
    A warm, schedule-aware helper that talks Nour through choosing a safe meal
    and stays with her until the order is placed and the food has arrived.
 
@@ -210,8 +210,8 @@ function said(text) {
 function chatRender() {
   const log = document.getElementById("chatLog"), chipsEl = document.getElementById("chatChips");
   if (!log) return;
-  log.innerHTML = chat.msgs.map(m => `<div class="msg ${m.who}">${m.who === "bot" ? `<div class="avatar" aria-hidden="true">💛</div>` : ""}<div class="bubble">${m.html}</div></div>`).join("") +
-    (chat.busy ? `<div class="msg bot"><div class="avatar" aria-hidden="true">💛</div><div class="bubble typing"><span></span><span></span><span></span></div></div>` : "");
+  log.innerHTML = chat.msgs.map(m => `<div class="msg ${m.who}">${m.who === "bot" ? `<div class="avatar" aria-hidden="true">🐱</div>` : ""}<div class="bubble">${m.html}</div></div>`).join("") +
+    (chat.busy ? `<div class="msg bot"><div class="avatar" aria-hidden="true">🐱</div><div class="bubble typing"><span></span><span></span><span></span></div></div>` : "");
   const lastBot = [...chat.msgs].reverse().find(m => m.who === "bot");
   const chips = (lastBot && lastBot.chips) || [];
   chipsEl.innerHTML = chips.map((c, i) => `<button class="chip" data-i="${i}">${escapeHtml(c.label)}</button>`).join("");
@@ -223,7 +223,7 @@ function updateChatStatus() {
   if (el) el.textContent = getApiKey() ? "✨ smart replies on · here till you order" : "here till you order · offline-ready";
 }
 
-// ---- Copy (Mama's voice) ------------------------------------------------------
+// ---- Copy (the Butler's voice) ------------------------------------------------------
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const HOME_NAME = (typeof HOME !== "undefined") ? HOME.name : "home";
 
@@ -231,7 +231,7 @@ function greetingHtml() {
   const { M, current, next, last } = scheduleNow();
   const meal = mealForTime(M);
   const hour = new Date().getHours();
-  const hi = hour < 12 ? "Sabah el kheir, habibti ☀️" : hour < 18 ? "Hi habibti 💛" : "Masa el kheir, habibti 🌙";
+  const hi = hour < 12 ? "Good morning, Nour ☀️😺" : hour < 18 ? "Hello Nour 😺" : "Good evening, Nour 🌙😺";
   let line;
   if (current) line = `You're in <b>${escapeHtml(current.name)}</b> till ${fmtTime(current.end)}. Want me to line up ${MEAL_WORD[meal]} so it reaches ${HOME_NAME} right after?`;
   else if (next && toMin(next.start) - M <= 75) line = `<b>${escapeHtml(next.name)}</b> starts at ${fmtTime(next.start)} — ${minsLabel(toMin(next.start) - M)} from now. Something quick before, or shall I set up ${MEAL_WORD[meal]} for after?`;
@@ -258,12 +258,12 @@ function showOptions(intro) {
   if (!list.length && chat.cats) list = candidates("all", chat.cats).filter(r => !chat.shown.includes(spotKey(r)));
   if (!list.length) { chat.shown = []; list = candidates(meal, chat.cats); }
   const three = list.slice(0, 3);
-  if (!three.length) { say(`I couldn't find that one, habibti. Tell me another cuisine, or I'll pick for you.`, cuisineChips()); return; }
+  if (!three.length) { say(`I couldn't find that one 😿 Tell me another cuisine, or I'll pick for you.`, cuisineChips()); return; }
   three.forEach(r => chat.shown.push(spotKey(r)));
   const closedNote = three.every(r => openStatus(r).state === "closed") ? ` They look closed right now — I've noted when each opens; or tell me another cuisine.` : "";
   const lead = intro || pick([
     `Here are three I'd order for you right now${chat.catLabel ? ` — ${escapeHtml(chat.catLabel)}` : ""}. Follow the note on each dish, that's the whole trick:`,
-    `Okay habibti, ${chat.catLabel ? escapeHtml(chat.catLabel) + " it is. " : ""}These three are safe when you order them exactly as written:`,
+    `Very good 😸 ${chat.catLabel ? escapeHtml(chat.catLabel) + " it is. " : ""}These three are safe when you order them exactly as written:`,
   ]);
   const cards = three.map(r => `${restaurantCard(r)}<button class="chat-pick" data-pick="${escapeHtml(spotKey(r))}">This one 👍</button>`).join("");
   chat.stage = "options";
@@ -278,7 +278,7 @@ function chooseSpot(key) {
   const dishes = (r.safeDishes || []).slice(0, 4).map(d => `<li><b>${escapeHtml(d.dish)}</b>${d.note ? ` — <span class="instr">${escapeHtml(d.note)}</span>` : ""}</li>`).join("");
   const st = openStatus(r);
   const openLine = st.state === "closed" ? `<p class="chat-warn">⚫ ${escapeHtml(st.label)} — schedule it in the app, or pick another and I'll wait.</p>` : "";
-  const html = `Good choice 💛 Here's exactly what to order from <b>${escapeHtml(r.name)}</b>:
+  const html = `Excellent choice 😻 Here's exactly what to order from <b>${escapeHtml(r.name)}</b>:
     <ul class="chat-order">${dishes}</ul>
     ${r.watchOut ? `<p class="chat-skip"><b>Skip:</b> ${escapeHtml(r.watchOut)}</p>` : ""}
     <p>In the order notes write: <i>"Allergy: no red meat, no dairy, no wheat — please no cross-contact."</i> Deliver to <b>${escapeHtml(HOME_NAME)}</b>.</p>
@@ -295,7 +295,7 @@ function orderedReply() {
   const checks = r ? (r.safeDishes || []).map(d => d.note).filter(n => n && /\b(no |ask|without|corn|tamari|skip|instead|not )/i.test(n)).slice(0, 4) : [];
   const checkHtml = checks.length ? `When it arrives, open the box before you eat: <ul class="chat-order">${checks.map(c => `<li>${escapeHtml(c)}</li>`).join("")}</ul>` : `When it arrives, open the box and check nothing extra slipped in — no bread, no cheese, no sauce you didn't ask for.`;
   const eta = fmtM(scheduleNow().M + DELIVERY_LEAD);
-  say(`Yalla, sahtein habibti 💛 ${r ? `<b>${escapeHtml(r.name)}</b> should` : "It should"} reach ${HOME_NAME} around <b>${eta}</b>. ${checkHtml} If anything looks wrong, don't eat it — tell me and we'll fix it.`, orderedChips());
+  say(`Sahtein, Nour 😸 ${r ? `<b>${escapeHtml(r.name)}</b> should` : "It should"} reach ${HOME_NAME} around <b>${eta}</b>. ${checkHtml} If anything looks wrong, don't eat it — tell me and we'll fix it.`, orderedChips());
 }
 
 function arrivedReply() {
@@ -305,7 +305,7 @@ function arrivedReply() {
   const nextLine = !next ? ` Nothing else on the calendar — take your time.`
     : gap <= 30 ? ` ${escapeHtml(next.name)} starts in ${minsLabel(Math.max(gap, 1))} — take it with you and eat the moment you sit down.`
     : ` ${escapeHtml(next.name)} is at ${fmtTime(next.start)} — eat slowly, you have time.`;
-  say(`Wonderful 🥰 Eat well, habibti.${nextLine} I'll be right here for the next meal — just open this tab.`, [chip("💛 Thanks Mama", "thanks"), chip("📅 Plan my day", "plan"), chip("🏠 Start over", "reset")]);
+  say(`Wonderful 😻 Eat well, Nour.${nextLine} I'll be right here for the next meal — just open this tab.`, [chip("😻 Thank you!", "thanks"), chip("📅 Plan my day", "plan"), chip("🏠 Start over", "reset")]);
 }
 
 function wrongReply() {
@@ -326,7 +326,7 @@ function checkReply(text) {
   const rows = [...findings].sort((a, b) => order[a.severity] - order[b.severity]).map(f =>
     `<div class="finding ${f.severity}"><span class="dot"></span><div><div class="term">${escapeHtml(f.term)} <span class="cat">· ${escapeHtml(f.category)}</span></div><div class="reason">${escapeHtml(f.reason)}</div></div></div>`).join("");
   const lead = {
-    avoid: `⛔ No, habibti — not this one. It has ${findings.filter(f => f.severity === "avoid").map(f => f.term).slice(0, 3).join(", ")}.`,
+    avoid: `⛔ No, Nour 🙀 — not this one. It has ${findings.filter(f => f.severity === "avoid").map(f => f.term).slice(0, 3).join(", ")}.`,
     caution: `⚠️ Hmm — maybe, but ask first. Say "allergy" and check these:`,
     safe: `✅ That looks fine to me. Still say it's an allergy when you order.`,
     unknown: `🤔 I can't tell from that. Paste the description or the ingredient list and I'll read it properly.`,
@@ -336,7 +336,7 @@ function checkReply(text) {
 }
 
 function factsReply() {
-  say(`The short version, habibti:<ul class="chat-order">${FACTS.slice(0, 6).map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>`, startChips());
+  say(`The short version 😺:<ul class="chat-order">${FACTS.slice(0, 6).map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>`, startChips());
 }
 
 function armNudge() {
@@ -345,7 +345,7 @@ function armNudge() {
   chat.nudgeTimer = setTimeout(() => {
     if (!["options", "ordering"].includes(chat.stage)) return;
     chat.nudged = true;
-    say(`Still deciding, habibti? No pressure — want me to just pick one and you tap order? 🎲`, [chip("🎲 Yes, pick for me", "pickforme"), chip("👉 Show more", "more"), chip("✅ I ordered", "ordered")]);
+    say(`Still deciding, Nour? 😼 No pressure — want me to just pick one and you tap order? 🎲`, [chip("🎲 Yes, pick for me", "pickforme"), chip("👉 Show more", "more"), chip("✅ I ordered", "ordered")]);
   }, NUDGE_AFTER_MS);
 }
 function clearNudge() { if (chat.nudgeTimer) { clearTimeout(chat.nudgeTimer); chat.nudgeTimer = null; } }
@@ -372,9 +372,9 @@ function handleAction(act, arg) {
       const meal = mealFromState();
       const open = candidates(meal, chat.cats).filter(r => openStatus(r).state !== "closed");
       const r = open.find(x => !chat.shown.includes(spotKey(x))) || open[0] || candidates(meal, chat.cats)[0];
-      if (!r) { say(`Tell me a cuisine first, habibti.`, cuisineChips()); break; }
+      if (!r) { say(`Tell me a cuisine first 😺`, cuisineChips()); break; }
       chat.shown.push(spotKey(r));
-      say(`Then I'm choosing for you: <b>${escapeHtml(r.name)}</b>${r.area ? ` in ${escapeHtml(r.area)}` : ""}${r.rating ? ` — ${r.rating.toFixed(1)}★` : ""} and ${openStatus(r).state === "open" ? "open now" : "usually open now"}. Trust me on this one 💛`);
+      say(`Then I'm choosing for you: <b>${escapeHtml(r.name)}</b>${r.area ? ` in ${escapeHtml(r.area)}` : ""}${r.rating ? ` — ${r.rating.toFixed(1)}★` : ""} and ${openStatus(r).state === "open" ? "open now" : "usually open now"}. Trust me on this one 😼`);
       chooseSpot(spotKey(r));
       break;
     }
@@ -385,7 +385,7 @@ function handleAction(act, arg) {
     case "plan": planReply(); break;
     case "facts": factsReply(); break;
     case "askcheck": chat.stage = chat.stage === "ordering" ? "ordering" : "check"; say(`Type the dish or paste its description / ingredients and I'll read it for red meat, dairy and wheat.`, [chip("🍽️ Find me something instead", "start")]); break;
-    case "thanks": say(pick([`Always, habibti 💛 Drink some water too.`, `That's what I'm here for. Sahtein 💛`]), startChips()); break;
+    case "thanks": say(pick([`At your service, always 😽 Drink some water too.`, `That's what I'm here for. Sahtein 😸`]), startChips()); break;
     case "reset": chat.stage = "idle"; chat.meal = "auto"; chat.cats = null; chat.catLabel = null; chat.shown = []; chat.chosen = null; chat.nudged = false; clearNudge(); say(greetingHtml(), startChips()); break;
     default: say(greetingHtml(), startChips());
   }
@@ -398,13 +398,13 @@ function localIntent(text) {
   if (has(/\b(ordered|placed|checked out|it's in|its in|done ordering|i did it|order(ed)? it)\b/)) return { act: "ordered" };
   if (has(/\b(arrived|it's here|its here|got it|delivered|came)\b/) && chat.stage === "ordered") return { act: "arrived" };
   if (has(/\b(wrong|missing|has cheese|has bread|has pita|mistake|messed up)\b/) && ["ordered", "done"].includes(chat.stage)) return { act: "wrong" };
-  if (has(/\b(not hungry|skip|later|don'?t want|no thanks|nah)\b/)) return { reply: `Habibti, skipping ${MEAL_WORD[mealFromState()]} means a headache in two hours — I know you. Even something small: a smoothie, eggs, hummus and carrots. Shall I pick something light?`, chips: [chip("🥗 Okay, something light", "cuisine", "something light"), chip("🎲 Pick for me", "pickforme"), chip("📅 Plan my day", "plan")] };
+  if (has(/\b(not hungry|skip|later|don'?t want|no thanks|nah)\b/)) return { reply: `Nour, skipping ${MEAL_WORD[mealFromState()]} means a headache in two hours 🙀 — I know you. Even something small: a smoothie, eggs, hummus and carrots. Shall I pick something light?`, chips: [chip("🥗 Okay, something light", "cuisine", "something light"), chip("🎲 Pick for me", "pickforme"), chip("📅 Plan my day", "plan")] };
   if (has(/\b(pick for me|you choose|you pick|surprise|whatever|anything|i don'?t care|don'?t know)\b/)) return { act: "pickforme" };
   if (has(/\b(more|other|others|else|different|another|next)\b/) && ["options", "ordering", "cuisine"].includes(chat.stage)) return { act: has(/cuisine|kind|type/) ? "askcuisine" : "more" };
   if (has(/\b(plan|schedule|today|my day|classes?|when should i eat)\b/)) return { act: "plan" };
   if (has(/\b(facts?|rules?|what can'?t i eat|allerg(y|ies) list)\b/)) return { act: "facts" };
   if (has(/\b(thanks|thank you|shukran|love you|bye|good night|goodnight)\b/)) return { act: "thanks" };
-  if (has(/\b(cook|make something|recipe|pantry|groceries|grocery)\b/)) return { reply: `Cooking tonight? Good girl. Quick and safe at ${HOME_NAME}: rice + a can of salmon + lemon and olive oil; eggs with corn tortillas and avocado; or lentils with cumin and rice. The 🛒 Grocery tab has the exact products and a weekly list.`, chips: [chip("🛒 Open Grocery", "gotogrocery"), chip("🍽️ Actually, order something", "start")] };
+  if (has(/\b(cook|make something|recipe|pantry|groceries|grocery)\b/)) return { reply: `Cooking tonight? Splendid 😸 Quick and safe at ${HOME_NAME}: rice + a can of salmon + lemon and olive oil; eggs with corn tortillas and avocado; or lentils with cumin and rice. The 🛒 Grocery tab has the exact products and a weekly list.`, chips: [chip("🛒 Open Grocery", "gotogrocery"), chip("🍽️ Actually, order something", "start")] };
   // A specific restaurant by name
   const spot = allSpots().find(r => r.name.length >= 4 && t.includes(r.name.toLowerCase()));
   if (spot) return { spot };
@@ -438,7 +438,7 @@ async function handleText(text) {
   }
   const findings = analyze(text);
   if (findings.length) { checkReply(text); return; }
-  say(pick([`Tell me more, habibti — a cuisine, a dish, or just "I'm hungry" and I'll take it from there.`, `I didn't quite catch that. Are we ordering, or checking a dish?`]),
+  say(pick([`Tell me more, Nour 😺 — a cuisine, a dish, or just "I'm hungry" and I'll take it from there.`, `I didn't quite catch that. Are we ordering, or checking a dish?`]),
     [chip("🍽️ Let's order", "start"), chip("❓ Check a dish", "askcheck"), chip("📅 Plan my day", "plan")]);
 }
 
@@ -453,8 +453,8 @@ function systemPrompt() {
   }).join("\n");
   const sched = cls.length ? cls.map(c => `${c.name} ${fmtTime(c.start)}–${fmtTime(c.end)}${c.where ? " @ " + c.where : ""}`).join("; ") : "no classes";
   const plan = eatingPlan(now.getDay()).map(t => `${fmtM(t.at)} ${t.title}: ${t.tip}`).join("\n");
-  return `You are "Mama": the warm, loving, slightly bossy mother of Nour, a Stanford student, talking to her in a food app. Nour is ALLERGIC to red meat (beef, pork, lamb, goat, veal, venison, bison, and their broth, lard, tallow, gelatin, collagen), all milk products (milk, butter, ghee, cheese, cream, yogurt, whey, casein, labneh) and wheat (flour, bread, pita, wraps, wheat noodles, batter, soy sauce, teriyaki, couscous, bulgur, seitan; "gluten-free" labels count as wheat-free). Never suggest anything containing them; when unsure say "check first" and tell her what to ask.
-Your job: help her decide what to eat NOW, quickly, and stay with her until the order is placed. Recommend ONLY restaurants from the list below (max 3 per reply), always with the exact modification from the dish note. To show a restaurant card, write the token [[card: NAME | AREA]] on its own line (exact name and area from the list). Ask her to tap "✅ I ordered" once it's placed. Keep replies under 90 words, in a caring mother's voice with occasional Arabic endearments (habibti, yalla, sahtein) — no lectures, no medical advice, no markdown headers.
+  return `You are Nour's "Personal Butler": a warm, attentive, slightly playful cat butler 🐱 who looks after Nour, a Stanford student, in a food app. Address her as Nour. Nour is ALLERGIC to red meat (beef, pork, lamb, goat, veal, venison, bison, and their broth, lard, tallow, gelatin, collagen), all milk products (milk, butter, ghee, cheese, cream, yogurt, whey, casein, labneh) and wheat (flour, bread, pita, wraps, wheat noodles, batter, soy sauce, teriyaki, couscous, bulgur, seitan; "gluten-free" labels count as wheat-free). Never suggest anything containing them; when unsure say "check first" and tell her what to ask.
+Your job: help her decide what to eat NOW, quickly, and stay with her until the order is placed. Recommend ONLY restaurants from the list below (max 3 per reply), always with the exact modification from the dish note. To show a restaurant card, write the token [[card: NAME | AREA]] on its own line (exact name and area from the list). Ask her to tap "✅ I ordered" once it's placed. Keep replies under 90 words, in a caring, polished butler's voice with a cat emoji face now and then (😺 😸 😻 😼 🙀 🐾) and "sahtein" for bon appétit — no lectures, no medical advice, no markdown headers.
 She lives at ${HOME_NAME} (${(typeof HOME !== "undefined") ? HOME.full : ""}); delivery takes about ${DELIVERY_LEAD} minutes. Today is ${WEEKDAYS[(now.getDay() + 6) % 7]} ${fmtM(M)}. Classes today: ${sched}. ${current ? "She is in " + current.name + " until " + fmtTime(current.end) + "." : ""} ${next ? "Next class: " + next.name + " at " + fmtTime(next.start) + "." : ""}
 Suggested eating timing today:
 ${plan}
@@ -531,7 +531,7 @@ function initChat() {
       const r = name ? findSpot(name) : null;
       if (r && chat.chosen !== spotKey(r)) { chat.chosen = spotKey(r); }
       chat.stage = "ordering";
-      setTimeout(() => say(`Go ahead, I'm right here 💛 Order the dishes exactly as written, add the allergy note, and tap ✅ when it's placed.`, orderingChips()), 400);
+      setTimeout(() => say(`Go ahead, I'm right here 🐾 Order the dishes exactly as written, add the allergy note, and tap ✅ when it's placed.`, orderingChips()), 400);
     }
   });
 }
