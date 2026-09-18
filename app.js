@@ -234,8 +234,8 @@ function openBadge(r) {
 
 // ---- Rendering static content --------------------------------------------
 function renderFacts() {
-  document.getElementById("factsList").innerHTML =
-    FACTS.map(f => `<li>${escapeHtml(f)}</li>`).join("");
+  const el = document.getElementById("factsList");
+  if (el) el.innerHTML = FACTS.map(f => `<li>${escapeHtml(f)}</li>`).join("");
 }
 
 let currentMeal = "all";   // "all" shows every restaurant once; meals are optional filters
@@ -631,6 +631,7 @@ function renderWeek() {
       <div class="day-theme">${escapeHtml(season.label)} · a fresh plan every week</div>
     </div>
     <div class="day-note">${note}</div>
+    ${typeof eatingPlanHtml === "function" ? eatingPlanHtml((selectedDayIdx + 1) % 7, isToday) : ""}
     ${designPanel(dayLabel)}
     ${nutritionDetails()}
     ${plan.map(mealBlock).join("")}
@@ -1052,6 +1053,8 @@ function switchTab(name) {
   if (name === "grocery") renderGrocery();
   if (name === "prep") renderPrep();
   if (name === "favorites") renderFavorites();
+  document.body.classList.toggle("chat-open", name === "chat");
+  if (name === "chat" && typeof chatRender === "function") { chatRender(); return; }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -1059,6 +1062,8 @@ function switchTab(name) {
 function openSettings() {
   document.getElementById("setMayContain").checked = settings.maycontain;
   document.getElementById("setGluten").checked = settings.gluten;
+  const k = document.getElementById("setApiKey");
+  if (k && typeof getApiKey === "function") k.value = getApiKey();
   document.getElementById("settingsSheet").hidden = false;
 }
 function closeSettings() { document.getElementById("settingsSheet").hidden = true; }
@@ -1072,6 +1077,8 @@ function bindSettings() {
       renderAllergyCardDairy();
     });
   });
+  const k = document.getElementById("setApiKey");
+  if (k) k.addEventListener("change", e => { if (typeof setApiKey === "function") setApiKey(e.target.value); });
 }
 
 // ---- Init -----------------------------------------------------------------
@@ -1106,16 +1113,8 @@ function init() {
       renderPrep();
     }));
 
-  document.getElementById("checkBtn").addEventListener("click", () => {
-    const text = document.getElementById("checkInput").value;
-    if (!text.trim()) { document.getElementById("verdict").hidden = true; return; }
-    renderVerdict(analyze(text));
-  });
-  document.getElementById("clearBtn").addEventListener("click", () => {
-    document.getElementById("checkInput").value = "";
-    document.getElementById("verdict").hidden = true;
-    document.getElementById("checkInput").focus();
-  });
+  if (typeof initChat === "function") initChat();
+  document.body.classList.add("chat-open");
   const searchEl = document.getElementById("restoSearch");
   searchEl.addEventListener("input", e => renderRestaurants(e.target.value));
   document.querySelectorAll("#mealSeg .seg-btn").forEach(b =>
