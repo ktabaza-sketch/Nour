@@ -34,7 +34,11 @@ Built for a Stanford student. Works offline once installed.
   allergen chart / dietary menu, with a one-line note on what that list
   confirms or contradicts (`website`, `allergenUrl`, `allergenKind`,
   `allergenCheck`, `allergenDate` in `data.js`). Spots with no published list
-  are marked so Nour knows to say "allergy" when ordering.
+  are marked so Nour knows to say "allergy" when ordering. An **On campus ·
+  Cardinal Dollars** category lists Stanford eateries (`campus: true`, with
+  `where`, `nearest`, `channel`) that order through Stanford's own app
+  (`CAMPUS` in `data.js`); the Butler ranks them higher when she is in or
+  about to be in class.
 - **📅 Week** — A different two-course plan for every day, rotating weekly and
   tuned to the Palo Alto season, with daily nutrition targets for an 18-year-old
   and a note explaining how it was built. Each day starts with a timing block
@@ -46,8 +50,13 @@ Built for a Stanford student. Works offline once installed.
   Amazon Fresh, Walmart, Costco, Target, Sprouts, Thrive Market and dozens of
   bakeries, specialty grocers and online shops — verified free of red meat,
   dairy and wheat, organised into store aisles, tagged for nutrients, with a
-  rotating weekly basket and a **Where to shop** directory of every retailer
-  that delivers to Palo Alto or ships.
+  rotating weekly basket (with a one-tap **Copy list** and store shortcuts),
+  a **Cut your delivery fees** card of student subscription plans (`PERKS`),
+  and a **Where to shop** directory of every retailer that delivers to Palo
+  Alto or ships — supermarkets, small local grocers on Instacart and
+  DoorDash, halal / Persian / Turkish / Indian / Latin markets, dedicated
+  gluten-free bakeries, farm boxes, fish & butcher shops, Middle Eastern
+  online grocers and brand stores.
 - **🍱 Prep** — Meal-prep and meal-kit services that can reliably deliver
   wheat-free, dairy-free, non-red-meat meals, with setup tips.
 - **⭐ Favorites** — Heart any restaurant, product or service; the favorites

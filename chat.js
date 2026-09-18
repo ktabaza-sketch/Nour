@@ -140,6 +140,14 @@ function spotScore(r) {
   s += st === "open" ? 3 : st === "unknown" ? 1 : -6;
   if (isFav(favId("order", r.name, r.area))) s += 2;
   if (r.unverified) s -= 0.4;
+  // On campus: worth more when she is in (or about to be in) class — pay with Cardinal Dollars, no delivery fee.
+  if (r.campus) {
+    const { current, next, M } = scheduleNow();
+    const nearClass = current || (next && toMin(next.start) - M <= 60);
+    s += nearClass ? 2.5 : -0.5;
+    const cls = current || next;
+    if (cls && r.nearest && (cls.where || "").toLowerCase().includes(r.nearest.toLowerCase())) s += 1.5;
+  }
   return s;
 }
 function candidates(meal, cats) {
@@ -173,6 +181,7 @@ const CUISINES = [
   { re: /seafood|fish|shrimp|salmon|tuna/i, cats: /Seafood|Sushi|Japanese|Hawaiian|Poke/i, label: "seafood" },
   { re: /soup|warm|comfort|cozy|cold|sick|rain|hot food/i, cats: /Vietnamese|Thai|Korean|Indian|Burmese|Persian|Turkish|Middle Eastern/i, label: "something warm", chip: "🍲 Something warm" },
   { re: /cheap|budget|broke|inexpensive|affordable/i, cats: /Mexican|Vietnamese|Salads|Latin|Hawaiian|Halal|Thai/i, label: "easy on the wallet" },
+  { re: /campus|cardinal|on campus|near class|between class|coho|tresidder|coupa|arbuckle|dining hall/i, cats: /On campus/i, label: "on campus", chip: "🎓 On campus" },
 ];
 
 // ---- Chat state --------------------------------------------------------------
@@ -244,7 +253,7 @@ function startChips() {
 }
 function cuisineChips() {
   return [chip("🕌 Middle Eastern", "cuisine", "Middle Eastern"), chip("🌮 Mexican & Latin", "cuisine", "Mexican & Latin"), chip("🍜 Thai", "cuisine", "Thai"), chip("🍣 Sushi & poke", "cuisine", "Japanese & poke"),
-          chip("🥗 Light", "cuisine", "something light"), chip("🍛 Indian", "cuisine", "Indian & Nepalese"), chip("🍲 Something warm", "cuisine", "something warm"), chip("🎲 Surprise me", "pickforme")];
+          chip("🥗 Light", "cuisine", "something light"), chip("🍛 Indian", "cuisine", "Indian & Nepalese"), chip("🍲 Something warm", "cuisine", "something warm"), chip("🎓 On campus", "cuisine", "on campus"), chip("🎲 Surprise me", "pickforme")];
 }
 function optionsChips() { return [chip("👉 More options", "more"), chip("🔁 Different cuisine", "askcuisine"), chip("🎲 Pick for me", "pickforme"), chip("✅ I ordered", "ordered")]; }
 function orderingChips() { return [chip("✅ I ordered", "ordered"), chip("🔁 Something else", "more"), chip("❓ Ask about a dish", "askcheck")]; }

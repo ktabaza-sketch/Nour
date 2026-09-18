@@ -639,3 +639,26 @@ body.chat-open { padding-bottom: 150px; }
 @media (min-width: 1400px) {
   .list, .list > .fav-kind { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* Campus eateries (Cardinal Dollars) */
+.campus-tag { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 1px 8px; background: #fef2f2; color: #8c1515; border: 1px solid #fecaca; }
+.campus-where { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+.dd-btn.campus { background: #8c1515; }
+.dd-btn.campus:active { background: #6f1010; }
+
+/* Weekly list actions + perks */
+.wl-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.wl-actions .link-btn { cursor: pointer; font-family: inherit; }
+.wl-hint { margin: 8px 0 0; }
+.perks-card { border-left: 4px solid #7c3aed; }
+.perks-list { list-style: none; margin: 0; padding: 0; }
+.perks-list li { padding: 10px 0; border-top: 1px solid var(--line); }
+.perks-list li:first-child { border-top: none; }
+.perk-head { display: flex; flex-direction: column; gap: 2px; font-size: 14.5px; }
+.perk-price { font-weight: 800; color: #6d28d9; font-size: 13.5px; }
+.perk-benefit { font-size: 13.5px; margin-top: 3px; }
+.perk-verify { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+.perks-list .link-btn { margin-top: 8px; }
+@media (min-width: 900px) {
+  .perks-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+}
