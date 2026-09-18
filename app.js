@@ -303,7 +303,17 @@ const PLATFORM = {
 };
 function platformsOf(r) { return (r.platforms && r.platforms.length) ? r.platforms : ["DoorDash"]; }
 
+// Campus eateries pay with Cardinal Dollars through Stanford's ordering app
+// rather than a delivery platform.
+function campusTag(r) {
+  return r.campus ? `<span class="campus-tag" title="${escapeHtml(r.where || "")}">🎓 ${escapeHtml(r.channel || "Cardinal Dollars")}${r.nearest ? ` · near ${escapeHtml(r.nearest)}` : ""}</span>` : "";
+}
 function platformButtons(r, sm) {
+  if (r.campus) {
+    const url = r.orderUrl || (typeof CAMPUS !== "undefined" && CAMPUS.url) || "#";
+    const label = (typeof CAMPUS !== "undefined" && CAMPUS.app) ? `🎓 Order on ${escapeHtml(CAMPUS.app)}` : "🎓 Order on campus";
+    return `<div class="plat-row"><a class="dd-btn ${sm ? "sm " : ""}campus" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${label}</a></div>`;
+  }
   const btns = platformsOf(r).map(p => {
     const cfg = PLATFORM[p] || PLATFORM["DoorDash"];
     return `<a class="dd-btn ${sm ? "sm " : ""}${cfg.cls}" href="${cfg.url(r)}" target="_blank" rel="noopener noreferrer">🛵 ${escapeHtml(p)}</a>`;
@@ -364,7 +374,8 @@ function restaurantCard(r) {
     <div class="resto">
       ${favBtn(id)}
       <div class="resto-head"><h3>${escapeHtml(r.name)}</h3></div>
-      <div class="resto-rating">${area}${ratingBadge(r)}${openBadge(r)}${newTag(r)}${allergenBadge(r)}${mealTags(r)}</div>
+      <div class="resto-rating">${area}${ratingBadge(r)}${openBadge(r)}${newTag(r)}${campusTag(r)}${allergenBadge(r)}${mealTags(r)}</div>
+      ${r.campus && r.where ? `<p class="campus-where">📍 ${escapeHtml(r.where)}${r.hoursNote ? ` · ${escapeHtml(r.hoursNote)}` : ""}</p>` : ""}
       <ul class="dishes">${dishes}</ul>
       ${allergenLine(r)}
       ${watch}
@@ -771,7 +782,7 @@ function renderStoreChips() {
 }
 
 // ---- Where to shop (bakeries, specialty grocers, online retailers) ----------
-const SHOP_TYPE_ORDER = ["Supermarket", "Bakery", "Organic & specialty", "Asian & international", "Online retailer", "Brand direct"];
+const SHOP_TYPE_ORDER = ["Supermarket", "Bakery", "Organic & specialty", "Asian & international", "Farm box", "Fish & butcher", "Online retailer", "Brand direct"];
 function shopList() { return (typeof SHOPS !== "undefined") ? SHOPS : []; }
 
 function shopCard(s) {
@@ -874,6 +885,9 @@ function renderGrocWeekly() {
     return { role: r.label, it: pool[rotIndex(pool.length, week, 0, i + 1)] };
   }).filter(Boolean);
 
+  const listText = `Nour's grocery list (week of ${new Date().toLocaleDateString(undefined, { month: "short", day: "numeric" })})\n` +
+    picks.map(p => `- ${p.it.name}${p.it.brand ? " (" + p.it.brand + ")" : ""}`).join("\n") +
+    "\nAll items: no red meat, no dairy, no wheat. Deliver to EVGR Building A, Stanford.";
   el.innerHTML = `
     <div class="card weekly-card">
       <div class="weekly-title">🧺 This week's grocery list</div>
@@ -885,6 +899,41 @@ function renderGrocWeekly() {
             <span class="wl-name">${escapeHtml(p.it.name)}${p.it.brand ? ` · <span class="muted">${escapeHtml(p.it.brand)}</span>` : ""}</span></div>
             <a class="wl-add" href="${firstBuyUrl(p.it)}" target="_blank" rel="noopener noreferrer">Add</a>
           </li>`).join("")}
+      </ul>
+      <div class="wl-actions">
+        <button class="link-btn" id="wlCopy" type="button">📋 Copy list</button>
+        <a class="link-btn" href="https://www.instacart.com/store/s?k=${encodeURIComponent(picks[0] ? picks[0].it.name : "gluten free")}" target="_blank" rel="noopener noreferrer">🥕 Instacart</a>
+        <a class="link-btn" href="https://www.amazon.com/alm/storefront?almBrandId=QW1hem9uIEZyZXNo" target="_blank" rel="noopener noreferrer">🛒 Amazon Fresh</a>
+        <a class="link-btn" href="https://www.doordash.com/grocery/" target="_blank" rel="noopener noreferrer">🛵 DoorDash grocery</a>
+      </div>
+      <p class="muted small wl-hint">Copy the list, then paste it into the store app's search one line at a time — or tap <b>Add</b> on each item for its exact product page.</p>
+    </div>`;
+  const copyBtn = document.getElementById("wlCopy");
+  if (copyBtn) copyBtn.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(listText); copyBtn.textContent = "✅ Copied"; }
+    catch { window.prompt("Copy your list:", listText); }
+    setTimeout(() => { copyBtn.textContent = "📋 Copy list"; }, 1800);
+  });
+  renderPerks();
+}
+
+// "Cut your fees" — student subscription plans, from PERKS in data.js.
+function renderPerks() {
+  const el = document.getElementById("perksCard");
+  if (!el) return;
+  const perks = (typeof PERKS !== "undefined") ? PERKS : [];
+  if (!perks.length) { el.innerHTML = ""; return; }
+  el.innerHTML = `
+    <div class="card perks-card">
+      <div class="weekly-title">💸 Cut your delivery fees</div>
+      <p class="weekly-why">On Nour's ordering volume these student plans pay for themselves within a week. Prices as noted — confirm on sign-up.</p>
+      <ul class="perks-list">
+        ${perks.map(p => `<li>
+          <div class="perk-head"><b>${escapeHtml(p.name)}</b><span class="perk-price">${escapeHtml(p.price)}</span></div>
+          <div class="perk-benefit">${escapeHtml(p.benefit)}</div>
+          <div class="perk-verify">${escapeHtml(p.verify)}${p.asOf ? ` <span class="muted">· as of ${escapeHtml(p.asOf)}</span>` : ""}</div>
+          ${p.url ? `<a class="link-btn" href="${escapeHtml(p.url)}" target="_blank" rel="noopener noreferrer">Sign up →</a>` : ""}
+        </li>`).join("")}
       </ul>
     </div>`;
 }

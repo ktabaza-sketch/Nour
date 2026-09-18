@@ -3012,6 +3012,17 @@ const SCHEDULE = {
   },
 };
 
+// ---- Stanford campus channel (Cardinal Dollars) ----------------------------
+// How on-campus ordering works and where allergen menus are published. Campus
+// eateries live in ORDER_MENU under the "On campus · Cardinal Dollars" category
+// with campus: true, where, nearest and channel fields.
+const CAMPUS = {
+  app: "", url: "", how: "", cardinalDollars: "", allergenMenuUrl: null, farmersMarket: null, lateNight: null,
+};
+
+// ---- Fee-cutting subscriptions (student pricing) -----------------------------
+const PERKS = [];
+
 if (typeof module !== "undefined") {
-  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, NUTRITION, GROCERY, GROCERY_ITEMS, STORES, SHOPS, PREP_SERVICES, FACTS, HOME, SCHEDULE };
+  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, NUTRITION, GROCERY, GROCERY_ITEMS, STORES, SHOPS, PREP_SERVICES, FACTS, HOME, SCHEDULE, CAMPUS, PERKS };
 }
