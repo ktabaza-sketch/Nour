@@ -115,3 +115,7 @@ deploy from branch). The app will be live at a shareable URL — no server neede
 - Open **Settings (⚙️)** in the app to adjust strictness.
 - To add a restaurant or product, edit the arrays in `data.js` (they're
   commented). Bump `CACHE` in `sw.js` after changes so installed copies refresh.
+
+## Data snapshot
+
+As of September 2026: 188 restaurants (15 on campus), 122 shops, 372 grocery products, 32 meal-prep services. Updated by the weekly re-vet Routine.
