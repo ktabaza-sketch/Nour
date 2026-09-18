@@ -560,3 +560,82 @@ body.chat-open { padding-bottom: 150px; }
 .alg-badge.no { background: #f8fafc; color: var(--muted); border: 1px solid var(--line); font-weight: 600; }
 .alg-check { margin: 8px 0 0; font-size: 13px; color: #312e81; background: #eef2ff; padding: 8px 10px; border-radius: 10px; }
 .bubble .chat-alg { font-size: 13px; color: #312e81; background: #eef2ff; padding: 8px 10px; border-radius: 10px; }
+
+/* ===================== Desktop layout (≥ 900px) ===================== */
+@media (min-width: 900px) {
+  :root { --nav-w: 232px; --header-h: 76px; }
+  body { padding-bottom: 40px; }
+  body.chat-open { padding-bottom: 120px; }
+
+  .app-header { padding: 0 32px; height: var(--header-h); }
+  .app-header h1 { font-size: 22px; }
+  .tagline { font-size: 13px; }
+  .icon-btn { width: 40px; height: 40px; }
+  .icon-btn:hover { background: rgba(255,255,255,.25); }
+  .safety-strip { position: sticky; top: var(--header-h); z-index: 19; font-size: 13px; padding-left: calc(var(--nav-w) + 32px); text-align: left; }
+
+  /* Bottom tab bar becomes a left sidebar */
+  .tabbar {
+    top: 0; bottom: 0; left: 0; right: auto; width: var(--nav-w); max-width: none; margin: 0;
+    flex-direction: column; justify-content: flex-start; gap: 4px;
+    padding: calc(var(--header-h) + 52px) 14px 20px;
+    border-top: none; border-right: 1px solid var(--line); border-radius: 0; box-shadow: none; z-index: 15;
+  }
+  .tab-btn {
+    flex: 0 0 auto; flex-direction: row; justify-content: flex-start; gap: 12px;
+    padding: 11px 14px; border-radius: 12px; font-size: 15px; font-weight: 600; color: #334155;
+  }
+  .tab-btn span { font-size: 22px; width: 28px; text-align: center; }
+  .tab-btn:hover { background: #f1f5f9; }
+  .tab-btn.active { background: #ecfdf5; color: var(--teal-dark); font-weight: 700; }
+
+  /* Content area to the right of the sidebar */
+  main { margin: 0 0 0 var(--nav-w); max-width: none; padding: 24px 32px 40px; }
+  .tab.active { max-width: 1240px; }
+  .card { padding: 20px 22px; }
+  .card h2 { font-size: 20px; }
+  .card > p.muted { max-width: 860px; }
+  .seg { max-width: 640px; }
+  .chips, .day-chips { flex-wrap: wrap; overflow: visible; }
+  .chip:hover:not(.active) { border-color: #94a3b8; background: #f8fafc; }
+  .day-chip:hover:not(.active) { border-color: #94a3b8; }
+
+  /* Card lists: 2 columns (3 on wide screens); category headings span the row */
+  .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+  .list > .cat-head { grid-column: 1 / -1; margin-top: 10px; }
+  .list > .card { grid-column: 1 / -1; }
+  .list > .fav-kind { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+  .fav-kind > .fav-kind-head, .fav-kind > .cat-head { grid-column: 1 / -1; }
+  .resto:hover, .opt:hover { box-shadow: 0 6px 18px rgba(15, 23, 42, .09); }
+  .plat-row { flex-wrap: wrap; }
+  .plat-row .dd-btn { flex: 1 1 auto; min-width: 118px; font-size: 13px; padding: 10px 10px; white-space: nowrap; }
+  .dd-btn:hover, .btn:hover, .link-btn:hover, .chat-pick:hover, .store-btn:hover, .explore-btn:hover { filter: brightness(.95); }
+
+  /* Week: the two options of each meal side by side */
+  .meal-block { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .meal-block .meal-head { grid-column: 1 / -1; margin-bottom: 0; }
+  .meal-block .opt { margin-bottom: 0; }
+  .day-plan-cols { display: grid; }
+
+  /* Chat: a comfortable reading column */
+  #tab-chat.active { max-width: 860px; }
+  .bubble { max-width: 78%; font-size: 15.5px; }
+  .chat-input {
+    left: calc(var(--nav-w) + 32px); right: auto; width: min(860px, calc(100vw - var(--nav-w) - 64px));
+    max-width: none; margin: 0; bottom: 0; padding: 12px 0 22px;
+    background: linear-gradient(to top, var(--bg) 75%, rgba(241,245,249,0)); backdrop-filter: none;
+  }
+  .chat-input input { padding: 13px 18px; }
+  .chat-input button { padding: 0 22px; }
+  .chat-input button:hover { background: var(--teal-dark); }
+
+  /* Settings: centered dialog instead of a bottom sheet */
+  .sheet { align-items: center; }
+  .sheet-inner { border-radius: 20px; max-width: 560px; padding: 24px 26px 26px; animation: fade .2s ease; }
+
+  /* Allergy card reads better with room */
+  .allergy-card .lead { font-size: 17px; }
+}
+@media (min-width: 1400px) {
+  .list, .list > .fav-kind { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
