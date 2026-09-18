@@ -238,13 +238,47 @@ function renderFacts() {
     FACTS.map(f => `<li>${escapeHtml(f)}</li>`).join("");
 }
 
-let currentMeal = "breakfast";
+let currentMeal = "all";   // "all" shows every restaurant once; meals are optional filters
 
 const MEAL_LABEL = {
+  all: "All meals",
   breakfast: "Breakfast & brunch",
   lightLunch: "Light lunch",
   dinner: "Late lunch & dinner",
 };
+const MEAL_SHORT = { breakfast: "🍳 Breakfast", lightLunch: "🥗 Lunch", dinner: "🍽️ Dinner" };
+const MEAL_KEYS = ["breakfast", "lightLunch", "dinner"];
+
+// The "All meals" view: every restaurant once, dishes merged across the meals
+// it appears in, filed under the first category it was listed in. Built once.
+let ALL_MENU_CACHE = null;
+function menuCategoriesFor(meal) {
+  if (meal !== "all") return (ORDER_MENU && ORDER_MENU[meal]) || [];
+  if (ALL_MENU_CACHE) return ALL_MENU_CACHE;
+  const key = r => (r.name + "|" + r.area).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const byKey = new Map(), cats = new Map();
+  MEAL_KEYS.forEach(m => (ORDER_MENU[m] || []).forEach(c => c.restaurants.forEach(r => {
+    const k = key(r);
+    if (!byKey.has(k)) {
+      const copy = Object.assign({}, r, { safeDishes: (r.safeDishes || []).slice(), platforms: (r.platforms || []).slice(), meals: [m] });
+      byKey.set(k, copy);
+      if (!cats.has(c.category)) cats.set(c.category, []);
+      cats.get(c.category).push(copy);
+    } else {
+      const ex = byKey.get(k);
+      if (!ex.meals.includes(m)) ex.meals.push(m);
+      (r.safeDishes || []).forEach(d => { if (!ex.safeDishes.some(x => x.dish.toLowerCase() === d.dish.toLowerCase())) ex.safeDishes.push(d); });
+      (r.platforms || []).forEach(p => { if (!ex.platforms.includes(p)) ex.platforms.push(p); });
+      if (ex.rating == null && r.rating != null) { ex.rating = r.rating; ex.reviews = r.reviews; ex.ratingSrc = r.ratingSrc; }
+    }
+  })));
+  ALL_MENU_CACHE = [...cats.entries()].map(([category, restaurants]) => ({ category, restaurants }));
+  return ALL_MENU_CACHE;
+}
+function mealTags(r) {
+  if (!r.meals || currentMeal !== "all") return "";
+  return `<span class="meal-tags">${r.meals.map(m => `<span class="meal-tag">${MEAL_SHORT[m] || m}</span>`).join("")}</span>`;
+}
 
 function restaurantMatches(r, q) {
   if (!q) return true;
@@ -312,7 +346,7 @@ function restaurantCard(r) {
     <div class="resto">
       ${favBtn(id)}
       <div class="resto-head"><h3>${escapeHtml(r.name)}</h3></div>
-      <div class="resto-rating">${area}${ratingBadge(r)}${openBadge(r)}${newTag(r)}</div>
+      <div class="resto-rating">${area}${ratingBadge(r)}${openBadge(r)}${newTag(r)}${mealTags(r)}</div>
       <ul class="dishes">${dishes}</ul>
       ${watch}
       ${platformButtons(r)}
@@ -332,7 +366,8 @@ let currentCuisine = null; // null = all cuisines
 function renderCuisineChips() {
   const el = document.getElementById("cuisineChips");
   if (!el) return;
-  const cats = ((ORDER_MENU && ORDER_MENU[currentMeal]) || []).map(c => c.category);
+  const cats = menuCategoriesFor(currentMeal).map(c => c.category);
+  if (currentCuisine && !cats.includes(currentCuisine)) currentCuisine = null;
   const chip = (label, val, active) =>
     `<button class="chip${active ? " active" : ""}" data-cuisine="${val === null ? "" : escapeHtml(val)}">${escapeHtml(label)}</button>`;
   el.innerHTML = chip("All", null, currentCuisine === null) +
@@ -348,7 +383,7 @@ function renderRestaurants(filter = "") {
   const q = filter.trim().toLowerCase();
   const el = document.getElementById("restoList");
   const meta = document.getElementById("restoMeta");
-  const categories = ((ORDER_MENU && ORDER_MENU[currentMeal]) || [])
+  const categories = menuCategoriesFor(currentMeal)
     .filter(c => !currentCuisine || c.category === currentCuisine);
 
   let count = 0;
@@ -364,7 +399,7 @@ function renderRestaurants(filter = "") {
   meta.textContent = `${scope}${MEAL_LABEL[currentMeal]} · ${count} spot${count === 1 ? "" : "s"} · open-now is from your device time`;
 
   if (!count) {
-    el.innerHTML = `<div class="card muted">No matches here. Try another cuisine, meal tab, or a term like "chicken" or "poke".</div>`;
+    el.innerHTML = `<div class="card muted">No matches here. Try another cuisine, switch to <b>All meals</b>, or a term like "chicken" or "poke".</div>`;
     return;
   }
   el.innerHTML = html;
