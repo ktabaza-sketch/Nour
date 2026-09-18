@@ -32,21 +32,21 @@
   </div>
 
   <main>
-    <!-- CHECK TAB -->
-    <section id="tab-check" class="tab active">
-      <div class="card">
-        <h2>Is this safe to eat?</h2>
-        <p class="muted">Paste a menu item's description or an ingredients list. I'll flag <b>red meat, dairy and wheat</b> — including hidden ones like gelatin, whey and soy sauce.</p>
-        <textarea id="checkInput" rows="4" placeholder="e.g. Teriyaki chicken bowl with rice, broccoli, sesame, and a side of miso soup…"></textarea>
-        <div class="btn-row">
-          <button id="checkBtn" class="btn primary">Check it</button>
-          <button id="clearBtn" class="btn ghost">Clear</button>
+    <!-- CHAT TAB (Mama) -->
+    <section id="tab-chat" class="tab active">
+      <div class="card chat-head">
+        <div class="avatar-lg" aria-hidden="true">💛</div>
+        <div>
+          <h2>Mama</h2>
+          <p class="status" id="chatStatus">here till you order · offline-ready</p>
         </div>
       </div>
-      <div id="verdict" class="verdict" hidden></div>
-      <div class="card tips-card">
-        <h3>Quick facts</h3>
-        <ul id="factsList" class="facts"></ul>
+      <div id="chatLog" class="chat-log" aria-live="polite"></div>
+      <div id="chatChips" class="chat-chips"></div>
+      <div id="chatEnd"></div>
+      <div class="chat-input">
+        <input id="chatInput" type="text" placeholder="Talk to me, habibti… or paste a dish to check" autocomplete="off" enterkeyhint="send" />
+        <button id="chatSend" aria-label="Send">➤</button>
       </div>
     </section>
 
@@ -198,13 +198,18 @@
         <input type="checkbox" id="setGluten" />
         <span><strong>Strict gluten-free</strong><br /><span class="muted small">Also flag barley, rye, malt and oats that aren't certified gluten-free. Off by default — wheat is the allergy, not gluten.</span></span>
       </label>
+      <label class="field">
+        <strong>Chat: Claude API key (optional)</strong><br />
+        <span class="muted small">Mama already works offline with quick replies. Add a key from console.anthropic.com and she becomes fully conversational — free-typed messages go straight from this phone to Anthropic, never through another server.</span>
+        <input id="setApiKey" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" />
+      </label>
       <p class="muted small">Saved on this device only.</p>
     </div>
   </div>
 
   <!-- Bottom nav -->
   <nav class="tabbar">
-    <button class="tab-btn active" data-tab="check"><span>🔍</span>Check</button>
+    <button class="tab-btn active" data-tab="chat"><span>💬</span>Mama</button>
     <button class="tab-btn" data-tab="order"><span>🛵</span>Order</button>
     <button class="tab-btn" data-tab="week"><span>📅</span>Week</button>
     <button class="tab-btn" data-tab="grocery"><span>🛒</span>Grocery</button>
@@ -214,5 +219,6 @@
 
   <script src="data.js"></script>
   <script src="app.js"></script>
+  <script src="chat.js"></script>
 </body>
 </html>

@@ -13,17 +13,30 @@ Built for a Stanford student. Works offline once installed.
 
 ## What it does
 
-- **🔍 Check** — Paste a menu description or ingredient list. The app scans for
-  red meat, dairy and wheat (including hidden forms like gelatin, whey and
-  soy sauce) and returns a clear **Avoid / Check first / Looks safe** verdict,
-  listing every flagged word and *why*.
+- **💬 Mama** — The first tab is a chat companion that talks like a caring mom.
+  It knows the time, Nour's class schedule and where she lives (EVGR A), so it
+  opens with the right question ("BIOE 44 Lab starts in 6 min — order for
+  after?"), offers three safe spots at a time, writes out exactly what to order
+  and what to put in the allergy note, and stays with her until she taps
+  **I ordered** and **It arrived** (with a box-check list). Any dish or
+  ingredient list typed into the chat is scanned for red meat, dairy and
+  wheat (including hidden forms like gelatin, whey and soy sauce) and answered
+  with a clear **Avoid / Check first / Looks safe** verdict. "Plan my day"
+  shows the day's eating tasks timed around classes. Works offline with quick
+  replies; an optional Claude API key in Settings makes free-typed messages
+  fully conversational (the key stays on the device and calls go straight to
+  Anthropic).
 - **🛵 Order** — Restaurants that deliver to Stanford on DoorDash, Uber Eats
   and Grubhub, ranked by rating, grouped by cuisine, with the exact dishes and
   modifications ("corn tortillas", "tamari, not soy sauce", "no bun") that are
   free of all three allergens. Shows whether each spot is open right now.
 - **📅 Week** — A different two-course plan for every day, rotating weekly and
   tuned to the Palo Alto season, with daily nutrition targets for an 18-year-old
-  and a note explaining how it was built.
+  and a note explaining how it was built. Each day starts with a timing block
+  built from Nour's class schedule (`SCHEDULE` in `data.js`): when to eat
+  breakfast before the first class, when to order so lunch lands at EVGR A as
+  she gets in, when to pack a snack for a back-to-back lab afternoon, and when
+  dinner realistically happens.
 - **🛒 Grocery** — Specific products (direct links) on Whole Foods, Amazon,
   Amazon Fresh, Walmart, Costco, Target, Sprouts, Thrive Market and dozens of
   bakeries, specialty grocers and online shops — verified free of red meat,

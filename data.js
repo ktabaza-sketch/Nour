@@ -50,6 +50,7 @@ const RULES = [
   { terms: ["pasta", "spaghetti", "penne", "fettuccine", "linguine", "lasagna", "ravioli", "gnocchi", "orzo", "macaroni", "ramen", "udon", "somen", "lo mein", "chow mein", "egg noodles", "wonton", "wontons", "dumpling", "dumplings", "gyoza", "potsticker", "pot sticker", "potstickers", "bao", "egg roll", "egg rolls"], category: "Wheat (pasta, noodles & wrappers)", severity: "avoid", reason: "Wheat pasta, wheat noodles or wheat wrappers. Rice noodles, glass noodles, rice-paper rolls and gluten-free pasta are the swaps." },
   { terms: ["breaded", "batter", "battered", "beer batter", "tempura", "katsu", "schnitzel", "fried chicken", "chicken tenders", "chicken nuggets", "nuggets", "fish and chips", "fish & chips", "onion rings", "fried calamari", "fritter", "fritters", "roux", "cream of"], category: "Wheat (breading & batter)", severity: "avoid", reason: "Breading, batter and roux are wheat flour (and 'cream of' soups add dairy). Choose grilled, steamed or roasted." },
   { terms: ["soy sauce", "shoyu", "teriyaki", "hoisin", "ponzu", "unagi sauce", "eel sauce", "yakitori sauce", "sukiyaki", "yakisoba", "seitan"], category: "Hidden wheat (soy-sauce based)", severity: "avoid", reason: "Regular soy sauce is brewed with wheat, so teriyaki, ponzu, hoisin, eel sauce and most poke/stir-fry sauces contain wheat. Ask for tamari (wheat-free) or coconut aminos." },
+  { terms: ["pad see ew", "pad see-ew", "pad siew", "drunken noodles", "pad kee mao", "fried rice", "kung pao", "general tso", "orange chicken", "mongolian", "japchae", "chicken adobo", "char siu", "poke sauce", "stir-fry", "stir fry", "dan dan", "mapo tofu", "kimbap", "bulgogi chicken", "spring roll", "spring rolls", "lettuce cups"], category: "Usually made with soy sauce", severity: "caution", reason: "This dish is normally seasoned with regular soy or oyster sauce (wheat), and some spring rolls use wheat wrappers. Order it only if the kitchen makes it with tamari and a fresh pan; otherwise pick a rice-noodle or curry dish." },
   { terms: ["flour", "tortilla", "tortillas", "wrap", "wraps", "burrito", "quesadilla", "noodle", "noodles", "soba", "pizza", "granola", "oyster sauce", "gochujang", "miso", "worcestershire", "gravy", "stir-fry sauce", "stir fry sauce", "marinade", "marinated", "crispy", "karaage", "falafel", "veggie burger", "imitation crab", "krab", "surimi", "malt", "malt vinegar", "malt extract", "malted", "couscous salad"], category: "Often contains wheat", severity: "caution", reason: "Could go either way: 'flour' means wheat unless it says rice/almond/corn/chickpea; tortillas & wraps must be corn (or lettuce), not flour; a burrito BOWL is fine; noodles must be rice or glass; pizza only with a gluten-free crust; granola/oats need a gluten-free label; oyster sauce, gochujang, miso, gravies, marinades and 'crispy' coatings often hide wheat; falafel & veggie burgers often use flour binder; imitation crab has wheat; malt is barley. Ask or check the label." },
 
   // =============== Cross-contact warnings (personal: maycontain) ===============
@@ -2814,6 +2815,48 @@ const PREP_SERVICES = [
   ] },
 ];
 
+// ---- Where Nour lives and her class schedule ------------------------------
+// Used by the Chat tab and the Week tab to time meals around classes: when to
+// order so food lands at home right after a lecture, when to pack a snack for
+// a long lab, and when dinner realistically happens. Times are 24h local.
+const HOME = {
+  name: "EVGR A",
+  full: "Escondido Village Graduate Residences, Building A",
+  address: "EVGR Building A, Escondido Village, Stanford, CA 94305",
+  note: "Use the saved 'EVGR A' address in the delivery app; meet the driver at the building entrance.",
+};
+
+const SCHEDULE = {
+  term: "Autumn quarter",
+  // Keys match DAY_KEYS in app.js (sun … sat). Empty = no classes that day.
+  classes: {
+    sun: [],
+    mon: [
+      { name: "PWR 2VK", start: "11:30", end: "13:20", where: "Wallenberg Hall" },
+      { name: "Bio 83 (Section)", start: "15:30", end: "16:20", where: "" },
+      { name: "BIOE 44 Lecture", start: "16:30", end: "17:20", where: "" },
+      { name: "UEP Meeting", start: "18:00", end: "19:00", where: "" },
+    ],
+    tue: [
+      { name: "Bio 83 (Lecture)", start: "12:00", end: "13:20", where: "Sapp Center" },
+      { name: "BIOE 44 Lab", start: "13:30", end: "16:20", where: "" },
+      { name: "CME 100 (Lecture)", start: "17:30", end: "19:20", where: "Braun (Geology) Corner, Building 320" },
+    ],
+    wed: [
+      { name: "PWR 2VK", start: "11:30", end: "13:20", where: "Wallenberg Hall" },
+      { name: "BIOE 44 Lecture", start: "16:30", end: "17:20", where: "" },
+      { name: "Tutor Training", start: "18:00", end: "19:00", where: "" },
+    ],
+    thu: [
+      { name: "Bio 83 (Lecture)", start: "12:00", end: "13:20", where: "Sapp Center" },
+      { name: "BIOE 44 Lab", start: "13:30", end: "16:20", where: "" },
+      { name: "CME 100 (Lecture)", start: "17:30", end: "19:20", where: "Braun (Geology) Corner, Building 320" },
+    ],
+    fri: [],
+    sat: [],
+  },
+};
+
 if (typeof module !== "undefined") {
-  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, NUTRITION, GROCERY, GROCERY_ITEMS, STORES, SHOPS, PREP_SERVICES, FACTS };
+  module.exports = { RULES, ORDER_MENU, HOURS, SEASONS, NUTRITION, GROCERY, GROCERY_ITEMS, STORES, SHOPS, PREP_SERVICES, FACTS, HOME, SCHEDULE };
 }
