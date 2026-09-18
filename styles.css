@@ -654,8 +654,8 @@ body.chat-open { padding-bottom: 150px; }
 .perks-list { list-style: none; margin: 0; padding: 0; }
 .perks-list li { padding: 10px 0; border-top: 1px solid var(--line); }
 .perks-list li:first-child { border-top: none; }
-.perk-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 14.5px; }
-.perk-price { font-weight: 800; color: #6d28d9; white-space: nowrap; }
+.perk-head { display: flex; flex-direction: column; gap: 2px; font-size: 14.5px; }
+.perk-price { font-weight: 800; color: #6d28d9; font-size: 13.5px; }
 .perk-benefit { font-size: 13.5px; margin-top: 3px; }
 .perk-verify { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
 .perks-list .link-btn { margin-top: 8px; }

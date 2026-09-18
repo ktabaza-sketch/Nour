@@ -414,6 +414,7 @@ function renderRestaurants(filter = "") {
   const q = filter.trim().toLowerCase();
   const el = document.getElementById("restoList");
   const meta = document.getElementById("restoMeta");
+  if (typeof renderCampusCard === "function") renderCampusCard();
   const categories = menuCategoriesFor(currentMeal)
     .filter(c => !currentCuisine || c.category === currentCuisine);
 
@@ -915,6 +916,30 @@ function renderGrocWeekly() {
     setTimeout(() => { copyBtn.textContent = "📋 Copy list"; }, 1800);
   });
   renderPerks();
+}
+
+// On-campus ordering explainer (Cardinal Dollars), from CAMPUS in data.js.
+// Shown on the Order tab only when the campus category is selected or the
+// list is unfiltered, so it never crowds a cuisine search.
+function renderCampusCard() {
+  const el = document.getElementById("campusCard");
+  if (!el) return;
+  const c = (typeof CAMPUS !== "undefined") ? CAMPUS : null;
+  const show = c && c.app && (currentCuisine == null || /On campus/i.test(currentCuisine));
+  if (!show) { el.innerHTML = ""; return; }
+  el.innerHTML = `
+    <details class="card campus-card"${/On campus/i.test(currentCuisine || "") ? " open" : ""}>
+      <summary><b>🎓 Eating on campus with Cardinal Dollars</b> <span class="muted small">— how it works</span></summary>
+      <p><b>Order ahead:</b> ${escapeHtml(c.how)}</p>
+      <p><b>Cardinal Dollars:</b> ${escapeHtml(c.cardinalDollars)}</p>
+      ${c.lateNight ? `<p><b>Late night near EVGR:</b> ${escapeHtml(c.lateNight)}</p>` : ""}
+      ${c.farmersMarket ? `<p><b>Farmers' market:</b> ${escapeHtml(c.farmersMarket)}</p>` : ""}
+      <div class="links-row">
+        <a class="link-btn" href="${escapeHtml(c.url)}" target="_blank" rel="noopener noreferrer">📱 ${escapeHtml(c.app)}</a>
+        ${c.allergenMenuUrl ? `<a class="link-btn alg" href="${escapeHtml(c.allergenMenuUrl)}" target="_blank" rel="noopener noreferrer">📋 Dining-hall allergen menus</a>` : ""}
+        <a class="link-btn" href="https://rde.stanford.edu/dining-hospitality/cardinal-dollars" target="_blank" rel="noopener noreferrer">💳 Add Cardinal Dollars</a>
+      </div>
+    </details>`;
 }
 
 // "Cut your fees" — student subscription plans, from PERKS in data.js.
