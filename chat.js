@@ -281,8 +281,9 @@ function chooseSpot(key) {
   const html = `Excellent choice 😻 Here's exactly what to order from <b>${escapeHtml(r.name)}</b>:
     <ul class="chat-order">${dishes}</ul>
     ${r.watchOut ? `<p class="chat-skip"><b>Skip:</b> ${escapeHtml(r.watchOut)}</p>` : ""}
+    ${r.allergenCheck ? `<p class="chat-alg">${r.allergenUrl ? "📋" : "ℹ️"} ${escapeHtml(r.allergenCheck)}</p>` : ""}
     <p>In the order notes write: <i>"Allergy: no red meat, no dairy, no wheat — please no cross-contact."</i> Deliver to <b>${escapeHtml(HOME_NAME)}</b>.</p>
-    ${openLine}${platformButtons(r)}
+    ${openLine}${linksRow(r)}${platformButtons(r)}
     <p class="muted small">Tap ✅ once it's placed — I'm not going anywhere.</p>`;
   say(html, orderingChips(), { text: `Order from ${r.name}: ${(r.safeDishes || []).slice(0, 4).map(d => d.dish + (d.note ? " (" + d.note + ")" : "")).join("; ")}.` });
   armNudge();

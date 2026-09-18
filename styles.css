@@ -547,3 +547,16 @@ body.chat-open { padding-bottom: 150px; }
 .field { display: block; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .field input { width: 100%; margin-top: 8px; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 15px; font-family: inherit; }
 .field input:focus { outline: none; border-color: var(--teal); }
+
+/* Website + published allergen list */
+.links-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.link-btn {
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-weight: 700; font-size: 13px;
+  padding: 8px 12px; border-radius: 10px; background: #f1f5f9; color: var(--ink); border: 1px solid var(--line);
+}
+.link-btn.alg { background: #eef2ff; color: #3730a3; border-color: #c7d2fe; }
+.alg-badge { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 1px 8px; }
+.alg-badge.yes { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+.alg-badge.no { background: #f8fafc; color: var(--muted); border: 1px solid var(--line); font-weight: 600; }
+.alg-check { margin: 8px 0 0; font-size: 13px; color: #312e81; background: #eef2ff; padding: 8px 10px; border-radius: 10px; }
+.bubble .chat-alg { font-size: 13px; color: #312e81; background: #eef2ff; padding: 8px 10px; border-radius: 10px; }

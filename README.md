@@ -29,7 +29,12 @@ Built for a Stanford student. Works offline once installed.
 - **🛵 Order** — Restaurants that deliver to Stanford on DoorDash, Uber Eats
   and Grubhub, ranked by rating, grouped by cuisine, with the exact dishes and
   modifications ("corn tortillas", "tamari, not soy sauce", "no bun") that are
-  free of all three allergens. Shows whether each spot is open right now.
+  free of all three allergens. Shows whether each spot is open right now. Each
+  card links the restaurant's own website and, where one is published, its
+  allergen chart / dietary menu, with a one-line note on what that list
+  confirms or contradicts (`website`, `allergenUrl`, `allergenKind`,
+  `allergenCheck`, `allergenDate` in `data.js`). Spots with no published list
+  are marked so Nour knows to say "allergy" when ordering.
 - **📅 Week** — A different two-course plan for every day, rotating weekly and
   tuned to the Palo Alto season, with daily nutrition targets for an 18-year-old
   and a note explaining how it was built. Each day starts with a timing block
