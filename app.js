@@ -336,6 +336,24 @@ function formatCount(n) {
   return n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
 }
 
+// Website + published allergen list, when the restaurant has one. The badge
+// says whether a published list backs the dishes or she has to ask.
+const ALLERGEN_KIND_LABEL = { chart: "allergen chart", pdf: "allergen PDF", "menu filters": "menu with dietary filters", statement: "allergen statement" };
+function allergenBadge(r) {
+  if (r.allergenUrl) return `<span class="alg-badge yes" title="${escapeHtml(r.allergenCheck || "")}">📋 Published ${escapeHtml(ALLERGEN_KIND_LABEL[r.allergenKind] || "allergen list")}</span>`;
+  if (r.allergenDate) return `<span class="alg-badge no" title="Checked ${escapeHtml(r.allergenDate)}: nothing published — tell them it's an allergy when ordering">📋 No published allergen list · ask</span>`;
+  return "";
+}
+function linksRow(r) {
+  const links = [];
+  if (r.website) links.push(`<a class="link-btn" href="${escapeHtml(r.website)}" target="_blank" rel="noopener noreferrer">🌐 Website</a>`);
+  if (r.allergenUrl) links.push(`<a class="link-btn alg" href="${escapeHtml(r.allergenUrl)}" target="_blank" rel="noopener noreferrer">📋 Allergen list</a>`);
+  return links.length ? `<div class="links-row">${links.join("")}</div>` : "";
+}
+function allergenLine(r) {
+  return r.allergenCheck ? `<p class="alg-check">${r.allergenUrl ? "📋" : "ℹ️"} ${escapeHtml(r.allergenCheck)}</p>` : "";
+}
+
 function restaurantCard(r) {
   const id = favId("order", r.name, r.area);
   const area = r.area ? `<span class="area-tag">${escapeHtml(r.area)}</span>` : "";
@@ -346,9 +364,11 @@ function restaurantCard(r) {
     <div class="resto">
       ${favBtn(id)}
       <div class="resto-head"><h3>${escapeHtml(r.name)}</h3></div>
-      <div class="resto-rating">${area}${ratingBadge(r)}${openBadge(r)}${newTag(r)}${mealTags(r)}</div>
+      <div class="resto-rating">${area}${ratingBadge(r)}${openBadge(r)}${newTag(r)}${allergenBadge(r)}${mealTags(r)}</div>
       <ul class="dishes">${dishes}</ul>
+      ${allergenLine(r)}
       ${watch}
+      ${linksRow(r)}
       ${platformButtons(r)}
     </div>`;
 }
